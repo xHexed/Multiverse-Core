@@ -11,6 +11,7 @@ import com.onarandombox.MultiverseCore.MultiverseCore;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import org.bukkit.Material;
 import org.bukkit.PortalType;
+import org.bukkit.entity.Entity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -37,13 +38,32 @@ public class MVPortalListener implements Listener {
      * @param event The event where an entity created a portal.
      */
     @EventHandler
-    public void entityPortalCreate(EntityCreatePortalEvent event) {
+    public void entityPortalCreate(PortalCreateEvent event) {
         if (event.isCancelled() || event.getBlocks().size() == 0) {
             return;
         }
-        MultiverseWorld world = this.plugin.getMVWorldManager().getMVWorld(event.getEntity().getWorld());
-        // We have to do it like this due to a bug in 1.1-R3
-        if (world != null && !world.getAllowedPortals().isPortalAllowed(event.getPortalType())) {
+
+        Entity entity = event.getEntity();
+        if (entity == null) {
+            return;
+        }
+
+        MultiverseWorld world = this.plugin.getMVWorldManager().getMVWorld(entity.getWorld());
+        if (world == null) {
+            return;
+        }
+
+        PortalType type = null;
+        switch (event.getReason()) {
+            case FIRE:
+            case NETHER_PAIR:
+                type = PortalType.NETHER;
+                break;
+            case END_PLATFORM:
+                type = PortalType.ENDER;
+        }
+
+        if (!world.getAllowedPortals().isPortalAllowed(type)) {
             event.setCancelled(true);
         }
     }
