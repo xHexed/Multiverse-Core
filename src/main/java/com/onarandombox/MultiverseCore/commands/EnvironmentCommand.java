@@ -21,18 +21,18 @@ import java.util.List;
  */
 public class EnvironmentCommand extends MultiverseCommand {
 
-    public EnvironmentCommand(MultiverseCore plugin) {
+    public EnvironmentCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("List Environments");
-        this.setCommandUsage("/mv env");
-        this.setArgRange(0, 0);
-        this.addKey("mvenv");
-        this.addKey("mv env");
-        this.addKey("mv type");
-        this.addKey("mv environment");
-        this.addKey("mv environments");
-        this.addCommandExample("/mv env");
-        this.setPermission("multiverse.core.list.environments", "Lists valid known environments/world types.", PermissionDefault.OP);
+        setName("List Environments");
+        setCommandUsage("/mv env");
+        setArgRange(0, 0);
+        addKey("mvenv");
+        addKey("mv env");
+        addKey("mv type");
+        addKey("mv environment");
+        addKey("mv environments");
+        addCommandExample("/mv env");
+        setPermission("multiverse.core.list.environments", "Lists valid known environments/world types.", PermissionDefault.OP);
     }
 
     /**
@@ -40,27 +40,22 @@ public class EnvironmentCommand extends MultiverseCommand {
      *
      * @param sender The {@link CommandSender}.
      */
-    public static void showEnvironments(CommandSender sender) {
+    public static void showEnvironments(final CommandSender sender) {
         sender.sendMessage(ChatColor.YELLOW + "Valid Environments are:");
         sender.sendMessage(ChatColor.GREEN + "NORMAL");
         sender.sendMessage(ChatColor.RED + "NETHER");
         sender.sendMessage(ChatColor.AQUA + "END");
     }
+
     /**
      * Shows all valid known world types to a {@link CommandSender}.
      *
      * @param sender The {@link CommandSender}.
      */
-    public static void showWorldTypes(CommandSender sender) {
+    public static void showWorldTypes(final CommandSender sender) {
         sender.sendMessage(ChatColor.YELLOW + "Valid World Types are:");
         sender.sendMessage(String.format("%sNORMAL%s, %sFLAT, %sLARGEBIOMES %sor %sVERSION_1_1",
-                ChatColor.GREEN, ChatColor.WHITE, ChatColor.AQUA, ChatColor.RED, ChatColor.WHITE, ChatColor.GOLD));
-    }
-
-    @Override
-    public void runCommand(CommandSender sender, List<String> args) {
-        EnvironmentCommand.showEnvironments(sender);
-        EnvironmentCommand.showWorldTypes(sender);
+                                         ChatColor.GREEN, ChatColor.WHITE, ChatColor.AQUA, ChatColor.RED, ChatColor.WHITE, ChatColor.GOLD));
     }
 
     /**
@@ -84,7 +79,8 @@ public class EnvironmentCommand extends MultiverseCommand {
             // Now that we've converted a potentially unfriendly value
             // to a friendly one, get it from the ENUM!
             return WorldType.valueOf(type);
-        } catch (IllegalArgumentException e) {
+        }
+        catch (final IllegalArgumentException e) {
             return null;
         }
     }
@@ -111,8 +107,15 @@ public class EnvironmentCommand extends MultiverseCommand {
             // Now that we've converted a potentially unfriendly value
             // to a friendly one, get it from the ENUM!
             return World.Environment.valueOf(env);
-        } catch (IllegalArgumentException e) {
+        }
+        catch (final IllegalArgumentException e) {
             return null;
         }
+    }
+
+    @Override
+    public void runCommand(final CommandSender sender, final List<String> args) {
+        EnvironmentCommand.showEnvironments(sender);
+        EnvironmentCommand.showWorldTypes(sender);
     }
 }

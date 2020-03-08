@@ -24,68 +24,71 @@ import java.util.List;
  * Removes a type of mob from a world.
  */
 public class PurgeCommand extends MultiverseCommand {
-    private MVWorldManager worldManager;
+    private final MVWorldManager worldManager;
 
-    public PurgeCommand(MultiverseCore plugin) {
+    public PurgeCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Purge World of Creatures");
-        this.setCommandUsage("/mv purge" + ChatColor.GOLD + " [WORLD|all] " + ChatColor.GREEN + "{all|animals|monsters|MOBNAME}");
-        this.setArgRange(1, 2);
-        this.addKey("mvpurge");
-        this.addKey("mv purge");
-        this.addCommandExample("/mv purge " + ChatColor.GREEN + "all");
-        this.addCommandExample("/mv purge " + ChatColor.GOLD + "all " + ChatColor.GREEN + "all");
-        this.addCommandExample("/mv purge " + ChatColor.GREEN + "monsters");
-        this.addCommandExample("/mv purge " + ChatColor.GOLD + "all " + ChatColor.GREEN + "animals");
-        this.addCommandExample("/mv purge " + ChatColor.GOLD + "MyWorld " + ChatColor.GREEN + "squid");
-        this.addCommandExample("/mv purge " + ChatColor.GOLD + "MyWorld_nether " + ChatColor.GREEN + "ghast");
-        this.setPermission("multiverse.core.purge", "Removed the specified type of mob from the specified world.", PermissionDefault.OP);
-        this.worldManager = this.plugin.getMVWorldManager();
+        setName("Purge World of Creatures");
+        setCommandUsage("/mv purge" + ChatColor.GOLD + " [WORLD|all] " + ChatColor.GREEN + "{all|animals|monsters|MOBNAME}");
+        setArgRange(1, 2);
+        addKey("mvpurge");
+        addKey("mv purge");
+        addCommandExample("/mv purge " + ChatColor.GREEN + "all");
+        addCommandExample("/mv purge " + ChatColor.GOLD + "all " + ChatColor.GREEN + "all");
+        addCommandExample("/mv purge " + ChatColor.GREEN + "monsters");
+        addCommandExample("/mv purge " + ChatColor.GOLD + "all " + ChatColor.GREEN + "animals");
+        addCommandExample("/mv purge " + ChatColor.GOLD + "MyWorld " + ChatColor.GREEN + "squid");
+        addCommandExample("/mv purge " + ChatColor.GOLD + "MyWorld_nether " + ChatColor.GREEN + "ghast");
+        setPermission("multiverse.core.purge", "Removed the specified type of mob from the specified world.", PermissionDefault.OP);
+        worldManager = this.plugin.getMVWorldManager();
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         Player p = null;
         if (sender instanceof Player) {
             p = (Player) sender;
         }
         if (args.size() == 1 && p == null) {
             sender.sendMessage("This command requires a WORLD when being run from the console!");
-            sender.sendMessage(this.getCommandUsage());
+            sender.sendMessage(getCommandUsage());
             return;
         }
-        String worldName = null;
-        String deathName = null;
+        final String worldName;
+        final String deathName;
         if (args.size() == 1) {
             worldName = p.getWorld().getName();
             deathName = args.get(0);
-        } else {
+        }
+        else {
             worldName = args.get(0);
             deathName = args.get(1);
         }
 
-        if (!worldName.equalsIgnoreCase("all") && !this.worldManager.isMVWorld(worldName)) {
-            this.plugin.showNotMVWorldMessage(sender, worldName);
+        if (!worldName.equalsIgnoreCase("all") && !worldManager.isMVWorld(worldName)) {
+            plugin.showNotMVWorldMessage(sender, worldName);
             sender.sendMessage("It cannot be purged.");
             return;
         }
 
-        List<MultiverseWorld> worldsToRemoveEntitiesFrom = new ArrayList<MultiverseWorld>();
+        final List<MultiverseWorld> worldsToRemoveEntitiesFrom = new ArrayList<>();
         // Handle all case any user who names a world "all" should know better...
         if (worldName.equalsIgnoreCase("all")) {
-            worldsToRemoveEntitiesFrom.addAll(this.worldManager.getMVWorlds());
-        } else {
-            worldsToRemoveEntitiesFrom.add(this.worldManager.getMVWorld(worldName));
+            worldsToRemoveEntitiesFrom.addAll(worldManager.getMVWorlds());
+        }
+        else {
+            worldsToRemoveEntitiesFrom.add(worldManager.getMVWorld(worldName));
         }
 
-        WorldPurger purger = this.worldManager.getTheWorldPurger();
-        ArrayList<String> thingsToKill = new ArrayList<String>();
+        final WorldPurger purger = worldManager.getTheWorldPurger();
+        final ArrayList<String> thingsToKill = new ArrayList<>();
         if (deathName.equalsIgnoreCase("all") || deathName.equalsIgnoreCase("animals") || deathName.equalsIgnoreCase("monsters")) {
             thingsToKill.add(deathName.toUpperCase());
-        } else {
+        }
+        else {
             Collections.addAll(thingsToKill, deathName.toUpperCase().split(","));
         }
-        for (MultiverseWorld w : worldsToRemoveEntitiesFrom) {
+        for (final MultiverseWorld w : worldsToRemoveEntitiesFrom) {
             purger.purgeWorld(w, thingsToKill, false, false, sender);
         }
     }

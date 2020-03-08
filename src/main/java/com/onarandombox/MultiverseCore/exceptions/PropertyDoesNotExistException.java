@@ -11,11 +11,11 @@ package com.onarandombox.MultiverseCore.exceptions;
  * Thrown when a world-property doesn't exist.
  */
 public class PropertyDoesNotExistException extends Exception {
-    public PropertyDoesNotExistException(String name) {
+    public PropertyDoesNotExistException(final String name) {
         super(name);
     }
 
-    public PropertyDoesNotExistException(String name, Throwable cause) {
+    public PropertyDoesNotExistException(final String name, final Throwable cause) {
         super(name, cause);
     }
 }

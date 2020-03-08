@@ -42,7 +42,7 @@ public class WorldProperties extends SerializationConfig {
     private static final Map<String, String> PROPERTY_ALIASES;
 
     static {
-        PROPERTY_ALIASES = new HashMap<String, String>();
+        PROPERTY_ALIASES = new HashMap<>();
         PROPERTY_ALIASES.put("curr", "entryfee.currency");
         PROPERTY_ALIASES.put("currency", "entryfee.currency");
         PROPERTY_ALIASES.put("price", "entryfee.amount");
@@ -68,9 +68,9 @@ public class WorldProperties extends SerializationConfig {
 
     private final boolean keepSpawnFallback;
 
-    public WorldProperties(Map<String, Object> values) {
+    public WorldProperties(final Map<String, Object> values) {
         super(values);
-        Object keepSpawnObject = values.get("keepSpawnInMemory");
+        final Object keepSpawnObject = values.get("keepSpawnInMemory");
         keepSpawnFallback = keepSpawnObject == null || Boolean.parseBoolean(keepSpawnObject.toString());
     }
 
@@ -82,161 +82,49 @@ public class WorldProperties extends SerializationConfig {
     public WorldProperties(final boolean fixSpawn, final Environment environment) {
         super();
         if (!fixSpawn) {
-            this.adjustSpawn = false;
+            adjustSpawn = false;
         }
         setScaling(getDefaultScale(environment));
         keepSpawnFallback = true;
     }
 
-    void setMVWorld(MVWorld world) {
+    private static double getDefaultScale(final Environment environment) {
+        if (environment == Environment.NETHER) {
+            return 8.0; // SUPPRESS CHECKSTYLE: MagicNumberCheck
+        }
+        else if (environment == Environment.THE_END) {
+            return 16.0; // SUPPRESS CHECKSTYLE: MagicNumberCheck
+        }
+        return 1.0;
+    }
+
+    void setMVWorld(final MVWorld world) {
         registerObjectUsing(world);
         registerGlobalValidator(new WorldPropertyValidator());
     }
 
-    /**
-     * Serializor for the color-property.
-     */
-    private static final class EnumPropertySerializor<T extends Enum<T>> implements Serializor<T, String> {
-        @Override
-        public String serialize(T from) {
-            return from.toString();
-        }
-
-        @Override
-        public T deserialize(String serialized, Class<T> wanted) throws IllegalPropertyValueException {
-            try {
-                return Enum.valueOf(wanted, serialized.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalPropertyValueException(e);
-            }
-        }
+    void setValidator(final String fieldName, final Validator validator) {
+        registerValidator(fieldName, validator);    //To change body of overridden methods use File | Settings | File Templates.
     }
 
     /**
-     * Serializor for the difficulty-property.
+     * {@inheritDoc}
      */
-    private static final class DifficultyPropertySerializor implements Serializor<Difficulty, String> {
-        @Override
-        public String serialize(Difficulty from) {
-            return from.toString();
-        }
-
-        @Override
-        public Difficulty deserialize(String serialized, Class<Difficulty> wanted) throws IllegalPropertyValueException {
-            try {
-                return Difficulty.getByValue(Integer.parseInt(serialized));
-            } catch (Exception e) {
-            }
-            try {
-                return Difficulty.valueOf(serialized.toUpperCase());
-            } catch (Exception e) {
-            }
-            throw new IllegalPropertyValueException();
-        }
+    @Override
+    public void copyValues(final SerializationConfig other) {
+        super.copyValues(other);
     }
 
     /**
-     * Serializor for the gameMode-property.
+     * This prepares the MVWorld for unloading.
      */
-    private static final class GameModePropertySerializor implements Serializor<GameMode, String> {
-        @Override
-        public String serialize(GameMode from) {
-            return from.toString();
+    public void cacheVirtualProperties() {
+        try {
+            buildVPropChanges();
         }
-
-        @Override
-        public GameMode deserialize(String serialized, Class<GameMode> wanted) throws IllegalPropertyValueException {
-            try {
-                return GameMode.getByValue(Integer.parseInt(serialized));
-            } catch (NumberFormatException nfe) {
-            }
-            try {
-                return GameMode.valueOf(serialized.toUpperCase());
-            } catch (Exception e) {
-            }
-            throw new IllegalPropertyValueException();
+        catch (final IllegalStateException e) {
+            // do nothing
         }
-    }
-
-    /**
-     * Serializor for the time-property.
-     */
-    private static final class TimePropertySerializor implements Serializor<Long, String> {
-        // BEGIN CHECKSTYLE-SUPPRESSION: MagicNumberCheck
-        private static final String TIME_REGEX = "(\\d\\d?):?(\\d\\d)(a|p)?m?";
-        private static final  Map<String, String> TIME_ALIASES;
-        static {
-            Map<String, String> staticTimes = new HashMap<String, String>();
-            staticTimes.put("morning", "8:00");
-            staticTimes.put("day", "12:00");
-            staticTimes.put("noon", "12:00");
-            staticTimes.put("midnight", "0:00");
-            staticTimes.put("night", "20:00");
-
-            // now set TIME_ALIASES to a "frozen" map
-            TIME_ALIASES = Collections.unmodifiableMap(staticTimes);
-        }
-
-        @Override
-        public String serialize(Long from) {
-            // I'm tired, so they get time in 24 hour for now.
-            // Someone else can add 12 hr format if they want :P
-
-            int hours = (int) ((from / 1000 + 8) % 24);
-            int minutes = (int) (60 * (from % 1000) / 1000);
-
-            return String.format("%d:%02d", hours, minutes);
-        }
-
-        @Override
-        public Long deserialize(String serialized, Class<Long> wanted) throws IllegalPropertyValueException {
-            if (TIME_ALIASES.containsKey(serialized.toLowerCase())) {
-                serialized = TIME_ALIASES.get(serialized.toLowerCase());
-            }
-            // Regex that extracts a time in the following formats:
-            // 11:11pm, 11:11, 23:11, 1111, 1111p, and the aliases at the top of this file.
-            Pattern pattern = Pattern.compile(TIME_REGEX, Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(serialized);
-            matcher.find();
-            int hour = 0;
-            double minute = 0;
-            int count = matcher.groupCount();
-            if (count >= 2) {
-                hour = Integer.parseInt(matcher.group(1));
-                minute = Integer.parseInt(matcher.group(2));
-            }
-            // If there were 4 matches (all, hour, min, am/pm)
-            if (count == 4) {
-                // We want 24 hour time for calcs, but if they
-                // added a p[m], turn it into a 24 hr one.
-                if (matcher.group(3).equals("p")) {
-                    hour += 12;
-                }
-            }
-            // Translate 24th hour to 0th hour.
-            if (hour == 24) {
-                hour = 0;
-            }
-            // Clamp the hour
-            if (hour > 23 || hour < 0) {
-                throw new IllegalPropertyValueException("Illegal hour!");
-            }
-            // Clamp the minute
-            if (minute > 59 || minute < 0) {
-                throw new IllegalPropertyValueException("Illegal minute!");
-            }
-            // 60 seconds in a minute, time needs to be in hrs * 1000, per
-            // the bukkit docs.
-            double totaltime = (hour + (minute / 60.0)) * 1000;
-            // Somehow there's an 8 hour offset...
-            totaltime -= 8000;
-            if (totaltime < 0) {
-                totaltime = 24000 + totaltime;
-            }
-
-            return (long) totaltime;
-        }
-        // END CHECKSTYLE-SUPPRESSION: MagicNumberCheck
     }
 
     // --------------------------------------------------------------
@@ -303,68 +191,53 @@ public class WorldProperties extends SerializationConfig {
     // End of properties
     // --------------------------------------------------------------
 
-    void setValidator(String fieldName, Validator validator) {
-        registerValidator(fieldName, validator);    //To change body of overridden methods use File | Settings | File Templates.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void copyValues(SerializationConfig other) {
-        super.copyValues(other);
-    }
-
-    /**
-     * This prepares the MVWorld for unloading.
-     */
-    public void cacheVirtualProperties() {
-        try {
-            this.buildVPropChanges();
-        } catch (IllegalStateException e) {
-            // do nothing
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
     protected void setDefaults() {
-        this.hidden = false;
-        this.alias = new String();
-        this.color = EnglishChatColor.WHITE;
-        this.style = EnglishChatStyle.NORMAL;
-        this.scale = 1D;
-        this.respawnWorld = new String();
-        this.allowWeather = true;
-        this.spawning = new SpawnSettings();
-        this.entryfee = new EntryFee();
-        this.hunger = true;
-        this.autoHeal = true;
-        this.adjustSpawn = true;
-        this.portalForm = AllowedPortalType.ALL;
-        this.gameMode = GameMode.SURVIVAL;
-        this.spawnLocation = new NullLocation();
-        this.autoLoad = true;
-        this.bedRespawn = true;
-        this.worldBlacklist = new ArrayList<String>();
-        this.generator = null;
-        this.playerLimit = -1;
-        this.allowFlight = true;
+        hidden         = false;
+        alias          = "";
+        color          = EnglishChatColor.WHITE;
+        style          = EnglishChatStyle.NORMAL;
+        scale          = 1D;
+        respawnWorld   = "";
+        allowWeather   = true;
+        spawning       = new SpawnSettings();
+        entryfee       = new EntryFee();
+        hunger         = true;
+        autoHeal       = true;
+        adjustSpawn    = true;
+        portalForm     = AllowedPortalType.ALL;
+        gameMode       = GameMode.SURVIVAL;
+        spawnLocation  = new NullLocation();
+        autoLoad       = true;
+        bedRespawn     = true;
+        worldBlacklist = new ArrayList<>();
+        generator      = null;
+        playerLimit    = -1;
+        allowFlight    = true;
     }
 
-    private static double getDefaultScale(Environment environment) {
-        if (environment == Environment.NETHER) {
-            return 8.0; // SUPPRESS CHECKSTYLE: MagicNumberCheck
-        } else if (environment == Environment.THE_END) {
-            return 16.0; // SUPPRESS CHECKSTYLE: MagicNumberCheck
-        }
-        return 1.0;
+    void flushChanges() {
+        flushPendingVPropChanges();
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(final String alias) {
+        setPropertyValueUnchecked("alias", alias);
+    }
+
+    public Environment getEnvironment() {
+        return environment;
     }
 
     /**
      * getAliases().
+     *
      * @return The alias-map.
      * @see SerializationConfig
      */
@@ -372,166 +245,150 @@ public class WorldProperties extends SerializationConfig {
         return PROPERTY_ALIASES;
     }
 
-    void flushChanges() {
-        this.flushPendingVPropChanges();
-    }
-
-    public String getAlias() {
-        return this.alias;
-    }
-
-    public void setAlias(String alias) {
-        this.setPropertyValueUnchecked("alias", alias);
-    }
-
-    public Environment getEnvironment() {
-        return this.environment;
-    }
-
-    public void setEnvironment(Environment environment) {
-        this.setPropertyValueUnchecked("environment", environment);
+    public void setEnvironment(final Environment environment) {
+        setPropertyValueUnchecked("environment", environment);
     }
 
     public long getSeed() {
-        return this.seed;
+        return seed;
     }
 
-    public void setSeed(long seed) {
-        this.setPropertyValueUnchecked("seed", seed);
+    public void setSeed(final long seed) {
+        setPropertyValueUnchecked("seed", seed);
     }
 
     public String getGenerator() {
-        return this.generator;
+        return generator;
     }
 
-    public void setGenerator(String generator) {
-        this.setPropertyValueUnchecked("generator", generator);
+    public void setGenerator(final String generator) {
+        setPropertyValueUnchecked("generator", generator);
     }
 
     public int getPlayerLimit() {
-        return this.playerLimit;
+        return playerLimit;
     }
 
-    public void setPlayerLimit(int limit) {
-        this.setPropertyValueUnchecked("playerLimit", limit);
+    public void setPlayerLimit(final int limit) {
+        setPropertyValueUnchecked("playerLimit", limit);
     }
 
     public boolean canAnimalsSpawn() {
-        return this.spawning.getAnimalSettings().doSpawn();
+        return spawning.getAnimalSettings().doSpawn();
     }
 
-    public void setAllowAnimalSpawn(boolean animals) {
-        this.setPropertyValueUnchecked("spawning.animals.spawn", animals);
+    public void setAllowAnimalSpawn(final boolean animals) {
+        setPropertyValueUnchecked("spawning.animals.spawn", animals);
     }
 
     public List<String> getAnimalList() {
         // These don't fire events at the moment. Should they?
-        return this.spawning.getAnimalSettings().getExceptions();
+        return spawning.getAnimalSettings().getExceptions();
     }
 
     public boolean canMonstersSpawn() {
-        return this.spawning.getMonsterSettings().doSpawn();
+        return spawning.getMonsterSettings().doSpawn();
     }
 
-    public void setAllowMonsterSpawn(boolean monsters) {
-        this.setPropertyValueUnchecked("spawning.monsters.spawn", monsters);
+    public void setAllowMonsterSpawn(final boolean monsters) {
+        setPropertyValueUnchecked("spawning.monsters.spawn", monsters);
     }
 
     public int getAnimalSpawnRate() {
-        return this.spawning.getAnimalSettings().getSpawnRate();
+        return spawning.getAnimalSettings().getSpawnRate();
     }
 
     public int getMonsterSpawnRate() {
-        return this.spawning.getMonsterSettings().getSpawnRate();
+        return spawning.getMonsterSettings().getSpawnRate();
     }
 
     public List<String> getMonsterList() {
         // These don't fire events at the moment. Should they?
-        return this.spawning.getMonsterSettings().getExceptions();
+        return spawning.getMonsterSettings().getExceptions();
     }
 
     public boolean isPVPEnabled() {
-        return this.pvp.get();
+        return pvp.get();
     }
 
-    public void setPVPMode(boolean pvp) {
-        this.setPropertyValueUnchecked("pvp", pvp);
+    public void setPVPMode(final boolean pvp) {
+        setPropertyValueUnchecked("pvp", pvp);
     }
 
     public boolean isHidden() {
-        return this.hidden;
+        return hidden;
     }
 
-    public void setHidden(boolean hidden) {
-        this.setPropertyValueUnchecked("hidden", hidden);
+    public void setHidden(final boolean hidden) {
+        setPropertyValueUnchecked("hidden", hidden);
     }
 
     public List<String> getWorldBlacklist() {
-        return this.worldBlacklist;
+        return worldBlacklist;
     }
 
     public double getScaling() {
-        return this.scale;
+        return scale;
     }
 
-    public boolean setScaling(double scaling) {
-        return this.setPropertyValueUnchecked("scale", scaling);
+    public boolean setScaling(final double scaling) {
+        return setPropertyValueUnchecked("scale", scaling);
     }
 
-    public boolean setColor(String aliasColor) {
-        return this.setPropertyUnchecked("color", aliasColor);
+    public boolean setColor(final String aliasColor) {
+        return setPropertyUnchecked("color", aliasColor);
     }
 
-    public boolean setColor(EnglishChatColor color) {
-        return this.setPropertyValueUnchecked("color", color);
+    public boolean setColor(final EnglishChatColor color) {
+        return setPropertyValueUnchecked("color", color);
     }
 
     public EnglishChatColor getColor() {
-        return this.color;
+        return color;
     }
 
     public String getRespawnToWorld() {
-        return this.respawnWorld;
+        return respawnWorld;
     }
 
-    public boolean setRespawnToWorld(String respawnToWorld) {
-        return this.setPropertyValueUnchecked("respawnWorld", respawnToWorld);
+    public boolean setRespawnToWorld(final String respawnToWorld) {
+        return setPropertyValueUnchecked("respawnWorld", respawnToWorld);
     }
 
     public Material getCurrency() {
-        return this.entryfee.getCurrency();
+        return entryfee.getCurrency();
     }
 
-    public void setCurrency(@Nullable Material currency) {
-        this.setPropertyValueUnchecked("entryfee.currency", currency);
+    public void setCurrency(@Nullable final Material currency) {
+        setPropertyValueUnchecked("entryfee.currency", currency);
     }
 
     public double getPrice() {
-        return this.entryfee.getAmount();
+        return entryfee.getAmount();
     }
 
-    public void setPrice(double price) {
-        this.setPropertyValueUnchecked("entryfee.amount", price);
+    public void setPrice(final double price) {
+        setPropertyValueUnchecked("entryfee.amount", price);
     }
 
-    public boolean setGameMode(String mode) {
-        return this.setPropertyUnchecked("gameMode", mode);
+    public boolean setGameMode(final String mode) {
+        return setPropertyUnchecked("gameMode", mode);
     }
 
-    public boolean setGameMode(GameMode mode) {
-        return this.setPropertyValueUnchecked("gameMode", mode);
+    public boolean setGameMode(final GameMode mode) {
+        return setPropertyValueUnchecked("gameMode", mode);
     }
 
     public GameMode getGameMode() {
-        return this.gameMode;
+        return gameMode;
     }
 
-    public void setEnableWeather(boolean weather) {
-        this.setPropertyValueUnchecked("allowWeather", weather);
+    public void setEnableWeather(final boolean weather) {
+        setPropertyValueUnchecked("allowWeather", weather);
     }
 
     public boolean isWeatherEnabled() {
-        return this.allowWeather;
+        return allowWeather;
     }
 
     public boolean isKeepingSpawnInMemory() {
@@ -539,82 +396,83 @@ public class WorldProperties extends SerializationConfig {
             return keepSpawnFallback;
         }
         try {
-            return this.keepSpawnInMemory.get();
-        } catch (IllegalStateException e) {
+            return keepSpawnInMemory.get();
+        }
+        catch (final IllegalStateException e) {
             return keepSpawnFallback;
         }
     }
 
-    public void setKeepSpawnInMemory(boolean value) {
-        this.setPropertyValueUnchecked("keepSpawnInMemory", value);
+    public void setKeepSpawnInMemory(final boolean value) {
+        setPropertyValueUnchecked("keepSpawnInMemory", value);
     }
 
     public boolean getHunger() {
-        return this.hunger;
+        return hunger;
     }
 
-    public void setHunger(boolean hunger) {
-        this.setPropertyValueUnchecked("hunger", hunger);
+    public void setHunger(final boolean hunger) {
+        setPropertyValueUnchecked("hunger", hunger);
     }
 
     public Location getSpawnLocation() {
-        return this.spawn.get();
+        return spawn.get();
     }
 
-    public void setSpawnLocation(Location l) {
-        this.setPropertyValueUnchecked("spawn", l);
+    public void setSpawnLocation(final Location l) {
+        setPropertyValueUnchecked("spawn", l);
     }
 
     public Difficulty getDifficulty() {
-        return this.difficulty.get();
+        return difficulty.get();
     }
 
     @Deprecated // SUPPRESS CHECKSTYLE: Deprecated
-    public boolean setDifficulty(String difficulty) {
-        return this.setPropertyUnchecked("difficulty", difficulty);
+    public boolean setDifficulty(final String difficulty) {
+        return setPropertyUnchecked("difficulty", difficulty);
     }
 
-    public boolean setDifficulty(Difficulty difficulty) {
-        return this.setPropertyValueUnchecked("difficulty", difficulty);
+    public boolean setDifficulty(final Difficulty difficulty) {
+        return setPropertyValueUnchecked("difficulty", difficulty);
     }
 
     public boolean getAutoHeal() {
-        return this.autoHeal;
+        return autoHeal;
     }
 
-    public void setAutoHeal(boolean heal) {
-        this.setPropertyValueUnchecked("autoHeal", heal);
-    }
-
-    public void setAdjustSpawn(boolean adjust) {
-        this.setPropertyValueUnchecked("adjustSpawn", adjust);
+    public void setAutoHeal(final boolean heal) {
+        setPropertyValueUnchecked("autoHeal", heal);
     }
 
     public boolean getAdjustSpawn() {
-        return this.adjustSpawn;
+        return adjustSpawn;
     }
 
-    public void setAutoLoad(boolean load) {
-        this.setPropertyValueUnchecked("autoLoad", load);
+    public void setAdjustSpawn(final boolean adjust) {
+        setPropertyValueUnchecked("adjustSpawn", adjust);
     }
 
     public boolean getAutoLoad() {
-        return this.autoLoad;
+        return autoLoad;
     }
 
-    public void setBedRespawn(boolean respawn) {
-        this.setPropertyValueUnchecked("bedRespawn", respawn);
+    public void setAutoLoad(final boolean load) {
+        setPropertyValueUnchecked("autoLoad", load);
     }
 
     public boolean getBedRespawn() {
-        return this.bedRespawn;
+        return bedRespawn;
+    }
+
+    public void setBedRespawn(final boolean respawn) {
+        setPropertyValueUnchecked("bedRespawn", respawn);
     }
 
     public String getAllPropertyNames() {
         ChatColor myColor = ChatColor.AQUA;
-        StringBuilder result = new StringBuilder();
-        Map<String, Object> serialized = this.serialize();
-        for (String key : serialized.keySet()) {
+        final StringBuilder result = new StringBuilder();
+        final Map<String, Object> serialized = serialize();
+        for (final String key : serialized.keySet()) {
             result.append(myColor).append(key).append(' ');
             myColor = (myColor == ChatColor.AQUA) ? ChatColor.GOLD : ChatColor.AQUA;
         }
@@ -622,34 +480,186 @@ public class WorldProperties extends SerializationConfig {
     }
 
     public String getTime() {
-        return this.getPropertyUnchecked("time");
+        return getPropertyUnchecked("time");
     }
 
-    public boolean setTime(String timeAsString) {
-        return this.setPropertyUnchecked("time", timeAsString);
+    public boolean setTime(final String timeAsString) {
+        return setPropertyUnchecked("time", timeAsString);
+    }
+
+    public void allowPortalMaking(final AllowedPortalType portalType) {
+        setPropertyValueUnchecked("portalForm", portalType);
+    }
+
+    public boolean setStyle(final String style) {
+        return setPropertyUnchecked("style", style);
+    }
+
+    public boolean getAllowFlight() {
+        return allowFlight;
+    }
+
+    public void setAllowFlight(final boolean allowFlight) {
+        setPropertyValueUnchecked("allowFlight", allowFlight);
     }
 
     public AllowedPortalType getAllowedPortals() {
         return portalForm;
     }
 
-    public void allowPortalMaking(AllowedPortalType portalType) {
-        this.setPropertyValueUnchecked("portalForm", portalType);
+    /**
+     * Serializor for the color-property.
+     */
+    private static final class EnumPropertySerializor<T extends Enum<T>> implements Serializor<T, String> {
+        @Override
+        public String serialize(final T from) {
+            return from.toString();
+        }
+
+        @Override
+        public T deserialize(final String serialized, final Class<T> wanted) throws IllegalPropertyValueException {
+            try {
+                return Enum.valueOf(wanted, serialized.toUpperCase());
+            }
+            catch (final IllegalArgumentException e) {
+                throw new IllegalPropertyValueException(e);
+            }
+        }
     }
 
     public EnglishChatStyle getStyle() {
         return style;
     }
 
-    public boolean setStyle(String style) {
-        return this.setPropertyUnchecked("style", style);
+    /**
+     * Serializor for the difficulty-property.
+     */
+    private static final class DifficultyPropertySerializor implements Serializor<Difficulty, String> {
+        @Override
+        public String serialize(final Difficulty from) {
+            return from.toString();
+        }
+
+        @Override
+        public Difficulty deserialize(final String serialized, final Class<Difficulty> wanted) throws IllegalPropertyValueException {
+            try {
+                return Difficulty.getByValue(Integer.parseInt(serialized));
+            }
+            catch (final Exception ignored) {
+            }
+            try {
+                return Difficulty.valueOf(serialized.toUpperCase());
+            }
+            catch (final Exception ignored) {
+            }
+            throw new IllegalPropertyValueException();
+        }
     }
 
-    public boolean getAllowFlight() {
-        return this.allowFlight;
+    /**
+     * Serializor for the gameMode-property.
+     */
+    private static final class GameModePropertySerializor implements Serializor<GameMode, String> {
+        @Override
+        public String serialize(final GameMode from) {
+            return from.toString();
+        }
+
+        @Override
+        public GameMode deserialize(final String serialized, final Class<GameMode> wanted) throws IllegalPropertyValueException {
+            try {
+                return GameMode.getByValue(Integer.parseInt(serialized));
+            }
+            catch (final NumberFormatException ignored) {
+            }
+            try {
+                return GameMode.valueOf(serialized.toUpperCase());
+            }
+            catch (final Exception ignored) {
+            }
+            throw new IllegalPropertyValueException();
+        }
     }
 
-    public void setAllowFlight(final boolean allowFlight) {
-        this.setPropertyValueUnchecked("allowFlight", allowFlight);
+    /**
+     * Serializor for the time-property.
+     */
+    private static final class TimePropertySerializor implements Serializor<Long, String> {
+        // BEGIN CHECKSTYLE-SUPPRESSION: MagicNumberCheck
+        private static final String TIME_REGEX = "(\\d\\d?):?(\\d\\d)([ap])?m?";
+        private static final Map<String, String> TIME_ALIASES;
+
+        static {
+            final Map<String, String> staticTimes = new HashMap<>();
+            staticTimes.put("morning", "8:00");
+            staticTimes.put("day", "12:00");
+            staticTimes.put("noon", "12:00");
+            staticTimes.put("midnight", "0:00");
+            staticTimes.put("night", "20:00");
+
+            // now set TIME_ALIASES to a "frozen" map
+            TIME_ALIASES = Collections.unmodifiableMap(staticTimes);
+        }
+
+        @Override
+        public String serialize(final Long from) {
+            // I'm tired, so they get time in 24 hour for now.
+            // Someone else can add 12 hr format if they want :P
+
+            final int hours = (int) ((from / 1000 + 8) % 24);
+            final int minutes = (int) (60 * (from % 1000) / 1000);
+
+            return String.format("%d:%02d", hours, minutes);
+        }
+
+        @Override
+        public Long deserialize(String serialized, final Class<Long> wanted) throws IllegalPropertyValueException {
+            if (TIME_ALIASES.containsKey(serialized.toLowerCase())) {
+                serialized = TIME_ALIASES.get(serialized.toLowerCase());
+            }
+            // Regex that extracts a time in the following formats:
+            // 11:11pm, 11:11, 23:11, 1111, 1111p, and the aliases at the top of this file.
+            final Pattern pattern = Pattern.compile(TIME_REGEX, Pattern.CASE_INSENSITIVE);
+            final Matcher matcher = pattern.matcher(serialized);
+            matcher.find();
+            int hour = 0;
+            double minute = 0;
+            final int count = matcher.groupCount();
+            if (count >= 2) {
+                hour   = Integer.parseInt(matcher.group(1));
+                minute = Integer.parseInt(matcher.group(2));
+            }
+            // If there were 4 matches (all, hour, min, am/pm)
+            if (count == 4) {
+                // We want 24 hour time for calcs, but if they
+                // added a p[m], turn it into a 24 hr one.
+                if (matcher.group(3).equals("p")) {
+                    hour += 12;
+                }
+            }
+            // Translate 24th hour to 0th hour.
+            if (hour == 24) {
+                hour = 0;
+            }
+            // Clamp the hour
+            if (hour > 23 || hour < 0) {
+                throw new IllegalPropertyValueException("Illegal hour!");
+            }
+            // Clamp the minute
+            if (minute > 59 || minute < 0) {
+                throw new IllegalPropertyValueException("Illegal minute!");
+            }
+            // 60 seconds in a minute, time needs to be in hrs * 1000, per
+            // the bukkit docs.
+            double totaltime = (hour + (minute / 60.0)) * 1000;
+            // Somehow there's an 8 hour offset...
+            totaltime -= 8000;
+            if (totaltime < 0) {
+                totaltime = 24000 + totaltime;
+            }
+
+            return (long) totaltime;
+        }
+        // END CHECKSTYLE-SUPPRESSION: MagicNumberCheck
     }
 }

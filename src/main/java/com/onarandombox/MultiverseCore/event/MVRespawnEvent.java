@@ -11,19 +11,20 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Called when a player is respawning.
  */
 public class MVRespawnEvent extends Event {
-    private Player player;
+    private final Player player;
     private Location location;
-    private String respawnMethod;
+    private final String respawnMethod;
 
 
-    public MVRespawnEvent(Location spawningAt, Player p, String respawnMethod) {
-        this.player = p;
-        this.location = spawningAt;
+    public MVRespawnEvent(final Location spawningAt, final Player p, final String respawnMethod) {
+        player             = p;
+        location           = spawningAt;
         this.respawnMethod = respawnMethod;
     }
 
@@ -32,6 +33,7 @@ public class MVRespawnEvent extends Event {
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;
@@ -50,7 +52,7 @@ public class MVRespawnEvent extends Event {
      * @return The {@link Player} that's respawning.
      */
     public Player getPlayer() {
-        return this.player;
+        return player;
     }
 
     /**
@@ -58,7 +60,7 @@ public class MVRespawnEvent extends Event {
      * @return The respawn-method.
      */
     public String getRespawnMethod() {
-        return this.respawnMethod;
+        return respawnMethod;
     }
 
     /**
@@ -66,14 +68,15 @@ public class MVRespawnEvent extends Event {
      * @return The player's respawn-{@link Location}.
      */
     public Location getPlayersRespawnLocation() {
-        return this.location;
+        return location;
     }
 
     /**
      * Sets the player's respawn-{@link Location}.
+     *
      * @param l The new respawn-{@link Location}.
      */
-    public void setRespawnLocation(Location l) {
-        this.location = l;
+    public void setRespawnLocation(final Location l) {
+        location = l;
     }
 }

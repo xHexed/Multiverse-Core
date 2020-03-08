@@ -20,49 +20,56 @@ import java.util.Map;
  * The default-implementation of {@link MultiverseMessaging}.
  */
 public class MVMessaging implements MultiverseMessaging {
-    private Map<String, Long> sentList;
+    private final Map<String, Long> sentList;
     private int cooldown;
 
     public MVMessaging() {
-        this.sentList = new HashMap<String, Long>();
-        this.cooldown = 5000; // SUPPRESS CHECKSTYLE: MagicNumberCheck
+        sentList = new HashMap<>();
+        cooldown = 5000; // SUPPRESS CHECKSTYLE: MagicNumberCheck
+    }
+
+    private static void sendMessages(final CommandSender sender, final String[] messages) {
+        for (final String s : messages) {
+            sender.sendMessage(s);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setCooldown(int milliseconds) {
-        this.cooldown = milliseconds;
+    public void setCooldown(final int milliseconds) {
+        cooldown = milliseconds;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean sendMessage(CommandSender sender, String message, boolean ignoreCooldown) {
-        return this.sendMessages(sender, new String[]{ message }, ignoreCooldown);
+    public boolean sendMessage(final CommandSender sender, final String message, final boolean ignoreCooldown) {
+        return sendMessages(sender, new String[] {message}, ignoreCooldown);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean sendMessages(CommandSender sender, String[] messages, boolean ignoreCooldown) {
+    public boolean sendMessages(final CommandSender sender, final String[] messages, final boolean ignoreCooldown) {
         if (!(sender instanceof Player) || ignoreCooldown) {
 
             sendMessages(sender, messages);
             return true;
         }
-        if (!this.sentList.containsKey(sender.getName())) {
+        if (!sentList.containsKey(sender.getName())) {
             sendMessages(sender, messages);
-            this.sentList.put(sender.getName(), System.currentTimeMillis());
+            sentList.put(sender.getName(), System.currentTimeMillis());
             return true;
-        } else {
-            long time = System.currentTimeMillis();
-            if (time >= this.sentList.get(sender.getName()) + this.cooldown) {
+        }
+        else {
+            final long time = System.currentTimeMillis();
+            if (time >= sentList.get(sender.getName()) + cooldown) {
                 sendMessages(sender, messages);
-                this.sentList.put(sender.getName(), System.currentTimeMillis());
+                sentList.put(sender.getName(), System.currentTimeMillis());
                 return true;
             }
         }
@@ -73,14 +80,8 @@ public class MVMessaging implements MultiverseMessaging {
      * {@inheritDoc}
      */
     @Override
-    public boolean sendMessages(CommandSender sender, Collection<String> messages, boolean ignoreCooldown) {
-        return this.sendMessages(sender, messages.toArray(new String[0]), ignoreCooldown);
-    }
-
-    private static void sendMessages(CommandSender sender, String[] messages) {
-        for (String s : messages) {
-            sender.sendMessage(s);
-        }
+    public boolean sendMessages(final CommandSender sender, final Collection<String> messages, final boolean ignoreCooldown) {
+        return sendMessages(sender, messages.toArray(new String[0]), ignoreCooldown);
     }
 
     /**

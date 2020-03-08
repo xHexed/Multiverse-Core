@@ -20,22 +20,23 @@ import java.util.List;
  */
 public class LoadCommand extends MultiverseCommand {
 
-    public LoadCommand(MultiverseCore plugin) {
+    public LoadCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Load World");
-        this.setCommandUsage("/mv load" + ChatColor.GREEN + " {WORLD}");
-        this.setArgRange(1, 1);
-        this.addKey("mvload");
-        this.addKey("mv load");
-        this.addCommandExample("/mv load " + ChatColor.GREEN + "MyUnloadedWorld");
-        this.setPermission("multiverse.core.load", "Loads a world into Multiverse.", PermissionDefault.OP);
+        setName("Load World");
+        setCommandUsage("/mv load" + ChatColor.GREEN + " {WORLD}");
+        setArgRange(1, 1);
+        addKey("mvload");
+        addKey("mv load");
+        addCommandExample("/mv load " + ChatColor.GREEN + "MyUnloadedWorld");
+        setPermission("multiverse.core.load", "Loads a world into Multiverse.", PermissionDefault.OP);
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
-        if (this.plugin.getMVWorldManager().loadWorld(args.get(0))) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
+        if (plugin.getMVWorldManager().loadWorld(args.get(0))) {
             Command.broadcastCommandMessage(sender, "Loaded world '" + args.get(0) + "'!");
-        } else {
+        }
+        else {
             sender.sendMessage("Error trying to load world '" + args.get(0) + "'!");
         }
     }

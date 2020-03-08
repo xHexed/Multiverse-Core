@@ -22,35 +22,36 @@ import java.util.List;
  */
 public class GamerulesCommand extends MultiverseCommand {
 
-    public GamerulesCommand(MultiverseCore plugin) {
+    public GamerulesCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("List the Minecraft Game Rules for a World.");
-        this.setCommandUsage("/mv gamerules" + ChatColor.GOLD + " [WORLD]");
-        this.setArgRange(0, 1);
-        this.addKey("mv gamerules");
-        this.addKey("mv rules");
-        this.addKey("mvgamerules");
-        this.addKey("mvrules");
-        this.addCommandExample("/mv gamerules");
-        this.addCommandExample("/mvrules " + ChatColor.RED + "world_nether");
-        this.setPermission("multiverse.core.gamerule.list", "Allows a player to list gamerules.", PermissionDefault.OP);
+        setName("List the Minecraft Game Rules for a World.");
+        setCommandUsage("/mv gamerules" + ChatColor.GOLD + " [WORLD]");
+        setArgRange(0, 1);
+        addKey("mv gamerules");
+        addKey("mv rules");
+        addKey("mvgamerules");
+        addKey("mvrules");
+        addCommandExample("/mv gamerules");
+        addCommandExample("/mvrules " + ChatColor.RED + "world_nether");
+        setPermission("multiverse.core.gamerule.list", "Allows a player to list gamerules.", PermissionDefault.OP);
     }
 
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         // We NEED a world from the command line
         final Player p;
         if (sender instanceof Player) {
             p = (Player) sender;
-        } else {
+        }
+        else {
             p = null;
         }
 
         if (args.size() == 0 && p == null) {
             sender.sendMessage("From the command line, WORLD is required.");
-            sender.sendMessage(this.getCommandDesc());
-            sender.sendMessage(this.getCommandUsage());
+            sender.sendMessage(getCommandDesc());
+            sender.sendMessage(getCommandUsage());
             sender.sendMessage("Nothing changed.");
             return;
         }
@@ -63,6 +64,7 @@ public class GamerulesCommand extends MultiverseCommand {
         }
 
         final StringBuilder gameRules = new StringBuilder();
+        assert world != null;
         for (final String gameRule : world.getGameRules()) {
             if (gameRules.length() != 0) {
                 gameRules.append(ChatColor.WHITE).append(", ");

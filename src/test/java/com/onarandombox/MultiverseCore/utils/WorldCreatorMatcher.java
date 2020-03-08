@@ -10,41 +10,46 @@ package com.onarandombox.MultiverseCore.utils;
 import org.bukkit.WorldCreator;
 import org.mockito.ArgumentMatcher;
 
+import java.util.Objects;
+
 public class WorldCreatorMatcher implements ArgumentMatcher<WorldCreator> {
-    private WorldCreator worldCreator;
-    private boolean careAboutSeeds = false;
-    private boolean careAboutGenerators = false;
+    private final WorldCreator worldCreator;
+    private boolean careAboutSeeds;
+    private boolean careAboutGenerators;
 
-    public WorldCreatorMatcher(WorldCreator creator) {
+    public WorldCreatorMatcher(final WorldCreator creator) {
         Util.log("Creating NEW world matcher.(" + creator.name() + ")");
-        this.worldCreator = creator;
+        worldCreator = creator;
     }
 
-    public void careAboutSeeds(boolean doICare) {
-        this.careAboutSeeds = doICare;
+    public void careAboutSeeds(final boolean doICare) {
+        careAboutSeeds = doICare;
     }
 
-    public void careAboutGenerators(boolean doICare) {
-        this.careAboutGenerators = doICare;
+    public void careAboutGenerators(final boolean doICare) {
+        careAboutGenerators = doICare;
     }
 
-    public boolean matches(WorldCreator creator) {
+    public boolean matches(final WorldCreator creator) {
         Util.log("Checking world creators.");
         if (creator == null) {
-            Util.log("The given creator was null, but I was checking: " + this.worldCreator.name());
+            Util.log("The given creator was null, but I was checking: " + worldCreator.name());
             return false;
         }
-        Util.log("Checking Names...(" + creator.name() + ") vs (" + this.worldCreator.name() + ")");
-        Util.log("Checking Envs...(" + creator.environment() + ") vs (" + this.worldCreator.environment() + ")");
-        if (!creator.name().equals(this.worldCreator.name())) {
+        Util.log("Checking Names...(" + creator.name() + ") vs (" + worldCreator.name() + ")");
+        Util.log("Checking Envs...(" + creator.environment() + ") vs (" + worldCreator.environment() + ")");
+        if (!creator.name().equals(worldCreator.name())) {
             return false;
-        } else if (!creator.environment().equals(this.worldCreator.environment())) {
+        }
+        else if (!creator.environment().equals(worldCreator.environment())) {
             Util.log("Checking Environments...");
             return false;
-        } else if (careAboutSeeds && creator.seed() != this.worldCreator.seed()) {
+        }
+        else if (careAboutSeeds && creator.seed() != worldCreator.seed()) {
             Util.log("Checking Seeds...");
             return false;
-        } else if (careAboutGenerators && !creator.generator().equals(this.worldCreator.generator())) {
+        }
+        else if (careAboutGenerators && !Objects.equals(creator.generator(), worldCreator.generator())) {
             Util.log("Checking Gens...");
             return false;
         }

@@ -18,22 +18,22 @@ import java.util.List;
  */
 public class ConfirmCommand extends MultiverseCommand {
 
-    public ConfirmCommand(MultiverseCore plugin) {
+    public ConfirmCommand(final MultiverseCore plugin) {
         super(plugin);
         // Any command that is dangerous should require op
-        this.setName("Confirms a command that could destroy life, the universe and everything.");
-        this.setCommandUsage("/mv confirm");
-        this.setArgRange(0, 0);
-        this.addKey("mvconfirm");
-        this.addKey("mv confirm");
-        this.addCommandExample("/mv confirm");
-        this.setPermission("multiverse.core.confirm", "If you have not been prompted to use this, it will not do anything.", PermissionDefault.OP);
+        setName("Confirms a command that could destroy life, the universe and everything.");
+        setCommandUsage("/mv confirm");
+        setArgRange(0, 0);
+        addKey("mvconfirm");
+        addKey("mv confirm");
+        addCommandExample("/mv confirm");
+        setPermission("multiverse.core.confirm", "If you have not been prompted to use this, it will not do anything.", PermissionDefault.OP);
 
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
-        this.plugin.getCommandHandler().confirmQueuedCommand(sender);
+    public void runCommand(final CommandSender sender, final List<String> args) {
+        plugin.getCommandHandler().confirmQueuedCommand(sender);
     }
 
 }

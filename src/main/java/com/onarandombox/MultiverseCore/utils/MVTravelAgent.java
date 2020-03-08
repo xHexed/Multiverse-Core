@@ -15,13 +15,13 @@ import org.bukkit.entity.Player;
  * The Multiverse TravelAgent.
  */
 public class MVTravelAgent {
-    protected MVDestination destination;
-    protected MultiverseCore core;
-    protected Player player;
+    protected final MVDestination destination;
+    protected final MultiverseCore core;
+    protected final Player player;
 
-    public MVTravelAgent(MultiverseCore multiverseCore, MVDestination d, Player p) {
-        this.destination = d;
-        this.core = multiverseCore;
-        this.player = p;
+    public MVTravelAgent(final MultiverseCore multiverseCore, final MVDestination d, final Player p) {
+        destination = d;
+        core        = multiverseCore;
+        player      = p;
     }
 }

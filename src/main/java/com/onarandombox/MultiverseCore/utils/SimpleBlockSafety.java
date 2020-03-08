@@ -20,7 +20,6 @@ import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Vehicle;
 
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -41,16 +40,23 @@ public class SimpleBlockSafety implements BlockSafety {
         AROUND_BLOCK.add(BlockFace.NORTH_WEST);
     }
 
-    public SimpleBlockSafety(Core plugin) {
+    public SimpleBlockSafety(final Core plugin) {
         this.plugin = plugin;
+    }
+
+    /*
+     * If someone has a better way of this... Please either tell us, or submit a pull request!
+     */
+    public static boolean isSolidBlock(final Material type) {
+        return type.isSolid();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isBlockAboveAir(Location l) {
-        Location downOne = l.clone();
+    public boolean isBlockAboveAir(final Location l) {
+        final Location downOne = l.clone();
         downOne.setY(downOne.getY() - 1);
         return (downOne.getBlock().getType() == Material.AIR);
     }
@@ -59,8 +65,8 @@ public class SimpleBlockSafety implements BlockSafety {
      * {@inheritDoc}
      */
     @Override
-    public boolean playerCanSpawnHereSafely(World world, double x, double y, double z) {
-        Location l = new Location(world, x, y, z);
+    public boolean playerCanSpawnHereSafely(final World world, final double x, final double y, final double z) {
+        final Location l = new Location(world, x, y, z);
         return playerCanSpawnHereSafely(l);
     }
 
@@ -68,25 +74,26 @@ public class SimpleBlockSafety implements BlockSafety {
      * {@inheritDoc}
      */
     @Override
-    public boolean playerCanSpawnHereSafely(Location l) {
+    public boolean playerCanSpawnHereSafely(final Location l) {
         if (l == null) {
             // Can't safely spawn at a null location!
             return false;
         }
 
-        World world = l.getWorld();
-        Location actual = l.clone();
-        Location upOne = l.clone();
-        Location downOne = l.clone();
+        final World world = l.getWorld();
+        final Location actual = l.clone();
+        final Location upOne = l.clone();
+        final Location downOne = l.clone();
         upOne.setY(upOne.getY() + 1);
         downOne.setY(downOne.getY() - 1);
 
+        assert world != null;
         if (isSolidBlock(world.getBlockAt(actual).getType())
                 || isSolidBlock(upOne.getBlock().getType())) {
             Logging.finer("Error Here (Actual)? (%s)[%s]", actual.getBlock().getType(),
-                    isSolidBlock(actual.getBlock().getType()));
+                          isSolidBlock(actual.getBlock().getType()));
             Logging.finer("Error Here (upOne)? (%s)[%s]", upOne.getBlock().getType(),
-                    isSolidBlock(upOne.getBlock().getType()));
+                          isSolidBlock(upOne.getBlock().getType()));
             return false;
         }
 
@@ -102,8 +109,8 @@ public class SimpleBlockSafety implements BlockSafety {
 
         if (isBlockAboveAir(actual)) {
             Logging.finer("Is block above air [%s]", isBlockAboveAir(actual));
-            Logging.finer("Has 2 blocks of water below [%s]", this.hasTwoBlocksofWaterBelow(actual));
-            return this.hasTwoBlocksofWaterBelow(actual);
+            Logging.finer("Has 2 blocks of water below [%s]", hasTwoBlocksofWaterBelow(actual));
+            return hasTwoBlocksofWaterBelow(actual);
         }
         return true;
     }
@@ -112,33 +119,33 @@ public class SimpleBlockSafety implements BlockSafety {
      * {@inheritDoc}
      */
     @Override
-    public Location getSafeBedSpawn(Location l) {
+    public Location getSafeBedSpawn(final Location l) {
         // The passed location, may be null (if the bed is invalid)
         if (l == null) {
             return null;
         }
-        final Location trySpawn = this.getSafeSpawnAroundABlock(l);
+        final Location trySpawn = getSafeSpawnAroundABlock(l);
         if (trySpawn != null) {
             return trySpawn;
         }
-        Location otherBlock = this.findOtherBedPiece(l);
+        final Location otherBlock = findOtherBedPiece(l);
         if (otherBlock == null) {
             return null;
         }
         // Now we have 2 locations, check around each, if the type is bed, skip it.
-        return this.getSafeSpawnAroundABlock(otherBlock);
+        return getSafeSpawnAroundABlock(otherBlock);
     }
 
     /**
      * Find a safe spawn around a location. (N,S,E,W,NE,NW,SE,SW)
+     *
      * @param l Location to check around
+     *
      * @return A safe location, or none if it wasn't found.
      */
-    private Location getSafeSpawnAroundABlock(Location l) {
-        Iterator<BlockFace> checkblock = AROUND_BLOCK.iterator();
-        while (checkblock.hasNext()) {
-            final BlockFace face = checkblock.next();
-            if (this.playerCanSpawnHereSafely(l.getBlock().getRelative(face).getLocation())) {
+    private Location getSafeSpawnAroundABlock(final Location l) {
+        for (final BlockFace face : AROUND_BLOCK) {
+            if (playerCanSpawnHereSafely(l.getBlock().getRelative(face).getLocation())) {
                 // Don't forget to center the player.
                 return l.getBlock().getRelative(face).getLocation().add(.5, 0, .5);
             }
@@ -148,15 +155,17 @@ public class SimpleBlockSafety implements BlockSafety {
 
     /**
      * Find the other bed block.
+     *
      * @param checkLoc The location to check for the other piece at
+     *
      * @return The location of the other bed piece, or null if it was a jacked up bed.
      */
-    private Location findOtherBedPiece(Location checkLoc) {
-        BlockData data = checkLoc.getBlock().getBlockData();
+    private Location findOtherBedPiece(final Location checkLoc) {
+        final BlockData data = checkLoc.getBlock().getBlockData();
         if (!(data instanceof Bed)) {
             return null;
         }
-        Bed b = (Bed) data;
+        final Bed b = (Bed) data;
 
         if (b.getPart() == Bed.Part.HEAD) {
             return checkLoc.getBlock().getRelative(b.getFacing().getOppositeFace()).getLocation();
@@ -165,16 +174,15 @@ public class SimpleBlockSafety implements BlockSafety {
         return checkLoc.getBlock().getRelative(b.getFacing()).getLocation();
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public Location getTopBlock(Location l) {
-        Location check = l.clone();
+    public Location getTopBlock(final Location l) {
+        final Location check = l.clone();
         check.setY(127); // SUPPRESS CHECKSTYLE: MagicNumberCheck
         while (check.getY() > 0) {
-            if (this.playerCanSpawnHereSafely(check)) {
+            if (playerCanSpawnHereSafely(check)) {
                 return check;
             }
             check.setY(check.getY() - 1);
@@ -186,11 +194,11 @@ public class SimpleBlockSafety implements BlockSafety {
      * {@inheritDoc}
      */
     @Override
-    public Location getBottomBlock(Location l) {
-        Location check = l.clone();
+    public Location getBottomBlock(final Location l) {
+        final Location check = l.clone();
         check.setY(0);
         while (check.getY() < 127) { // SUPPRESS CHECKSTYLE: MagicNumberCheck
-            if (this.playerCanSpawnHereSafely(check)) {
+            if (playerCanSpawnHereSafely(check)) {
                 return check;
             }
             check.setY(check.getY() + 1);
@@ -198,19 +206,12 @@ public class SimpleBlockSafety implements BlockSafety {
         return null;
     }
 
-    /*
-     * If someone has a better way of this... Please either tell us, or submit a pull request!
-     */
-    public static boolean isSolidBlock(Material type) {
-        return type.isSolid();
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isEntitiyOnTrack(Location l) {
-        Material currentBlock = l.getBlock().getType();
+    public boolean isEntitiyOnTrack(final Location l) {
+        final Material currentBlock = l.getBlock().getType();
         return (currentBlock == Material.POWERED_RAIL
                 || currentBlock == Material.DETECTOR_RAIL
                 || currentBlock == Material.RAIL
@@ -221,16 +222,17 @@ public class SimpleBlockSafety implements BlockSafety {
      * Checks recursively below a {@link Location} for 2 blocks of water.
      *
      * @param l The {@link Location}
+     *
      * @return Whether there are 2 blocks of water
      */
-    private boolean hasTwoBlocksofWaterBelow(Location l) {
+    private boolean hasTwoBlocksofWaterBelow(final Location l) {
         if (l.getBlockY() < 0) {
             return false;
         }
-        Location oneBelow = l.clone();
+        final Location oneBelow = l.clone();
         oneBelow.subtract(0, 1, 0);
         if (oneBelow.getBlock().getType() == Material.WATER) {
-            Location twoBelow = oneBelow.clone();
+            final Location twoBelow = oneBelow.clone();
             twoBelow.subtract(0, 1, 0);
             return (oneBelow.getBlock().getType() == Material.WATER);
         }
@@ -244,25 +246,19 @@ public class SimpleBlockSafety implements BlockSafety {
      * {@inheritDoc}
      */
     @Override
-    public boolean canSpawnCartSafely(Minecart cart) {
-        if (this.isBlockAboveAir(cart.getLocation())) {
+    public boolean canSpawnCartSafely(final Minecart cart) {
+        if (isBlockAboveAir(cart.getLocation())) {
             return true;
         }
-        if (this.isEntitiyOnTrack(plugin.getLocationManipulation().getNextBlock(cart))) {
-            return true;
-        }
-        return false;
+        return isEntitiyOnTrack(plugin.getLocationManipulation().getNextBlock(cart));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean canSpawnVehicleSafely(Vehicle vehicle) {
-        if (this.isBlockAboveAir(vehicle.getLocation())) {
-            return true;
-        }
-        return false;
+    public boolean canSpawnVehicleSafely(final Vehicle vehicle) {
+        return isBlockAboveAir(vehicle.getLocation());
     }
 
 }

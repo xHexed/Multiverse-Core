@@ -17,14 +17,12 @@ import java.util.Date;
  */
 public class MVPlayerSession {
 
-    private Player player; // Player holder, may be unnecessary.
+    private static final long messageLast = 0L; // Timestamp for the Players last Alert Message.
+    private final Player player; // Player holder, may be unnecessary.
+    private final MultiverseCoreConfig config; // Configuration file to find out Cooldown Timers.
+    private long teleportLast; // Timestamp for the Players last Portal Teleportation.
 
-    private long teleportLast = 0L; // Timestamp for the Players last Portal Teleportation.
-    private long messageLast = 0L; // Timestamp for the Players last Alert Message.
-
-    private MultiverseCoreConfig config; // Configuration file to find out Cooldown Timers.
-
-    public MVPlayerSession(Player player, MultiverseCoreConfig config) {
+    public MVPlayerSession(final Player player, final MultiverseCoreConfig config) {
         this.player = player;
         this.config = config;
         // this.bedSpawn = null;
@@ -32,7 +30,7 @@ public class MVPlayerSession {
 
     /** Update the Teleport time. */
     public void teleport() {
-        this.teleportLast = (new Date()).getTime();
+        teleportLast = (new Date()).getTime();
     }
 
     /**
@@ -40,7 +38,7 @@ public class MVPlayerSession {
      * @return True if the {@link Player} associated with this player-session is teleportable.
      */
     public boolean getTeleportable() {
-        long time = (new Date()).getTime();
-        return ((time - this.teleportLast) > this.config.getTeleportCooldown());
+        final long time = (new Date()).getTime();
+        return ((time - teleportLast) > config.getTeleportCooldown());
     }
 }

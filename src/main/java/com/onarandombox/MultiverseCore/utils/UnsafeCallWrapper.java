@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
 public class UnsafeCallWrapper {
     private final Core core;
 
-    public UnsafeCallWrapper(Core core) {
+    public UnsafeCallWrapper(final Core core) {
         this.core = core;
     }
 
@@ -26,15 +26,16 @@ public class UnsafeCallWrapper {
      * @param <T> The type of the return value.
      * @return The return value or null if the call failed.
      */
-    public <T> T wrap(Callable<T> callable, String plugin, String action, Object... formatArgs) {
+    public <T> T wrap(final Callable<T> callable, final String plugin, final String action, final Object... formatArgs) {
         try {
             // We're ready to catch you! JUMP!
             return callable.call();
-        } catch (Throwable t) {
-            Object[] actualFormatArgs = new Object[formatArgs.length + 1];
+        }
+        catch (final Throwable t) {
+            final Object[] actualFormatArgs = new Object[formatArgs.length + 1];
             System.arraycopy(formatArgs, 0, actualFormatArgs, 0, formatArgs.length);
             actualFormatArgs[formatArgs.length] = t;
-                Logging.warning(action, actualFormatArgs);
+            Logging.warning(action, actualFormatArgs);
             Logging.warning("This is a bug in %s, NOT a bug in Multiverse!", plugin);
             if (core.getMVConfig().getGlobalDebug() >= 1)
                 t.printStackTrace();

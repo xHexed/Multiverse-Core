@@ -10,7 +10,6 @@ package com.onarandombox.MultiverseCore;
 import com.onarandombox.MultiverseCore.api.MVWorldManager;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import com.onarandombox.MultiverseCore.configuration.SpawnLocation;
-import com.onarandombox.MultiverseCore.listeners.MVAsyncPlayerChatListener;
 import com.onarandombox.MultiverseCore.utils.MockWorldFactory;
 import com.onarandombox.MultiverseCore.utils.TestInstanceCreator;
 import com.onarandombox.MultiverseCore.utils.WorldManager;
@@ -53,8 +52,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.io.File;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
@@ -86,28 +83,28 @@ public class TestWorldProperties {
     private FoodLevelChangeEvent entityFoodLevelRiseEvent;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         creator = new TestInstanceCreator();
         assertTrue(creator.setUp());
-        core = creator.getCore();
+        core              = creator.getCore();
         mockCommandSender = creator.getCommandSender();
         MockWorldFactory.createWorldDirectory("world");
         MockWorldFactory.createWorldDirectory("world_nether");
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         creator.tearDown();
     }
 
     @Test
     public void test() throws Exception {
         // Initialize a fake command
-        Command mockCommand = mock(Command.class);
+        final Command mockCommand = mock(Command.class);
         when(mockCommand.getName()).thenReturn("mv");
 
         // Import the first world
-        String[] normalArgs = new String[] { "import", "world", "normal" };
+        final String[] normalArgs = {"import", "world", "normal"};
         core.onCommand(mockCommandSender, mockCommand, "", normalArgs);
         verify(mockCommandSender).sendMessage("Starting import of world 'world'...");
         verify(mockCommandSender).sendMessage(ChatColor.GREEN + "Complete!");
@@ -119,7 +116,7 @@ public class TestWorldProperties {
 
 
         // Import a second world
-        String[] netherArgs = new String[] { "import", "world_nether", "nether" };
+        final String[] netherArgs = {"import", "world_nether", "nether"};
         core.onCommand(mockCommandSender, mockCommand, "", netherArgs);
         verify(mockCommandSender).sendMessage("Starting import of world 'world_nether'...");
         verify(mockCommandSender, VerificationModeFactory.times(2)).sendMessage(
@@ -134,11 +131,11 @@ public class TestWorldProperties {
         // ////////////////////////////////////////////////
         // let's set some world-properties
         // we can test the API with this, too :D
-        MVWorldManager worldManager = core.getMVWorldManager();
+        final MVWorldManager worldManager = core.getMVWorldManager();
         assertNotNull(worldManager);
 
         MultiverseWorld mvWorld = worldManager.getMVWorld("world");
-        MultiverseWorld netherWorld = worldManager.getMVWorld("world_nether");
+        final MultiverseWorld netherWorld = worldManager.getMVWorld("world_nether");
         assertNotNull(mvWorld);
         assertNotNull(netherWorld);
         assertSame(mvWorld, worldManager.getFirstSpawnWorld());
@@ -185,14 +182,6 @@ public class TestWorldProperties {
         core.getWeatherListener().thunderChange(thunderChangeOnEvent);
         assertFalse(thunderChangeOnEvent.isCancelled());
 
-        // call player chat event
-        core.getMVConfig().setPrefixChat(true);
-        ((MVAsyncPlayerChatListener) core.getChatListener()).playerChat(playerChatEvent);
-        verify(playerChatEvent).setFormat("[" + mvWorld.getColoredWorldString() + "]" + "format");
-        core.getMVConfig().setPrefixChat(false);
-        ((MVAsyncPlayerChatListener) core.getChatListener()).playerChat(playerChatEvent);
-        verify(playerChatEvent, times(1)).setFormat(anyString()); // only ONE TIME (not the 2nd time!)
-
         // call player join events
         core.getPlayerListener().playerJoin(playerJoinEvent);
         verify(mockPlayer, never()).teleport(any(Location.class));
@@ -216,7 +205,7 @@ public class TestWorldProperties {
          *     Modify & Verify
          * ************************ */
         mvWorld.setHidden(true);
-        assertEquals(true, mvWorld.isHidden());
+        assertTrue(mvWorld.isHidden());
         mvWorld.setAlias("alias");
         assertEquals("alias", mvWorld.getAlias());
         assertTrue(mvWorld.setColor("BLACK"));
@@ -224,7 +213,7 @@ public class TestWorldProperties {
         assertEquals(ChatColor.BLACK, mvWorld.getColor());
         assertEquals(ChatColor.BLACK.toString() + "alias" + ChatColor.WHITE.toString(), mvWorld.getColoredWorldString());
         mvWorld.setPVPMode(false);
-        assertEquals(false, mvWorld.isPVPEnabled());
+        assertFalse(mvWorld.isPVPEnabled());
         assertTrue(mvWorld.setScaling(2D));
         assertEquals(2D, mvWorld.getScaling(), 0);
         assertFalse(mvWorld.setRespawnToWorld("INVALID WORLD"));
@@ -232,31 +221,31 @@ public class TestWorldProperties {
         assertSame(worldManager.getMVWorld("world_nether").getCBWorld(),
                 mvWorld.getRespawnToWorld());
         mvWorld.setEnableWeather(false);
-        assertEquals(false, mvWorld.isWeatherEnabled());
+        assertFalse(mvWorld.isWeatherEnabled());
         assertTrue(mvWorld.setDifficulty(Difficulty.PEACEFUL));
         assertEquals(Difficulty.PEACEFUL, mvWorld.getDifficulty());
         mvWorld.setAllowAnimalSpawn(false);
-        assertEquals(false, mvWorld.canAnimalsSpawn());
+        assertFalse(mvWorld.canAnimalsSpawn());
         mvWorld.setAllowMonsterSpawn(false);
-        assertEquals(false, mvWorld.canMonstersSpawn());
+        assertFalse(mvWorld.canMonstersSpawn());
         mvWorld.setCurrency(Material.STONE);
         assertEquals(Material.STONE, mvWorld.getCurrency());
         mvWorld.setPrice(1D);
         assertEquals(1D, mvWorld.getPrice(), 0);
         mvWorld.setHunger(false);
-        assertEquals(false, mvWorld.getHunger());
+        assertFalse(mvWorld.getHunger());
         mvWorld.setAutoHeal(false);
-        assertEquals(false, mvWorld.getAutoHeal());
+        assertFalse(mvWorld.getAutoHeal());
         mvWorld.setAdjustSpawn(false);
-        assertEquals(false, mvWorld.getAdjustSpawn());
+        assertFalse(mvWorld.getAdjustSpawn());
         assertTrue(mvWorld.setGameMode(GameMode.CREATIVE));
         assertEquals(GameMode.CREATIVE, mvWorld.getGameMode());
         mvWorld.setKeepSpawnInMemory(false);
-        assertEquals(false, mvWorld.isKeepingSpawnInMemory());
+        assertFalse(mvWorld.isKeepingSpawnInMemory());
         mvWorld.setBedRespawn(false);
-        assertEquals(false, mvWorld.getBedRespawn());
+        assertFalse(mvWorld.getBedRespawn());
         mvWorld.setAutoLoad(false);
-        assertEquals(false, mvWorld.getAutoLoad());
+        assertFalse(mvWorld.getAutoLoad());
         mvWorld.setSpawnLocation(new Location(mvWorld.getCBWorld(), 1, 1, 1));
         assertEquals(new SpawnLocation(1, 1, 1), mvWorld.getSpawnLocation());
 
@@ -278,20 +267,6 @@ public class TestWorldProperties {
         assertFalse(thunderChangeOffEvent.isCancelled());
         core.getWeatherListener().thunderChange(thunderChangeOnEvent);
         assertTrue(thunderChangeOnEvent.isCancelled());
-
-        // call player chat event
-        core.getMVConfig().setPrefixChat(true);
-        ((MVAsyncPlayerChatListener) core.getChatListener()).playerChat(playerChatEvent);
-        // never because it's hidden!
-        verify(playerChatEvent, never()).setFormat(
-                "[" + mvWorld.getColoredWorldString() + "]" + "format");
-        mvWorld.setHidden(false);
-        ((MVAsyncPlayerChatListener) core.getChatListener()).playerChat(playerChatEvent);
-        verify(playerChatEvent).setFormat("[" + mvWorld.getColoredWorldString() + "]" + "format");
-        core.getMVConfig().setPrefixChat(false);
-        ((MVAsyncPlayerChatListener) core.getChatListener()).playerChat(playerChatEvent);
-        verify(playerChatEvent, times(1)).setFormat(anyString()); // only ONE TIME (not the 2nd time!)
-        mvWorld.setHidden(true); // reset hidden-state
 
         // call player join events
         core.getPlayerListener().playerJoin(playerJoinEvent);
@@ -317,8 +292,9 @@ public class TestWorldProperties {
          * ****************************************** */
         assertTrue(core.saveMVConfigs());
         // change a value here
-        FileConfiguration config = YamlConfiguration.loadConfiguration(new File(core.getDataFolder(), "worlds.yml"));
-        WorldProperties worldObj = (WorldProperties) config.get("worlds.world");
+        final FileConfiguration config = YamlConfiguration.loadConfiguration(new File(core.getDataFolder(), "worlds.yml"));
+        final WorldProperties worldObj = (WorldProperties) config.get("worlds.world");
+        assert worldObj != null;
         assertTrue(worldObj.setColor("GREEN"));
         config.set("worlds.world", worldObj);
         config.save(new File(core.getDataFolder(), "worlds.yml"));
@@ -326,39 +302,39 @@ public class TestWorldProperties {
         core.loadConfigs();
 
         mvWorld = worldManager.getMVWorld("world");
-        assertEquals(true, mvWorld.isHidden());
+        assertTrue(mvWorld.isHidden());
         assertEquals("alias", mvWorld.getAlias());
         assertEquals(ChatColor.GREEN, mvWorld.getColor());
         assertEquals(ChatColor.GREEN.toString() + "alias" + ChatColor.WHITE.toString(), mvWorld.getColoredWorldString());
-        assertEquals(false, mvWorld.isPVPEnabled());
+        assertFalse(mvWorld.isPVPEnabled());
         assertEquals(2D, mvWorld.getScaling(), 0);
         assertSame(worldManager.getMVWorld("world_nether").getCBWorld(),
-                mvWorld.getRespawnToWorld());
-        assertEquals(false, mvWorld.isWeatherEnabled());
+                   mvWorld.getRespawnToWorld());
+        assertFalse(mvWorld.isWeatherEnabled());
         assertEquals(Difficulty.PEACEFUL, mvWorld.getDifficulty());
-        assertEquals(false, mvWorld.canAnimalsSpawn());
-        assertEquals(false, mvWorld.canMonstersSpawn());
+        assertFalse(mvWorld.canAnimalsSpawn());
+        assertFalse(mvWorld.canMonstersSpawn());
         assertEquals(Material.STONE, mvWorld.getCurrency());
         assertEquals(1D, mvWorld.getPrice(), 0);
-        assertEquals(false, mvWorld.getHunger());
-        assertEquals(false, mvWorld.getAutoHeal());
-        assertEquals(false, mvWorld.getAdjustSpawn());
+        assertFalse(mvWorld.getHunger());
+        assertFalse(mvWorld.getAutoHeal());
+        assertFalse(mvWorld.getAdjustSpawn());
         assertEquals(GameMode.CREATIVE, mvWorld.getGameMode());
-        assertEquals(false, mvWorld.isKeepingSpawnInMemory());
-        assertEquals(false, mvWorld.getBedRespawn());
-        assertEquals(false, mvWorld.getAutoLoad());
+        assertFalse(mvWorld.isKeepingSpawnInMemory());
+        assertFalse(mvWorld.getBedRespawn());
+        assertFalse(mvWorld.getAutoLoad());
         assertEquals(new SpawnLocation(1, 1, 1), mvWorld.getSpawnLocation());
     }
 
-    public void createEvents(MultiverseWorld mvWorld) {
+    public void createEvents(final MultiverseWorld mvWorld) {
         final World world = mvWorld.getCBWorld();
         //// Weather events
         // weather change
         weatherChangeOffEvent = new WeatherChangeEvent(world, false);
-        weatherChangeOnEvent = new WeatherChangeEvent(world, true);
+        weatherChangeOnEvent  = new WeatherChangeEvent(world, true);
         // thunder change
         thunderChangeOffEvent = new ThunderChangeEvent(world, false);
-        thunderChangeOnEvent = new ThunderChangeEvent(world, true);
+        thunderChangeOnEvent  = new ThunderChangeEvent(world, true);
         //// Player events
         // player chat
         mockPlayer = mock(Player.class);

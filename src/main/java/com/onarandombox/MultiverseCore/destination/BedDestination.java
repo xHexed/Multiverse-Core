@@ -41,35 +41,35 @@ public class BedDestination implements MVDestination {
      * {@inheritDoc}
      */
     @Override
-    public boolean isThisType(JavaPlugin plugin, String destination) {
-        String[] split = destination.split(":");
-        boolean validFormat = split.length >= 1 && split.length <= 2 && split[0].equals(this.getIdentifier());
+    public boolean isThisType(final JavaPlugin plugin, final String destination) {
+        final String[] split = destination.split(":");
+        final boolean validFormat = split.length >= 1 && split.length <= 2 && split[0].equals(getIdentifier());
 
-        OfflinePlayer p = Bukkit.getOfflinePlayer(split[1]);
-        boolean validPlayer = (p != null);
+        final OfflinePlayer p = Bukkit.getOfflinePlayer(split[1]);
+        final boolean validPlayer = true;
 
-        if (validFormat && validPlayer) this.playername = p.getName();
+        if (validFormat) playername = p.getName();
 
-        this.isValid = destination.equals(OLD_BED_STRING) || (validFormat && validPlayer);
+        isValid = destination.equals(OLD_BED_STRING) || validFormat;
 
-        return this.isValid;
+        return isValid;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Location getLocation(Entity entity) {
+    public Location getLocation(final Entity entity) {
         if (entity instanceof Player) {
-            if (this.playername.isEmpty())
-                this.knownBedLoc = this.plugin.getBlockSafety().getSafeBedSpawn(((Player) entity).getBedSpawnLocation());
+            if (playername.isEmpty())
+                knownBedLoc = plugin.getBlockSafety().getSafeBedSpawn(((Player) entity).getBedSpawnLocation());
             else
-                this.knownBedLoc = this.plugin.getBlockSafety().getSafeBedSpawn(Bukkit.getOfflinePlayer(this.playername).getBedSpawnLocation());
+                knownBedLoc = plugin.getBlockSafety().getSafeBedSpawn(Bukkit.getOfflinePlayer(playername).getBedSpawnLocation());
 
-            if (this.knownBedLoc == null) {
-                ((Player) entity).sendMessage("The bed was " + ChatColor.RED + "invalid or blocked" + ChatColor.RESET + ". Sorry.");
+            if (knownBedLoc == null) {
+                entity.sendMessage("The bed was " + ChatColor.RED + "invalid or blocked" + ChatColor.RESET + ". Sorry.");
             }
-            return this.knownBedLoc;
+            return knownBedLoc;
         }
         return null;
     }
@@ -86,7 +86,7 @@ public class BedDestination implements MVDestination {
      * {@inheritDoc}
      */
     @Override
-    public void setDestination(JavaPlugin plugin, String destination) {
+    public void setDestination(final JavaPlugin plugin, final String destination) {
         this.plugin = (MultiverseCore) plugin;
     }
 
@@ -95,7 +95,7 @@ public class BedDestination implements MVDestination {
      */
     @Override
     public boolean isValid() {
-        return this.isValid;
+        return isValid;
     }
 
     /**

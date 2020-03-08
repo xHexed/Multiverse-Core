@@ -19,24 +19,20 @@ import java.util.List;
  */
 public class SleepCommand extends MultiverseCommand {
 
-    public SleepCommand(MultiverseCore plugin) {
+    public SleepCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Go to Sleep");
-        this.setCommandUsage("/mv sleep");
-        this.setArgRange(0, 0);
-        this.addKey("mv sleep");
-        this.setPermission("multiverse.core.sleep", "Takes you the latest bed you've slept in (Currently BROKEN).", PermissionDefault.OP);
+        setName("Go to Sleep");
+        setCommandUsage("/mv sleep");
+        setArgRange(0, 0);
+        addKey("mv sleep");
+        setPermission("multiverse.core.sleep", "Takes you the latest bed you've slept in (Currently BROKEN).", PermissionDefault.OP);
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
-        Player p = null;
+    public void runCommand(final CommandSender sender, final List<String> args) {
+        final Player p = null;
         if (sender instanceof Player) {
-            p = (Player) sender;
         }
 
-        if (p == null) {
-            return;
-        }
     }
 }

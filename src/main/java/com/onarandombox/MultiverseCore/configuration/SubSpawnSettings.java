@@ -25,7 +25,7 @@ public class SubSpawnSettings extends SerializationConfig {
         super();
     }
 
-    public SubSpawnSettings(Map<String, Object> values) {
+    public SubSpawnSettings(final Map<String, Object> values) {
         super(values);
     }
 
@@ -34,9 +34,9 @@ public class SubSpawnSettings extends SerializationConfig {
      */
     @Override
     public void setDefaults() {
-        spawn = true;
-        exceptions = new ArrayList<String>();
-        spawnrate = -1;
+        spawn      = true;
+        exceptions = new ArrayList<>();
+        spawnrate  = -1;
     }
 
     /**
@@ -49,7 +49,7 @@ public class SubSpawnSettings extends SerializationConfig {
     /**
      * @param spawn The new value.
      */
-    public void setSpawn(boolean spawn) {
+    public void setSpawn(final boolean spawn) {
         this.spawn = spawn;
     }
 
@@ -61,16 +61,16 @@ public class SubSpawnSettings extends SerializationConfig {
     }
 
     /**
-     * @param rate The new spawn rate
-     */
-    public void setSpawnRate(int rate) {
-        this.spawnrate = rate;
-    }
-
-    /**
      * @return The spawn rate
      */
     public int getSpawnRate() {
-        return this.spawnrate;
+        return spawnrate;
+    }
+
+    /**
+     * @param rate The new spawn rate
+     */
+    public void setSpawnRate(final int rate) {
+        spawnrate = rate;
     }
 }

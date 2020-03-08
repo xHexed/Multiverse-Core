@@ -29,7 +29,7 @@ import java.util.Map;
 public class LocationManipulation {
     private LocationManipulation() { }
 
-    private static Map<String, Integer> orientationInts = new HashMap<String, Integer>();
+    private static Map<String, Integer> orientationInts = new HashMap<>();
 
     static {
         // BEGIN CHECKSTYLE-SUPPRESSION: MagicNumberCheck
@@ -55,9 +55,10 @@ public class LocationManipulation {
      * The corresponding String2Loc function is {@link #stringToLocation}
      *
      * @param location The Location to save.
+     *
      * @return The location as a string in this format: WORLD:x,y,z:yaw:pitch
      */
-    public static String locationToString(Location location) {
+    public static String locationToString(final Location location) {
         if (location == null) {
             return "";
         }
@@ -65,16 +66,17 @@ public class LocationManipulation {
         // world:1.2,5.4,3.6:1.8:21.3
         // Otherwise we blow up when parsing!
         return String.format(Locale.ENGLISH, "%s:%.2f,%.2f,%.2f:%.2f:%.2f", location.getWorld().getName(),
-                location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+                             location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
     }
 
     /**
      * This method simply does some rounding, rather than forcing a call to the server to get the blockdata.
      *
      * @param l The location to round to the block location
+     *
      * @return A rounded location.
      */
-    public static Location getBlockLocation(Location l) {
+    public static Location getBlockLocation(final Location l) {
         l.setX(l.getBlockX());
         l.setY(l.getBlockY());
         l.setZ(l.getBlockZ());
@@ -89,9 +91,10 @@ public class LocationManipulation {
      * The corresponding Location2String function is {@link #stringToLocation}
      *
      * @param locationString The location represented as a string (WORLD:X,Y,Z:yaw:pitch)
+     *
      * @return A new location defined by the string or null if the string was invalid.
      */
-    public static Location stringToLocation(String locationString) {
+    public static Location stringToLocation(final String locationString) {
         //format:
         //world:x,y,z:pitch:yaw
         if (locationString == null) {
@@ -100,19 +103,19 @@ public class LocationManipulation {
 
         // Split the whole string, format is:
         // {'world', 'x,y,z'[, 'pitch', 'yaw']}
-        String[] split = locationString.split(":");
+        final String[] split = locationString.split(":");
         if (split.length < 2 || split.length > 4) { // SUPPRESS CHECKSTYLE: MagicNumberCheck
             return null;
         }
         // Split the xyz string, format is:
         // {'x', 'y', 'z'}
-        String[] xyzsplit = split[1].split(",");
+        final String[] xyzsplit = split[1].split(",");
         if (xyzsplit.length != 3) {
             return null;
         }
 
         // Verify the world is valid
-        World w = Bukkit.getWorld(split[0]);
+        final World w = Bukkit.getWorld(split[0]);
         if (w == null) {
             return null;
         }
@@ -127,7 +130,8 @@ public class LocationManipulation {
                 pitch = (float) Double.parseDouble(split[3]);
             }
             return new Location(w, Double.parseDouble(xyzsplit[0]), Double.parseDouble(xyzsplit[1]), Double.parseDouble(xyzsplit[2]), yaw, pitch);
-        } catch (NumberFormatException e) {
+        }
+        catch (final NumberFormatException e) {
             return null;
         }
     }
@@ -136,11 +140,12 @@ public class LocationManipulation {
      * Returns a colored string with the coords.
      *
      * @param l The {@link Location}
+     *
      * @return The {@link String}
      */
-    public static String strCoords(Location l) {
+    public static String strCoords(final Location l) {
         String result = "";
-        DecimalFormat df = new DecimalFormat();
+        final DecimalFormat df = new DecimalFormat();
         df.setMinimumFractionDigits(0);
         df.setMaximumFractionDigits(2);
         result += ChatColor.WHITE + "X: " + ChatColor.AQUA + df.format(l.getX()) + " ";
@@ -155,14 +160,15 @@ public class LocationManipulation {
      * Converts a location to a printable readable formatted string including pitch/yaw.
      *
      * @param l The {@link Location}
+     *
      * @return The {@link String}
      */
-    public static String strCoordsRaw(Location l) {
+    public static String strCoordsRaw(final Location l) {
         if (l == null) {
             return "null";
         }
         String result = "";
-        DecimalFormat df = new DecimalFormat();
+        final DecimalFormat df = new DecimalFormat();
         df.setMinimumFractionDigits(0);
         df.setMaximumFractionDigits(2);
         result += "X: " + df.format(l.getX()) + " ";
@@ -177,13 +183,14 @@ public class LocationManipulation {
      * Return the NESW Direction a Location is facing.
      *
      * @param location The {@link Location}
+     *
      * @return The NESW Direction
      */
-    public static String getDirection(Location location) {
+    public static String getDirection(final Location location) {
         // BEGIN CHECKSTYLE-SUPPRESSION: MagicNumberCheck
-        double r = (location.getYaw() % 360) + 180;
+        final double r = (location.getYaw() % 360) + 180;
         // Remember, these numbers are every 45 degrees with a 22.5 offset, to detect boundaries.
-        String dir;
+        final String dir;
         if (r < 22.5)
             dir = "n";
         else if (r < 67.5)
@@ -211,9 +218,10 @@ public class LocationManipulation {
      * Returns the float yaw position for the given cardinal direction.
      *
      * @param orientation The cardinal direction
+     *
      * @return The yaw
      */
-    public static float getYaw(String orientation) {
+    public static float getYaw(final String orientation) {
         if (orientation == null) {
             return 0;
         }
@@ -227,9 +235,10 @@ public class LocationManipulation {
      * Returns a speed float from a given vector.
      *
      * @param v The {@link Vector}
+     *
      * @return The speed
      */
-    public static float getSpeed(Vector v) {
+    public static float getSpeed(final Vector v) {
         return (float) Math.sqrt(v.getX() * v.getX() + v.getZ() * v.getZ());
     }
 
@@ -239,25 +248,30 @@ public class LocationManipulation {
     /**
      * Returns a translated vector from the given direction.
      *
-     * @param v The old {@link Vector}
+     * @param v         The old {@link Vector}
      * @param direction The new direction
+     *
      * @return The translated {@link Vector}
      */
-    public static Vector getTranslatedVector(Vector v, String direction) {
+    public static Vector getTranslatedVector(final Vector v, final String direction) {
         if (direction == null) {
             return v;
         }
-        float speed = getSpeed(v);
-        float halfSpeed = (float) (speed / 2.0);
+        final float speed = getSpeed(v);
+        final float halfSpeed = (float) (speed / 2.0);
         if (direction.equalsIgnoreCase("n")) {
             return new Vector(0, 0, -1 * speed);
-        } else if (direction.equalsIgnoreCase("ne")) {
+        }
+        else if (direction.equalsIgnoreCase("ne")) {
             return new Vector(halfSpeed, 0, -1 * halfSpeed);
-        } else if (direction.equalsIgnoreCase("e")) {
+        }
+        else if (direction.equalsIgnoreCase("e")) {
             return new Vector(speed, 0, 0);
-        } else if (direction.equalsIgnoreCase("se")) {
+        }
+        else if (direction.equalsIgnoreCase("se")) {
             return new Vector(halfSpeed, 0, halfSpeed);
-        } else if (direction.equalsIgnoreCase("s")) {
+        }
+        else if (direction.equalsIgnoreCase("s")) {
             return new Vector(0, 0, speed);
         } else if (direction.equalsIgnoreCase("sw")) {
             return new Vector(-1 * halfSpeed, 0, halfSpeed);
@@ -273,13 +287,14 @@ public class LocationManipulation {
      * Returns the next Location that a {@link Vehicle} is traveling at.
      *
      * @param v The {@link Vehicle}
+     *
      * @return The {@link Location}
      */
-    public static Location getNextBlock(Vehicle v) {
-        Vector vector = v.getVelocity();
-        Location location = v.getLocation();
-        int x = vector.getX() < 0 ? vector.getX() == 0 ? 0 : -1 : 1;
-        int z = vector.getZ() < 0 ? vector.getZ() == 0 ? 0 : -1 : 1;
+    public static Location getNextBlock(final Vehicle v) {
+        final Vector vector = v.getVelocity();
+        final Location location = v.getLocation();
+        final int x = vector.getX() < 0 ? vector.getX() == 0 ? 0 : -1 : 1;
+        final int z = vector.getZ() < 0 ? vector.getZ() == 0 ? 0 : -1 : 1;
         return location.add(x, 0, z);
     }
 }

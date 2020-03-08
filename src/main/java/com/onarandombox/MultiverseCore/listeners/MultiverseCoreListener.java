@@ -23,57 +23,64 @@ import org.bukkit.event.Listener;
 public abstract class MultiverseCoreListener implements Listener {
     /**
      * Called when a {@link MVWorldPropertyChangeEvent} is fired.
+     *
      * @param event The event.
      */
     @EventHandler
-    public void worldPropertyChange(MVWorldPropertyChangeEvent event) {
+    public void worldPropertyChange(final MVWorldPropertyChangeEvent event) {
     }
 
     /**
      * Called when a {@link MVWorldDeleteEvent} is fired.
+     *
      * @param event The event.
      */
     @EventHandler
-    public void worldDelete(MVWorldDeleteEvent event) {
+    public void worldDelete(final MVWorldDeleteEvent event) {
     }
 
     /**
      * Called when a {@link MVVersionEvent} is fired.
+     *
      * @param event The event.
      */
     @EventHandler
-    public void versionRequest(MVVersionEvent event) {
+    public void versionRequest(final MVVersionEvent event) {
     }
 
     /**
      * Called when a {@link MVTeleportEvent} is fired.
+     *
      * @param event The event.
      */
     @EventHandler
-    public void playerTeleport(MVTeleportEvent event) {
+    public void playerTeleport(final MVTeleportEvent event) {
     }
 
     /**
      * Called when a {@link MVRespawnEvent} is fired.
+     *
      * @param event The event.
      */
     @EventHandler
-    public void playerRespawn(MVRespawnEvent event) {
+    public void playerRespawn(final MVRespawnEvent event) {
     }
 
     /**
      * Called when a {@link MVPlayerTouchedPortalEvent} is fired.
+     *
      * @param event The event.
      */
     @EventHandler
-    public void playerTouchedPortal(MVPlayerTouchedPortalEvent event) {
+    public void playerTouchedPortal(final MVPlayerTouchedPortalEvent event) {
     }
 
     /**
      * Called when a {@link MVConfigReloadEvent} is fired.
+     *
      * @param event The event.
      */
     @EventHandler
-    public void configReload(MVConfigReloadEvent event) {
+    public void configReload(final MVConfigReloadEvent event) {
     }
 }

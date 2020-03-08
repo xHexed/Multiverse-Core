@@ -30,21 +30,22 @@ public enum AllowedPortalType {
      */
     END(PortalType.ENDER);
 
-    private PortalType type;
+    private final PortalType type;
 
-    AllowedPortalType(PortalType type) {
+    AllowedPortalType(final PortalType type) {
         this.type = type;
     }
 
     /**
      * Gets the text.
+     *
      * @return The text.
      */
     public PortalType getActualPortalType() {
-        return this.type;
+        return type;
     }
 
-    public boolean isPortalAllowed(PortalType portalType) {
-        return this != NONE && (getActualPortalType() == portalType || this == ALL);
+    public boolean isPortalAllowed(final PortalType portalType) {
+        return this != NONE && (type == portalType || this == ALL);
     }
 }

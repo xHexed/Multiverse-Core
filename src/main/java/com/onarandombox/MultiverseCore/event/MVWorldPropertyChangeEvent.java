@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This event is fired *before* the property is actually changed.
@@ -24,17 +25,17 @@ import org.bukkit.event.HandlerList;
  * @param <T> The type of the property that was set.
  */
 public class MVWorldPropertyChangeEvent<T> extends Event implements Cancellable {
-    private MultiverseWorld world;
-    private CommandSender changer;
-    private boolean isCancelled = false;
-    private String name;
+    private final MultiverseWorld world;
+    private final CommandSender changer;
+    private final String name;
+    private boolean isCancelled;
     private T value;
 
-    public MVWorldPropertyChangeEvent(MultiverseWorld world, CommandSender changer, String name, T value) {
-        this.world = world;
+    public MVWorldPropertyChangeEvent(final MultiverseWorld world, final CommandSender changer, final String name, final T value) {
+        this.world   = world;
         this.changer = changer;
-        this.name = name;
-        this.value = value;
+        this.name    = name;
+        this.value   = value;
     }
 
     private static final HandlerList HANDLERS = new HandlerList();
@@ -42,6 +43,7 @@ public class MVWorldPropertyChangeEvent<T> extends Event implements Cancellable 
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;
@@ -60,7 +62,7 @@ public class MVWorldPropertyChangeEvent<T> extends Event implements Cancellable 
      * @return The changed world property's name.
      */
     public String getPropertyName() {
-        return this.name;
+        return name;
     }
 
     /**
@@ -70,34 +72,38 @@ public class MVWorldPropertyChangeEvent<T> extends Event implements Cancellable 
      */
     @Deprecated
     public String getNewValue() {
-        return this.value.toString();
-    }
-
-    /**
-     * Gets the new value.
-     * @return The new value.
-     */
-    public T getTheNewValue() {
-        return this.value;
+        return value.toString();
     }
 
     /**
      * Sets the new value.
      * <p>
      * This method is only a stub, it'll <b>always</b> throw an {@link UnsupportedOperationException}!
+     *
      * @param value The new new value.
+     *
      * @deprecated Use {@link #setTheNewValue(Object)} instead.
      */
     @Deprecated
-    public void setNewValue(String value) {
+    public void setNewValue(final String value) {
         throw new UnsupportedOperationException();
     }
 
     /**
+     * Gets the new value.
+     *
+     * @return The new value.
+     */
+    public T getTheNewValue() {
+        return value;
+    }
+
+    /**
      * Sets the new value.
+     *
      * @param value The new value.
      */
-    public void setTheNewValue(T value) {
+    public void setTheNewValue(final T value) {
         this.value = value;
     }
 
@@ -107,7 +113,7 @@ public class MVWorldPropertyChangeEvent<T> extends Event implements Cancellable 
      * @return A valid MultiverseWorld.
      */
     public MultiverseWorld getWorld() {
-        return this.world;
+        return world;
     }
 
     /**
@@ -118,16 +124,16 @@ public class MVWorldPropertyChangeEvent<T> extends Event implements Cancellable 
      * @return The person (or console) who was responsible for the change.
      */
     public CommandSender getCommandSender() {
-        return this.changer;
+        return changer;
     }
 
     @Override
     public boolean isCancelled() {
-        return this.isCancelled;
+        return isCancelled;
     }
 
     @Override
-    public void setCancelled(boolean cancelled) {
-        this.isCancelled = cancelled;
+    public void setCancelled(final boolean cancelled) {
+        isCancelled = cancelled;
     }
 }

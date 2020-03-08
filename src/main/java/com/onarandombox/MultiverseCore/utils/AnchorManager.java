@@ -28,31 +28,33 @@ import java.util.logging.Level;
  * Manages anchors.
  */
 public class AnchorManager {
-    private MultiverseCore plugin;
+    private final MultiverseCore plugin;
     private Map<String, Location> anchors;
     private FileConfiguration anchorConfig;
 
-    public AnchorManager(MultiverseCore plugin) {
+    public AnchorManager(final MultiverseCore plugin) {
         this.plugin = plugin;
-        this.anchors = new HashMap<String, Location>();
+        anchors     = new HashMap<>();
     }
 
     /**
      * Loads all anchors.
      */
     public void loadAnchors() {
-        this.anchors = new HashMap<String, Location>();
-        this.anchorConfig = YamlConfiguration.loadConfiguration(new File(this.plugin.getDataFolder(), "anchors.yml"));
-        this.ensureConfigIsPrepared();
-        ConfigurationSection anchorsSection = this.anchorConfig.getConfigurationSection("anchors");
-        Set<String> anchorKeys = anchorsSection.getKeys(false);
-        for (String key : anchorKeys) {
+        anchors      = new HashMap<>();
+        anchorConfig = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "anchors.yml"));
+        ensureConfigIsPrepared();
+        final ConfigurationSection anchorsSection = anchorConfig.getConfigurationSection("anchors");
+        assert anchorsSection != null;
+        final Set<String> anchorKeys = anchorsSection.getKeys(false);
+        for (final String key : anchorKeys) {
             //world:x,y,z:pitch:yaw
-            Location anchorLocation = plugin.getLocationManipulation().stringToLocation(anchorsSection.getString(key, ""));
+            final Location anchorLocation = plugin.getLocationManipulation().stringToLocation(anchorsSection.getString(key, ""));
             if (anchorLocation != null) {
                 Logging.config("Loading anchor:  '%s'...", key);
-                this.anchors.put(key, anchorLocation);
-            } else {
+                anchors.put(key, anchorLocation);
+            }
+            else {
                 Logging.warning("The location for anchor '%s' is INVALID.", key);
             }
 
@@ -60,8 +62,8 @@ public class AnchorManager {
     }
 
     private void ensureConfigIsPrepared() {
-        if (this.anchorConfig.getConfigurationSection("anchors") == null) {
-            this.anchorConfig.createSection("anchors");
+        if (anchorConfig.getConfigurationSection("anchors") == null) {
+            anchorConfig.createSection("anchors");
         }
     }
 
@@ -71,50 +73,57 @@ public class AnchorManager {
      */
     public boolean saveAnchors() {
         try {
-            this.anchorConfig.save(new File(this.plugin.getDataFolder(), "anchors.yml"));
+            anchorConfig.save(new File(plugin.getDataFolder(), "anchors.yml"));
             return true;
-        } catch (IOException e) {
-            this.plugin.log(Level.SEVERE, "Failed to save anchors.yml. Please check your file permissions.");
+        }
+        catch (final IOException e) {
+            plugin.log(Level.SEVERE, "Failed to save anchors.yml. Please check your file permissions.");
             return false;
         }
     }
 
     /**
      * Gets the {@link Location} associated with an anchor.
+     *
      * @param anchor The name of the anchor.
+     *
      * @return The {@link Location}.
      */
-    public Location getAnchorLocation(String anchor) {
-        if (this.anchors.containsKey(anchor)) {
-            return this.anchors.get(anchor);
+    public Location getAnchorLocation(final String anchor) {
+        if (anchors.containsKey(anchor)) {
+            return anchors.get(anchor);
         }
         return null;
     }
 
     /**
      * Saves an anchor.
-     * @param anchor The name of the anchor.
+     *
+     * @param anchor   The name of the anchor.
      * @param location The location of the anchor as string.
+     *
      * @return True if the anchor was successfully saved.
      */
-    public boolean saveAnchorLocation(String anchor, String location) {
-        Location parsed = plugin.getLocationManipulation().stringToLocation(location);
-        return parsed != null && this.saveAnchorLocation(anchor, parsed);
+    public boolean saveAnchorLocation(final String anchor, final String location) {
+        final Location parsed = plugin.getLocationManipulation().stringToLocation(location);
+        return parsed != null && saveAnchorLocation(anchor, parsed);
     }
 
     /**
      * Saves an anchor.
+     *
      * @param anchor The name of the anchor.
-     * @param l The {@link Location} of the anchor.
+     * @param l      The {@link Location} of the anchor.
+     *
      * @return True if the anchor was successfully saved.
      */
-    public boolean saveAnchorLocation(String anchor, Location l) {
+    public boolean saveAnchorLocation(final String anchor, final Location l) {
         if (l == null) {
             return false;
         }
-        this.anchorConfig.set("anchors." + anchor, plugin.getLocationManipulation().locationToString(l));
-        this.anchors.put(anchor, l);
-        return this.saveAnchors();
+        anchorConfig.set("anchors." + anchor, plugin.getLocationManipulation().locationToString(l));
+        anchors.put(anchor, l);
+        return saveAnchors();
     }
 
     /**
@@ -122,35 +131,39 @@ public class AnchorManager {
      * @return An unmodifiable {@link Set} containing all anchors.
      */
     public Set<String> getAllAnchors() {
-        return Collections.unmodifiableSet(this.anchors.keySet());
+        return Collections.unmodifiableSet(anchors.keySet());
     }
 
     /**
      * Gets all anchors that the specified {@link Player} can access.
+     *
      * @param p The {@link Player}.
+     *
      * @return An unmodifiable {@link Set} containing all anchors the specified {@link Player} can access.
      */
-    public Set<String> getAnchors(Player p) {
+    public Set<String> getAnchors(final Player p) {
         if (p == null) {
-            return this.anchors.keySet();
+            return anchors.keySet();
         }
-        Set<String> myAnchors = new HashSet<String>();
-        for (String anchor : this.anchors.keySet()) {
-            Location ancLoc = this.anchors.get(anchor);
+        final Set<String> myAnchors = new HashSet<>();
+        for (final Map.Entry<String, Location> entry : anchors.entrySet()) {
+            final String anchor = entry.getKey();
+            final Location ancLoc = entry.getValue();
             if (ancLoc == null) {
                 continue;
             }
-            String worldPerm = "multiverse.access." + ancLoc.getWorld().getName();
+            final String worldPerm = "multiverse.access." + ancLoc.getWorld().getName();
             // Add to the list if we're not enforcing access
             // OR
             // We are enforcing access and the user has the permission.
-            if (!this.plugin.getMVConfig().getEnforceAccess() ||
-                    (this.plugin.getMVConfig().getEnforceAccess() && p.hasPermission(worldPerm))) {
+            if (!plugin.getMVConfig().getEnforceAccess() ||
+                    (plugin.getMVConfig().getEnforceAccess() && p.hasPermission(worldPerm))) {
                 myAnchors.add(anchor);
-            } else {
+            }
+            else {
                 Logging.finer(String.format("Not adding anchor %s to the list, user %s doesn't have the %s " +
-                        "permission and 'enforceaccess' is enabled!",
-                        anchor, p.getName(), worldPerm));
+                                                    "permission and 'enforceaccess' is enabled!",
+                                            anchor, p.getName(), worldPerm));
             }
         }
         return Collections.unmodifiableSet(myAnchors);
@@ -158,14 +171,16 @@ public class AnchorManager {
 
     /**
      * Deletes the specified anchor.
+     *
      * @param s The name of the anchor.
+     *
      * @return True if the anchor was successfully deleted.
      */
-    public boolean deleteAnchor(String s) {
-        if (this.anchors.containsKey(s)) {
-            this.anchors.remove(s);
-            this.anchorConfig.set("anchors." + s, null);
-            return this.saveAnchors();
+    public boolean deleteAnchor(final String s) {
+        if (anchors.containsKey(s)) {
+            anchors.remove(s);
+            anchorConfig.set("anchors." + s, null);
+            return saveAnchors();
         }
         return false;
     }

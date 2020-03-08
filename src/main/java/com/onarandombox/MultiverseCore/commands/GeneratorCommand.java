@@ -22,39 +22,39 @@ import java.util.List;
  */
 public class GeneratorCommand extends MultiverseCommand {
 
-    public GeneratorCommand(MultiverseCore plugin) {
+    public GeneratorCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("World Information");
-        this.setCommandUsage("/mv generators");
-        this.setArgRange(0, 0);
-        this.addKey("mv generators");
-        this.addKey("mvgenerators");
-        this.addKey("mv gens");
-        this.addKey("mvgens");
-        this.addCommandExample("/mv generators");
-        this.setPermission("multiverse.core.generator", "Returns a list of Loaded Generator Plugins.", PermissionDefault.OP);
+        setName("World Information");
+        setCommandUsage("/mv generators");
+        setArgRange(0, 0);
+        addKey("mv generators");
+        addKey("mvgenerators");
+        addKey("mv gens");
+        addKey("mvgens");
+        addCommandExample("/mv generators");
+        setPermission("multiverse.core.generator", "Returns a list of Loaded Generator Plugins.", PermissionDefault.OP);
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         Logging.info("PLEASE IGNORE the 'Plugin X does not contain any generators' message below!");
-        Plugin[] plugins = this.plugin.getServer().getPluginManager().getPlugins();
-        List<String> generators = new ArrayList<String>();
-        for (Plugin p : plugins) {
+        final Plugin[] plugins = plugin.getServer().getPluginManager().getPlugins();
+        final List<String> generators = new ArrayList<>();
+        for (final Plugin p : plugins) {
             if (p.isEnabled() && p.getDefaultWorldGenerator("world", "") != null) {
                 generators.add(p.getDescription().getName());
             }
         }
         sender.sendMessage(ChatColor.AQUA + "--- Loaded Generator Plugins ---");
-        String loadedGens = "";
+        StringBuilder loadedGens = new StringBuilder();
         boolean altColor = false;
-        for (String s : generators) {
-            loadedGens += (altColor ? ChatColor.YELLOW : ChatColor.WHITE) + s + " ";
+        for (final String s : generators) {
+            loadedGens.append(altColor ? ChatColor.YELLOW : ChatColor.WHITE).append(s).append(" ");
             altColor = !altColor;
         }
         if (loadedGens.length() == 0) {
-            loadedGens = ChatColor.RED + "No Generator Plugins found.";
+            loadedGens = new StringBuilder(ChatColor.RED + "No Generator Plugins found.");
         }
-        sender.sendMessage(loadedGens);
+        sender.sendMessage(loadedGens.toString());
     }
 }

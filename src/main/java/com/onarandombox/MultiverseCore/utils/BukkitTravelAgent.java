@@ -7,19 +7,21 @@ import com.onarandombox.MultiverseCore.destination.CannonDestination;
 import org.bukkit.Location;
 import org.bukkit.TravelAgent;
 import org.bukkit.event.player.PlayerPortalEvent;
+import org.jetbrains.annotations.NotNull;
 
 public class BukkitTravelAgent implements TravelAgent {
     private final MVTravelAgent agent;
 
-    public BukkitTravelAgent(MVTravelAgent agent) {
+    public BukkitTravelAgent(final MVTravelAgent agent) {
         this.agent = agent;
     }
 
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
-    public BukkitTravelAgent setSearchRadius(int radius) {
+    public BukkitTravelAgent setSearchRadius(final int radius) {
         return this;
     }
 
@@ -34,8 +36,9 @@ public class BukkitTravelAgent implements TravelAgent {
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
-    public BukkitTravelAgent setCreationRadius(int radius) {
+    public BukkitTravelAgent setCreationRadius(final int radius) {
         return this;
     }
 
@@ -59,30 +62,32 @@ public class BukkitTravelAgent implements TravelAgent {
      * {@inheritDoc}
      */
     @Override
-    public void setCanCreatePortal(boolean create) {
+    public void setCanCreatePortal(final boolean create) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public Location findOrCreate(@NotNull final Location location) {
+        return getSafeLocation();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @NotNull
+    @Override
+    public Location findPortal(@NotNull final Location location) {
+        return getSafeLocation();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Location findOrCreate(Location location) {
-        return this.getSafeLocation();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Location findPortal(Location location) {
-        return this.getSafeLocation();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean createPortal(Location location) {
+    public boolean createPortal(@NotNull final Location location) {
         return false;
     }
 
@@ -91,7 +96,7 @@ public class BukkitTravelAgent implements TravelAgent {
         if (agent.destination instanceof CannonDestination) {
             agent.core.log(Level.FINE, "Using Stock TP method. This cannon will have 0 velocity");
         }
-        SafeTTeleporter teleporter = agent.core.getSafeTTeleporter();
+        final SafeTTeleporter teleporter = agent.core.getSafeTTeleporter();
         Location newLoc = agent.destination.getLocation(agent.player);
         if (agent.destination.useSafeTeleporter()) {
             newLoc = teleporter.getSafeLocation(agent.player, agent.destination);
@@ -103,7 +108,7 @@ public class BukkitTravelAgent implements TravelAgent {
 
     }
 
-    public void setPortalEventTravelAgent(PlayerPortalEvent event) {
+    public void setPortalEventTravelAgent(final PlayerPortalEvent event) {
         event.setPortalTravelAgent(this);
         event.useTravelAgent(true);
     }

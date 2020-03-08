@@ -40,23 +40,23 @@ public class TestDebugMode {
     CommandSender mockCommandSender;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         creator = new TestInstanceCreator();
         assertTrue(creator.setUp());
-        mockServer = creator.getServer();
+        mockServer        = creator.getServer();
         mockCommandSender = creator.getCommandSender();
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         creator.tearDown();
     }
 
     @Test
     public void testEnableDebugMode() {
         // Pull a core instance from the server.
-        Plugin plugin = mockServer.getPluginManager().getPlugin("Multiverse-Core");
-        Core core = (Core) plugin;
+        final Plugin plugin = mockServer.getPluginManager().getPlugin("Multiverse-Core");
+        final Core core = (Core) plugin;
 
         // Make sure Core is not null
         assertNotNull(plugin);
@@ -65,18 +65,18 @@ public class TestDebugMode {
         assertTrue(plugin.isEnabled());
 
         // Make a fake server folder to fool MV into thinking a world folder exists.
-        File serverDirectory = new File(creator.getCore().getServerFolder(), "world");
+        final File serverDirectory = new File(creator.getCore().getServerFolder(), "world");
         serverDirectory.mkdirs();
 
         // Initialize a fake command
-        Command mockCommand = mock(Command.class);
+        final Command mockCommand = mock(Command.class);
         when(mockCommand.getName()).thenReturn("mv");
 
         // Assert debug mode is off
         Assert.assertEquals(0, core.getMVConfig().getGlobalDebug());
 
         // Send the debug command.
-        String[] debugArgs = new String[] { "debug", "3" };
+        final String[] debugArgs = {"debug", "3"};
         plugin.onCommand(mockCommandSender, mockCommand, "", debugArgs);
 
         Assert.assertEquals(3, core.getMVConfig().getGlobalDebug());

@@ -19,7 +19,7 @@ public enum EnglishChatStyle {
 
     private final ChatColor color;
 
-    EnglishChatStyle(ChatColor color) {
+    EnglishChatStyle(final ChatColor color) {
         this.color = color;
     }
 
@@ -33,12 +33,14 @@ public enum EnglishChatStyle {
 
     /**
      * Constructs an {@link EnglishChatStyle} from a {@link String}.
+     *
      * @param text The {@link String}.
+     *
      * @return The {@link EnglishChatStyle}.
      */
-    public static EnglishChatStyle fromString(String text) {
+    public static EnglishChatStyle fromString(final String text) {
         if (text != null) {
-            for (EnglishChatStyle c : EnglishChatStyle.values()) {
+            for (final EnglishChatStyle c : EnglishChatStyle.values()) {
                 if (text.equalsIgnoreCase(c.name())) {
                     return c;
                 }

@@ -11,7 +11,6 @@ import com.onarandombox.MultiverseCore.MultiverseCore;
 import com.onarandombox.MultiverseCore.api.MVWorldManager;
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,40 +23,40 @@ import java.util.List;
  * Returns detailed information on the Players where abouts.
  */
 public class CoordCommand extends MultiverseCommand {
-    private MVWorldManager worldManager;
+    private final MVWorldManager worldManager;
 
-    public CoordCommand(MultiverseCore plugin) {
+    public CoordCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Coordinates");
-        this.setCommandUsage("/mv coord");
-        this.setArgRange(0, 0);
-        this.addKey("mv coord");
-        this.addKey("mvcoord");
-        this.addKey("mvco");
-        this.addCommandExample("/mv coord");
-        this.setPermission("multiverse.core.coord", "Returns detailed information on the Players where abouts.", PermissionDefault.OP);
-        this.worldManager = this.plugin.getMVWorldManager();
+        setName("Coordinates");
+        setCommandUsage("/mv coord");
+        setArgRange(0, 0);
+        addKey("mv coord");
+        addKey("mvcoord");
+        addKey("mvco");
+        addCommandExample("/mv coord");
+        setPermission("multiverse.core.coord", "Returns detailed information on the Players where abouts.", PermissionDefault.OP);
+        worldManager = this.plugin.getMVWorldManager();
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         // Check if the command was sent from a Player.
         if (sender instanceof Player) {
-            Player p = (Player) sender;
-            World world = p.getWorld();
+            final Player p = (Player) sender;
+            final World world = p.getWorld();
 
-            if (!this.worldManager.isMVWorld(world.getName())) {
-                this.plugin.showNotMVWorldMessage(sender, world.getName());
+            if (!worldManager.isMVWorld(world.getName())) {
+                plugin.showNotMVWorldMessage(sender, world.getName());
                 return;
             }
 
-            MultiverseWorld mvworld = this.worldManager.getMVWorld(world.getName());
+            final MultiverseWorld mvworld = worldManager.getMVWorld(world.getName());
 
             p.sendMessage(ChatColor.AQUA + "--- Location Information ---");
             p.sendMessage(ChatColor.AQUA + "World: " + ChatColor.WHITE + world.getName());
             p.sendMessage(ChatColor.AQUA + "Alias: " + mvworld.getColoredWorldString());
             p.sendMessage(ChatColor.AQUA + "World Scale: " + ChatColor.WHITE + mvworld.getScaling());
-            DecimalFormat df = new DecimalFormat();
+            final DecimalFormat df = new DecimalFormat();
             df.setMinimumFractionDigits(0);
             df.setMaximumFractionDigits(2);
             p.sendMessage(ChatColor.AQUA + "Coordinates: " + ChatColor.WHITE + plugin.getLocationManipulation().strCoords(p.getLocation()));

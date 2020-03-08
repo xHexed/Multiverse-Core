@@ -25,27 +25,27 @@ import java.util.List;
  * Used to modify various aspects of worlds.
  */
 public class ModifyAddCommand extends MultiverseCommand {
-    private MVWorldManager worldManager;
+    private final MVWorldManager worldManager;
 
-    public ModifyAddCommand(MultiverseCore plugin) {
+    public ModifyAddCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Modify a World (Add a value)");
-        this.setCommandUsage("/mv modify " + ChatColor.GREEN + "add {VALUE} {PROPERTY}" + ChatColor.GOLD + " [WORLD] ");
-        this.setArgRange(2, 3);
-        this.addKey("mvm add");
-        this.addKey("mvmadd");
-        this.addKey("mv modify add");
-        this.addKey("mvmodify add");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "add " + ChatColor.GREEN + "sheep " + ChatColor.RED + "animals");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "add " + ChatColor.GREEN + "creeper " + ChatColor.RED + "monsters");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "add " + ChatColor.GREEN + "MyWorld " + ChatColor.RED + "worldblacklist");
-        this.setPermission("multiverse.core.modify.add", "Modify various aspects of worlds. See the help wiki for how to use this command properly. "
+        setName("Modify a World (Add a value)");
+        setCommandUsage("/mv modify " + ChatColor.GREEN + "add {VALUE} {PROPERTY}" + ChatColor.GOLD + " [WORLD] ");
+        setArgRange(2, 3);
+        addKey("mvm add");
+        addKey("mvmadd");
+        addKey("mv modify add");
+        addKey("mvmodify add");
+        addCommandExample("/mvm " + ChatColor.GOLD + "add " + ChatColor.GREEN + "sheep " + ChatColor.RED + "animals");
+        addCommandExample("/mvm " + ChatColor.GOLD + "add " + ChatColor.GREEN + "creeper " + ChatColor.RED + "monsters");
+        addCommandExample("/mvm " + ChatColor.GOLD + "add " + ChatColor.GREEN + "MyWorld " + ChatColor.RED + "worldblacklist");
+        setPermission("multiverse.core.modify.add", "Modify various aspects of worlds. See the help wiki for how to use this command properly. "
                 + "If you do not include a world, the current world will be used.", PermissionDefault.OP);
-        this.worldManager = this.plugin.getMVWorldManager();
+        worldManager = this.plugin.getMVWorldManager();
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         // We NEED a world from the command line
         Player p = null;
         if (sender instanceof Player) {
@@ -54,20 +54,21 @@ public class ModifyAddCommand extends MultiverseCommand {
 
         if (args.size() == 2 && p == null) {
             sender.sendMessage(ChatColor.RED + "From the console, WORLD is required.");
-            sender.sendMessage(this.getCommandDesc());
-            sender.sendMessage(this.getCommandUsage());
+            sender.sendMessage(getCommandDesc());
+            sender.sendMessage(getCommandUsage());
             sender.sendMessage("Nothing changed.");
             return;
         }
 
-        MultiverseWorld world;
-        String value = args.get(0);
-        String property = args.get(1);
+        final MultiverseWorld world;
+        final String value = args.get(0);
+        final String property = args.get(1);
 
         if (args.size() == 2) {
-            world = this.worldManager.getMVWorld(p.getWorld().getName());
-        } else {
-            world = this.worldManager.getMVWorld(args.get(2));
+            world = worldManager.getMVWorld(p.getWorld().getName());
+        }
+        else {
+            world = worldManager.getMVWorld(args.get(2));
         }
 
         if (world == null) {

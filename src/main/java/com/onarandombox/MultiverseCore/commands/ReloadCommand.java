@@ -21,33 +21,33 @@ import java.util.List;
  */
 public class ReloadCommand extends MultiverseCommand {
 
-    public ReloadCommand(MultiverseCore plugin) {
+    public ReloadCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Reload Configs");
-        this.setCommandUsage("/mv reload");
-        this.setArgRange(0, 0);
-        this.addKey("mvreload");
-        this.addKey("mv reload");
-        this.addCommandExample("/mv reload");
-        this.setPermission("multiverse.core.reload", "Reloads worlds.yml and config.yml.", PermissionDefault.OP);
+        setName("Reload Configs");
+        setCommandUsage("/mv reload");
+        setArgRange(0, 0);
+        addKey("mvreload");
+        addKey("mv reload");
+        addCommandExample("/mv reload");
+        setPermission("multiverse.core.reload", "Reloads worlds.yml and config.yml.", PermissionDefault.OP);
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         sender.sendMessage(ChatColor.GOLD + "Reloading all Multiverse Plugin configs...");
-        this.plugin.loadConfigs();
-        this.plugin.getAnchorManager().loadAnchors();
-        this.plugin.getMVWorldManager().loadWorlds(true);
+        plugin.loadConfigs();
+        plugin.getAnchorManager().loadAnchors();
+        plugin.getMVWorldManager().loadWorlds(true);
 
-        List<String> configsLoaded = new ArrayList<String>();
+        final List<String> configsLoaded = new ArrayList<>();
         configsLoaded.add("Multiverse-Core - config.yml");
         configsLoaded.add("Multiverse-Core - worlds.yml");
         configsLoaded.add("Multiverse-Core - anchors.yml");
         // Create the event
-        MVConfigReloadEvent configReload = new MVConfigReloadEvent(configsLoaded);
+        final MVConfigReloadEvent configReload = new MVConfigReloadEvent(configsLoaded);
         // Fire it off
-        this.plugin.getServer().getPluginManager().callEvent(configReload);
-        for (String s : configReload.getAllConfigsLoaded()) {
+        plugin.getServer().getPluginManager().callEvent(configReload);
+        for (final String s : configReload.getAllConfigsLoaded()) {
             sender.sendMessage(s);
         }
 

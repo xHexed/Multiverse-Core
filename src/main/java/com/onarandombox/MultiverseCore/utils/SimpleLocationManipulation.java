@@ -28,7 +28,7 @@ public class SimpleLocationManipulation implements LocationManipulation {
     private static final Map<String, Integer> ORIENTATION_INTS;
 
     static {
-        Map<String, Integer> orientationInts = new HashMap<String, Integer>();
+        final Map<String, Integer> orientationInts = new HashMap<>();
         // BEGIN CHECKSTYLE-SUPPRESSION: MagicNumberCheck
         orientationInts.put("n", 180);
         orientationInts.put("ne", 225);
@@ -48,19 +48,19 @@ public class SimpleLocationManipulation implements LocationManipulation {
      * {@inheritDoc}
      */
     @Override
-    public String locationToString(Location location) {
+    public String locationToString(final Location location) {
         if (location == null) {
             return "";
         }
         return String.format("%s:%.2f,%.2f,%.2f:%.2f:%.2f", location.getWorld().getName(),
-                location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
+                             location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Location getBlockLocation(Location l) {
+    public Location getBlockLocation(final Location l) {
         l.setX(l.getBlockX());
         l.setY(l.getBlockY());
         l.setZ(l.getBlockZ());
@@ -71,7 +71,7 @@ public class SimpleLocationManipulation implements LocationManipulation {
      * {@inheritDoc}
      */
     @Override
-    public Location stringToLocation(String locationString) {
+    public Location stringToLocation(final String locationString) {
         //format:
         //world:x,y,z:pitch:yaw
         if (locationString == null) {
@@ -80,19 +80,19 @@ public class SimpleLocationManipulation implements LocationManipulation {
 
         // Split the whole string, format is:
         // {'world', 'x,y,z'[, 'pitch', 'yaw']}
-        String[] split = locationString.split(":");
+        final String[] split = locationString.split(":");
         if (split.length < 2 || split.length > 4) { // SUPPRESS CHECKSTYLE: MagicNumberCheck
             return null;
         }
         // Split the xyz string, format is:
         // {'x', 'y', 'z'}
-        String[] xyzsplit = split[1].split(",");
+        final String[] xyzsplit = split[1].split(",");
         if (xyzsplit.length != 3) {
             return null;
         }
 
         // Verify the world is valid
-        World w = Bukkit.getWorld(split[0]);
+        final World w = Bukkit.getWorld(split[0]);
         if (w == null) {
             return null;
         }
@@ -107,7 +107,8 @@ public class SimpleLocationManipulation implements LocationManipulation {
                 pitch = (float) Double.parseDouble(split[3]);
             }
             return new Location(w, Double.parseDouble(xyzsplit[0]), Double.parseDouble(xyzsplit[1]), Double.parseDouble(xyzsplit[2]), yaw, pitch);
-        } catch (NumberFormatException e) {
+        }
+        catch (final NumberFormatException e) {
             return null;
         }
     }
@@ -116,9 +117,9 @@ public class SimpleLocationManipulation implements LocationManipulation {
      * {@inheritDoc}
      */
     @Override
-    public String strCoords(Location l) {
+    public String strCoords(final Location l) {
         String result = "";
-        DecimalFormat df = new DecimalFormat();
+        final DecimalFormat df = new DecimalFormat();
         df.setMinimumFractionDigits(0);
         df.setMaximumFractionDigits(2);
         result += ChatColor.WHITE + "X: " + ChatColor.AQUA + df.format(l.getX()) + " ";
@@ -133,12 +134,12 @@ public class SimpleLocationManipulation implements LocationManipulation {
      * {@inheritDoc}
      */
     @Override
-    public String strCoordsRaw(Location l) {
+    public String strCoordsRaw(final Location l) {
         if (l == null) {
             return "null";
         }
         String result = "";
-        DecimalFormat df = new DecimalFormat();
+        final DecimalFormat df = new DecimalFormat();
         df.setMinimumFractionDigits(0);
         df.setMaximumFractionDigits(2);
         result += "X: " + df.format(l.getX()) + " ";
@@ -153,11 +154,11 @@ public class SimpleLocationManipulation implements LocationManipulation {
      * {@inheritDoc}
      */
     @Override
-    public String getDirection(Location location) {
+    public String getDirection(final Location location) {
         // BEGIN CHECKSTYLE-SUPPRESSION: MagicNumberCheck
-        double r = (location.getYaw() % 360) + 180;
+        final double r = (location.getYaw() % 360) + 180;
         // Remember, these numbers are every 45 degrees with a 22.5 offset, to detect boundaries.
-        String dir;
+        final String dir;
         if (r < 22.5)
             dir = "n";
         else if (r < 67.5)
@@ -185,7 +186,7 @@ public class SimpleLocationManipulation implements LocationManipulation {
      * {@inheritDoc}
      */
     @Override
-    public float getYaw(String orientation) {
+    public float getYaw(final String orientation) {
         if (orientation == null) {
             return 0;
         }
@@ -199,7 +200,7 @@ public class SimpleLocationManipulation implements LocationManipulation {
      * {@inheritDoc}
      */
     @Override
-    public float getSpeed(Vector v) {
+    public float getSpeed(final Vector v) {
         return (float) Math.sqrt(v.getX() * v.getX() + v.getZ() * v.getZ());
     }
 
@@ -210,22 +211,26 @@ public class SimpleLocationManipulation implements LocationManipulation {
      * {@inheritDoc}
      */
     @Override
-    public Vector getTranslatedVector(Vector v, String direction) {
+    public Vector getTranslatedVector(final Vector v, final String direction) {
         if (direction == null) {
             return v;
         }
-        float speed = getSpeed(v);
-        float halfSpeed = (float) (speed / 2.0);
+        final float speed = getSpeed(v);
+        final float halfSpeed = (float) (speed / 2.0);
         // TODO: Mathmatacize this:
         if (direction.equalsIgnoreCase("n")) {
             return new Vector(0, 0, -1 * speed);
-        } else if (direction.equalsIgnoreCase("ne")) {
+        }
+        else if (direction.equalsIgnoreCase("ne")) {
             return new Vector(halfSpeed, 0, -1 * halfSpeed);
-        } else if (direction.equalsIgnoreCase("e")) {
+        }
+        else if (direction.equalsIgnoreCase("e")) {
             return new Vector(speed, 0, 0);
-        } else if (direction.equalsIgnoreCase("se")) {
+        }
+        else if (direction.equalsIgnoreCase("se")) {
             return new Vector(halfSpeed, 0, halfSpeed);
-        } else if (direction.equalsIgnoreCase("s")) {
+        }
+        else if (direction.equalsIgnoreCase("s")) {
             return new Vector(0, 0, speed);
         } else if (direction.equalsIgnoreCase("sw")) {
             return new Vector(-1 * halfSpeed, 0, halfSpeed);
@@ -241,11 +246,11 @@ public class SimpleLocationManipulation implements LocationManipulation {
      * {@inheritDoc}
      */
     @Override
-    public Location getNextBlock(Vehicle v) {
-        Vector vector = v.getVelocity();
-        Location location = v.getLocation();
-        int x = vector.getX() < 0 ? vector.getX() == 0 ? 0 : -1 : 1;
-        int z = vector.getZ() < 0 ? vector.getZ() == 0 ? 0 : -1 : 1;
+    public Location getNextBlock(final Vehicle v) {
+        final Vector vector = v.getVelocity();
+        final Location location = v.getLocation();
+        final int x = vector.getX() < 0 ? vector.getX() == 0 ? 0 : -1 : 1;
+        final int z = vector.getZ() < 0 ? vector.getZ() == 0 ? 0 : -1 : 1;
         return location.add(x, 0, z);
     }
 }

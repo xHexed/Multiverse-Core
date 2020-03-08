@@ -23,49 +23,51 @@ import java.util.List;
  */
 public class ListCommand extends PaginatedCoreCommand<String> {
 
-    public ListCommand(MultiverseCore plugin) {
+    public ListCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("World Listing");
-        this.setCommandUsage("/mv list");
-        this.setArgRange(0, 2);
-        this.addKey("mvlist");
-        this.addKey("mvl");
-        this.addKey("mv list");
-        this.setPermission("multiverse.core.list.worlds", "Displays a listing of all worlds that you can enter.", PermissionDefault.OP);
-        this.setItemsPerPage(8); // SUPPRESS CHECKSTYLE: MagicNumberCheck
+        setName("World Listing");
+        setCommandUsage("/mv list");
+        setArgRange(0, 2);
+        addKey("mvlist");
+        addKey("mvl");
+        addKey("mv list");
+        setPermission("multiverse.core.list.worlds", "Displays a listing of all worlds that you can enter.", PermissionDefault.OP);
+        setItemsPerPage(8); // SUPPRESS CHECKSTYLE: MagicNumberCheck
     }
 
-    private List<String> getFancyWorldList(Player p) {
-        List<String> worldList = new ArrayList<String>();
-        for (MultiverseWorld world : this.plugin.getMVWorldManager().getMVWorlds()) {
+    private List<String> getFancyWorldList(final Player p) {
+        final List<String> worldList = new ArrayList<>();
+        for (final MultiverseWorld world : plugin.getMVWorldManager().getMVWorlds()) {
 
-            if (p != null && (!this.plugin.getMVPerms().canEnterWorld(p, world))) {
+            if (p != null && (!plugin.getMVPerms().canEnterWorld(p, world))) {
                 continue;
             }
 
             ChatColor color = ChatColor.GOLD;
-            Environment env = world.getEnvironment();
+            final Environment env = world.getEnvironment();
             if (env == Environment.NETHER) {
                 color = ChatColor.RED;
-            } else if (env == Environment.NORMAL) {
+            }
+            else if (env == Environment.NORMAL) {
                 color = ChatColor.GREEN;
             } else if (env == Environment.THE_END) {
                 color = ChatColor.AQUA;
             }
-            StringBuilder builder = new StringBuilder();
+            final StringBuilder builder = new StringBuilder();
             builder.append(world.getColoredWorldString()).append(ChatColor.WHITE);
             builder.append(" - ").append(color).append(world.getEnvironment());
             if (world.isHidden()) {
-                if (p == null || this.plugin.getMVPerms().hasPermission(p, "multiverse.core.modify", true)) {
+                if (p == null || plugin.getMVPerms().hasPermission(p, "multiverse.core.modify", true)) {
                     // Prefix hidden worlds with an "[H]"
-                    worldList.add(ChatColor.GRAY + "[H]" + builder.toString());
+                    worldList.add(ChatColor.GRAY + "[H]" + builder);
                 }
-            } else {
+            }
+            else {
                 worldList.add(builder.toString());
             }
         }
-        for (String name : this.plugin.getMVWorldManager().getUnloadedWorlds()) {
-            if (p == null || this.plugin.getMVPerms().hasPermission(p, "multiverse.access." + name, true)) {
+        for (final String name : plugin.getMVWorldManager().getUnloadedWorlds()) {
+            if (p == null || plugin.getMVPerms().hasPermission(p, "multiverse.access." + name, true)) {
                 worldList.add(ChatColor.GRAY + name + " - UNLOADED");
             }
         }
@@ -73,10 +75,10 @@ public class ListCommand extends PaginatedCoreCommand<String> {
     }
 
     @Override
-    protected List<String> getFilteredItems(List<String> availableItems, String filter) {
-        List<String> filtered = new ArrayList<String>();
+    protected List<String> getFilteredItems(final List<String> availableItems, final String filter) {
+        final List<String> filtered = new ArrayList<>();
 
-        for (String s : availableItems) {
+        for (final String s : availableItems) {
             if (s.matches("(?i).*" + filter + ".*")) {
                 filtered.add(s);
             }
@@ -85,12 +87,12 @@ public class ListCommand extends PaginatedCoreCommand<String> {
     }
 
     @Override
-    protected String getItemText(String item) {
+    protected String getItemText(final String item) {
         return item;
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         sender.sendMessage(ChatColor.LIGHT_PURPLE + "====[ Multiverse World List ]====");
         Player p = null;
         if (sender instanceof Player) {
@@ -98,11 +100,11 @@ public class ListCommand extends PaginatedCoreCommand<String> {
         }
 
 
-        FilterObject filterObject = this.getPageAndFilter(args);
+        final FilterObject filterObject = getPageAndFilter(args);
 
-        List<String> availableWorlds = new ArrayList<String>(this.getFancyWorldList(p));
+        List<String> availableWorlds = new ArrayList<>(getFancyWorldList(p));
         if (filterObject.getFilter().length() > 0) {
-            availableWorlds = this.getFilteredItems(availableWorlds, filterObject.getFilter());
+            availableWorlds = getFilteredItems(availableWorlds, filterObject.getFilter());
             if (availableWorlds.size() == 0) {
                 sender.sendMessage(ChatColor.RED + "Sorry... " + ChatColor.WHITE
                         + "No worlds matched your filter: " + ChatColor.AQUA + filterObject.getFilter());
@@ -111,13 +113,13 @@ public class ListCommand extends PaginatedCoreCommand<String> {
         }
 
         if (!(sender instanceof Player)) {
-            for (String c : availableWorlds) {
+            for (final String c : availableWorlds) {
                 sender.sendMessage(c);
             }
             return;
         }
 
-        int totalPages = (int) Math.ceil(availableWorlds.size() / (this.itemsPerPage + 0.0));
+        final int totalPages = (int) Math.ceil(availableWorlds.size() / (itemsPerPage + 0.0));
 
         if (filterObject.getPage() > totalPages) {
             filterObject.setPage(totalPages);
@@ -125,6 +127,6 @@ public class ListCommand extends PaginatedCoreCommand<String> {
 
         sender.sendMessage(ChatColor.AQUA + " Page " + filterObject.getPage() + " of " + totalPages);
 
-        this.showPage(filterObject.getPage(), sender, availableWorlds);
+        showPage(filterObject.getPage(), sender, availableWorlds);
     }
 }

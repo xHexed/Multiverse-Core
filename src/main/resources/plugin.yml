@@ -2,8 +2,8 @@ name: Multiverse-Core
 main: com.onarandombox.MultiverseCore.MultiverseCore
 authors: ['Rigby', 'fernferret', 'lithium3141', 'main--', 'dumptruckman']
 website: 'https://dev.bukkit.org/projects/multiverse-core'
-api-version: 1.13
-version: maven-version-number
+api-version: "1.13"
+version: ${project.version}
 commands:
   mv:
     description: Generic Multiverse Command
@@ -11,9 +11,9 @@ commands:
   mvcreate:
     description: World create command
     usage: |
-            /<command> <world> <environment>
-            /<command> creative normal -- Creates a world called 'creative' with a NORMAL environment.
-            /<command> hellworld nether -- Creates a world called 'hellworld' with a NETHER environment.
+      /<command> <world> <environment>
+      /<command> creative normal -- Creates a world called 'creative' with a NORMAL environment.
+      /<command> hellworld nether -- Creates a world called 'hellworld' with a NETHER environment.
   mvc:
     description: World create command
     usage: |
@@ -113,12 +113,12 @@ commands:
             /<command> [world]
             /<command> -- Shows the relevant coordinates in your current world.
             /<command> creative -- Shows the relevant coordinates if you were in the 'creative' world.
-  mvc:
+  mvcheck:
     description: Display World, Coordinates, Direction & Compression for a world.
     usage: |
-            /<command> [world]
-            /<command> -- Shows the relevant coordinates in your current world.
-            /<command> creative -- Shows the relevant coordinates if you were in the 'creative' world.
+      /<command> [world]
+      /<command> -- Shows the relevant coordinates in your current world.
+      /<command> creative -- Shows the relevant coordinates if you were in the 'creative' world.
   mvwho:
     description: Display online users per world.
     usage: |

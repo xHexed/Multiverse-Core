@@ -14,14 +14,14 @@ import org.bukkit.event.world.WorldInitEvent;
 
 public class MVWorldInitListener implements Listener {
 
-    MultiverseCore plugin;
+    final MultiverseCore plugin;
 
-    public MVWorldInitListener(MultiverseCore plugin) {
+    public MVWorldInitListener(final MultiverseCore plugin) {
         this.plugin = plugin;
     }
 
     @EventHandler
-    public void initWorld(WorldInitEvent event) {
+    public void initWorld(final WorldInitEvent event) {
         if (!plugin.getMVWorldManager().isKeepingSpawnInMemory(event.getWorld())) {
             event.getWorld().setKeepSpawnInMemory(false);
         }

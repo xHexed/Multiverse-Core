@@ -30,55 +30,76 @@ import java.util.logging.Level;
  * The default-implementation of {@link SafeTTeleporter}.
  */
 public class SimpleSafeTTeleporter implements SafeTTeleporter {
-    private MultiverseCore plugin;
+    private final MultiverseCore plugin;
 
-    public SimpleSafeTTeleporter(MultiverseCore plugin) {
+    public SimpleSafeTTeleporter(final MultiverseCore plugin) {
         this.plugin = plugin;
     }
 
     private static final int DEFAULT_TOLERANCE = 6;
     private static final int DEFAULT_RADIUS = 9;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Location getSafeLocation(Location l) {
-        return this.getSafeLocation(l, DEFAULT_TOLERANCE, DEFAULT_RADIUS);
+    private static Location getCloserBlock(final Location source, final Location blockA, final Location blockB) {
+        // If B wasn't given, return a.
+        if (blockB == null) {
+            return blockA;
+        }
+        // Center our calculations
+        blockA.add(.5, 0, .5);
+        blockB.add(.5, 0, .5);
+
+        // Retrieve the distance to the normalized blocks
+        final double testA = source.distance(blockA);
+        final double testB = source.distance(blockB);
+
+        // Compare and return
+        if (testA <= testB) {
+            return blockA;
+        }
+        return blockB;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Location getSafeLocation(Location l, int tolerance, int radius) {
+    public Location getSafeLocation(final Location l) {
+        return getSafeLocation(l, DEFAULT_TOLERANCE, DEFAULT_RADIUS);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Location getSafeLocation(final Location l, final int tolerance, final int radius) {
         // Check around the player first in a configurable radius:
         // TODO: Make this configurable
-        Location safe = checkAboveAndBelowLocation(l, tolerance, radius);
+        final Location safe = checkAboveAndBelowLocation(l, tolerance, radius);
         if (safe != null) {
             safe.setX(safe.getBlockX() + .5); // SUPPRESS CHECKSTYLE: MagicNumberCheck
             safe.setZ(safe.getBlockZ() + .5); // SUPPRESS CHECKSTYLE: MagicNumberCheck
-            this.plugin.log(Level.FINE, "Hey! I found one: " + plugin.getLocationManipulation().strCoordsRaw(safe));
-        } else {
-            this.plugin.log(Level.FINE, "Uh oh! No safe place found!");
+            plugin.log(Level.FINE, "Hey! I found one: " + plugin.getLocationManipulation().strCoordsRaw(safe));
+        }
+        else {
+            plugin.log(Level.FINE, "Uh oh! No safe place found!");
         }
         return safe;
     }
 
-    private Location checkAboveAndBelowLocation(Location l, int tolerance, int radius) {
+    private Location checkAboveAndBelowLocation(final Location l, int tolerance, final int radius) {
         // Tolerance must be an even number:
         if (tolerance % 2 != 0) {
             tolerance += 1;
         }
         // We want half of it, so we can go up and down
         tolerance /= 2;
-        this.plugin.log(Level.FINER, "Given Location of: " + plugin.getLocationManipulation().strCoordsRaw(l));
-        this.plugin.log(Level.FINER, "Checking +-" + tolerance + " with a radius of " + radius);
+        plugin.log(Level.FINER, "Given Location of: " + plugin.getLocationManipulation().strCoordsRaw(l));
+        plugin.log(Level.FINER, "Checking +-" + tolerance + " with a radius of " + radius);
 
         // For now this will just do a straight up block.
         Location locToCheck = l.clone();
         // Check the main level
-        Location safe = this.checkAroundLocation(locToCheck, radius);
+        Location safe = checkAroundLocation(locToCheck, radius);
         if (safe != null) {
             return safe;
         }
@@ -88,7 +109,7 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
             // Check above
             locToCheck = l.clone();
             locToCheck.add(0, currentLevel, 0);
-            safe = this.checkAroundLocation(locToCheck, radius);
+            safe = checkAroundLocation(locToCheck, radius);
             if (safe != null) {
                 return safe;
             }
@@ -96,7 +117,7 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
             // Check below
             locToCheck = l.clone();
             locToCheck.subtract(0, currentLevel, 0);
-            safe = this.checkAroundLocation(locToCheck, radius);
+            safe = checkAroundLocation(locToCheck, radius);
             if (safe != null) {
                 return safe;
             }
@@ -109,7 +130,7 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
     /*
      * For my crappy algorithm, radius MUST be odd.
      */
-    private Location checkAroundLocation(Location l, int diameter) {
+    private Location checkAroundLocation(final Location l, int diameter) {
         if (diameter % 2 == 0) {
             diameter += 1;
         }
@@ -118,7 +139,7 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
         // Start at 3, the min diameter around a block
         int loopcounter = 3;
         while (loopcounter <= diameter) {
-            boolean foundSafeArea = checkAroundSpecificDiameter(checkLoc, loopcounter);
+            final boolean foundSafeArea = checkAroundSpecificDiameter(checkLoc, loopcounter);
             // If a safe area was found:
             if (foundSafeArea) {
                 // Return the checkLoc, it is the safe location.
@@ -132,13 +153,13 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
         return null;
     }
 
-    private boolean checkAroundSpecificDiameter(Location checkLoc, int circle) {
+    private boolean checkAroundSpecificDiameter(final Location checkLoc, final int circle) {
         // Adjust the circle to get how many blocks to step out.
         // A radius of 3 makes the block step 1
         // A radius of 5 makes the block step 2
         // A radius of 7 makes the block step 3
         // ...
-        int adjustedCircle = ((circle - 1) / 2);
+        final int adjustedCircle = ((circle - 1) / 2);
         checkLoc.add(adjustedCircle, 0, 0);
         if (plugin.getBlockSafety().playerCanSpawnHereSafely(checkLoc)) {
             return true;
@@ -189,15 +210,16 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
      * {@inheritDoc}
      */
     @Override
-    public TeleportResult safelyTeleport(CommandSender teleporter, Entity teleportee, MVDestination d) {
+    public TeleportResult safelyTeleport(final CommandSender teleporter, final Entity teleportee, final MVDestination d) {
         if (d instanceof InvalidDestination) {
-            this.plugin.log(Level.FINER, "Entity tried to teleport to an invalid destination");
+            plugin.log(Level.FINER, "Entity tried to teleport to an invalid destination");
             return TeleportResult.FAIL_INVALID;
         }
         Player teleporteePlayer = null;
         if (teleportee instanceof Player) {
             teleporteePlayer = ((Player) teleportee);
-        } else if (teleportee.getPassenger() instanceof Player) {
+        }
+        else if (teleportee.getPassenger() instanceof Player) {
             teleporteePlayer = ((Player) teleportee.getPassenger());
         }
 
@@ -208,7 +230,7 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
 
         Location safeLoc = d.getLocation(teleportee);
         if (d.useSafeTeleporter()) {
-            safeLoc = this.getSafeLocation(teleportee, d);
+            safeLoc = getSafeLocation(teleportee, d);
         }
 
         if (safeLoc != null) {
@@ -227,9 +249,9 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
      * {@inheritDoc}
      */
     @Override
-    public TeleportResult safelyTeleport(CommandSender teleporter, Entity teleportee, Location location, boolean safely) {
+    public TeleportResult safelyTeleport(final CommandSender teleporter, final Entity teleportee, Location location, final boolean safely) {
         if (safely) {
-            location = this.getSafeLocation(location);
+            location = getSafeLocation(location);
         }
 
         if (location != null) {
@@ -245,43 +267,44 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
      * {@inheritDoc}
      */
     @Override
-    public Location getSafeLocation(Entity e, MVDestination d) {
-        Location l = d.getLocation(e);
+    public Location getSafeLocation(final Entity e, final MVDestination d) {
+        final Location l = d.getLocation(e);
         if (plugin.getBlockSafety().playerCanSpawnHereSafely(l)) {
             plugin.log(Level.FINE, "The first location you gave me was safe.");
             return l;
         }
         if (e instanceof Minecart) {
-            Minecart m = (Minecart) e;
+            final Minecart m = (Minecart) e;
             if (!plugin.getBlockSafety().canSpawnCartSafely(m)) {
                 return null;
             }
-        } else if (e instanceof Vehicle) {
-            Vehicle v = (Vehicle) e;
+        }
+        else if (e instanceof Vehicle) {
+            final Vehicle v = (Vehicle) e;
             if (!plugin.getBlockSafety().canSpawnVehicleSafely(v)) {
                 return null;
             }
         }
-        Location safeLocation = this.getSafeLocation(l);
+        final Location safeLocation = getSafeLocation(l);
         if (safeLocation != null) {
             // Add offset to account for a vehicle on dry land!
             if (e instanceof Minecart && !plugin.getBlockSafety().isEntitiyOnTrack(safeLocation)) {
                 safeLocation.setY(safeLocation.getBlockY() + .5);
-                this.plugin.log(Level.FINER, "Player was inside a minecart. Offsetting Y location.");
+                plugin.log(Level.FINER, "Player was inside a minecart. Offsetting Y location.");
             }
-            this.plugin.log(Level.FINE, "Had to look for a bit, but I found a safe place for ya!");
+            plugin.log(Level.FINE, "Had to look for a bit, but I found a safe place for ya!");
             return safeLocation;
         }
         if (e instanceof Player) {
-            Player p = (Player) e;
-            this.plugin.getMessaging().sendMessage(p, "No safe locations found!", false);
-            this.plugin.log(Level.FINER, "No safe location found for " + p.getName());
+            final Player p = (Player) e;
+            plugin.getMessaging().sendMessage(p, "No safe locations found!", false);
+            plugin.log(Level.FINER, "No safe location found for " + p.getName());
         } else if (e.getPassenger() instanceof Player) {
-            Player p = (Player) e.getPassenger();
-            this.plugin.getMessaging().sendMessage(p, "No safe locations found!", false);
-            this.plugin.log(Level.FINER, "No safe location found for " + p.getName());
+            final Player p = (Player) e.getPassenger();
+            plugin.getMessaging().sendMessage(p, "No safe locations found!", false);
+            plugin.log(Level.FINER, "No safe location found for " + p.getName());
         }
-        this.plugin.log(Level.FINE, "Sorry champ, you're basically trying to teleport into a minefield. I should just kill you now.");
+        plugin.log(Level.FINE, "Sorry champ, you're basically trying to teleport into a minefield. I should just kill you now.");
         return null;
     }
 
@@ -289,14 +312,14 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
      * {@inheritDoc}
      */
     @Override
-    public Location findPortalBlockNextTo(Location l) {
-        Block b = l.getWorld().getBlockAt(l);
+    public Location findPortalBlockNextTo(final Location l) {
+        final Block b = l.getWorld().getBlockAt(l);
         Location foundLocation = null;
         if (b.getType() == Material.NETHER_PORTAL) {
             return l;
         }
         if (b.getRelative(BlockFace.NORTH).getType() == Material.NETHER_PORTAL) {
-            foundLocation = getCloserBlock(l, b.getRelative(BlockFace.NORTH).getLocation(), foundLocation);
+            foundLocation = getCloserBlock(l, b.getRelative(BlockFace.NORTH).getLocation(), null);
         }
         if (b.getRelative(BlockFace.SOUTH).getType() == Material.NETHER_PORTAL) {
             foundLocation = getCloserBlock(l, b.getRelative(BlockFace.SOUTH).getLocation(), foundLocation);
@@ -310,28 +333,8 @@ public class SimpleSafeTTeleporter implements SafeTTeleporter {
         return foundLocation;
     }
 
-    private static Location getCloserBlock(Location source, Location blockA, Location blockB) {
-        // If B wasn't given, return a.
-        if (blockB == null) {
-            return blockA;
-        }
-        // Center our calculations
-        blockA.add(.5, 0, .5);
-        blockB.add(.5, 0, .5);
-
-        // Retrieve the distance to the normalized blocks
-        double testA = source.distance(blockA);
-        double testB = source.distance(blockB);
-
-        // Compare and return
-        if (testA <= testB) {
-            return blockA;
-        }
-        return blockB;
-    }
-
     @Override
     public TeleportResult teleport(final CommandSender teleporter, final Player teleportee, final MVDestination destination) {
-        return this.safelyTeleport(teleporter, teleportee, destination);
+        return safelyTeleport(teleporter, teleportee, destination);
     }
 }

@@ -16,13 +16,12 @@ import java.util.logging.LogRecord;
 
 /**
  * Formatter to format log-messages in tests
- *
  */
 public class MVTestLogFormatter extends Formatter {
     private static final DateFormat df = new SimpleDateFormat("HH:mm:ss");
 
-    public String format(LogRecord record) {
-        StringBuilder ret = new StringBuilder();
+    public String format(final LogRecord record) {
+        final StringBuilder ret = new StringBuilder();
 
         ret.append("[").append(df.format(record.getMillis())).append("] [")
                 .append(record.getLoggerName()).append("] [")
@@ -32,7 +31,7 @@ public class MVTestLogFormatter extends Formatter {
 
         if (record.getThrown() != null) {
             // An Exception was thrown! Let's print the StackTrace!
-            StringWriter writer = new StringWriter();
+            final StringWriter writer = new StringWriter();
             record.getThrown().printStackTrace(new PrintWriter(writer));
             ret.append(writer);
         }

@@ -17,8 +17,8 @@ public class WorldPropertyValidator<T> extends ObjectUsingValidator<T, MVWorld> 
      * {@inheritDoc}
      */
     @Override
-    public T validateChange(String property, T newValue, T oldValue, MVWorld object) throws ChangeDeniedException {
-        MVWorldPropertyChangeEvent<T> event = new MVWorldPropertyChangeEvent<T>(object, null, property, newValue);
+    public T validateChange(final String property, final T newValue, final T oldValue, final MVWorld object) throws ChangeDeniedException {
+        final MVWorldPropertyChangeEvent<T> event = new MVWorldPropertyChangeEvent<>(object, null, property, newValue);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled())
             throw new ChangeDeniedException();

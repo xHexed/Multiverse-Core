@@ -2,6 +2,7 @@ package com.onarandombox.MultiverseCore.event;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Called when Core's debug level is changed.
@@ -12,13 +13,14 @@ public class MVDebugModeEvent extends Event {
 
     private final int level;
 
-    public MVDebugModeEvent(int level) {
+    public MVDebugModeEvent(final int level) {
         this.level = level;
     }
 
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;

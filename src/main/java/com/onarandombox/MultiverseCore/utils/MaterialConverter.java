@@ -16,11 +16,12 @@ public class MaterialConverter {
      * Material.
      *
      * @param config The config with the value to convert.
-     * @param path The path of the value in the config.
+     * @param path   The path of the value in the config.
+     *
      * @return The converted Material type or null if no matching type.
      */
     @Nullable
-    public static Material convertConfigType(@NotNull ConfigurationSection config, @NotNull String path) {
+    public static Material convertConfigType(@NotNull final ConfigurationSection config, @NotNull final String path) {
         return convertTypeString(config.getString(path));
     }
 
@@ -28,14 +29,16 @@ public class MaterialConverter {
      * Converts a string representing a numeric id or flattened material name to a Material.
      *
      * @param value The value to convert.
+     *
      * @return The converted Material type or null if no matching type.
      */
     @Nullable
-    public static Material convertTypeString(@Nullable String value) {
-        IdMappings.Mapping mapping = IdMappings.getById(value != null ? value : "");
+    public static Material convertTypeString(@Nullable final String value) {
+        final IdMappings.Mapping mapping = IdMappings.getById(value != null ? value : "");
         if (mapping != null) {
             return Material.matchMaterial(mapping.getFlatteningType());
-        } else {
+        }
+        else {
             return Material.matchMaterial(value != null ? value : "");
         }
     }

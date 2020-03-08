@@ -14,7 +14,6 @@ import org.bukkit.World;
 import org.bukkit.WorldType;
 import org.bukkit.block.Block;
 import org.bukkit.generator.ChunkGenerator;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.io.File;
@@ -31,203 +30,176 @@ import static org.mockito.Mockito.*;
 
 public class MockWorldFactory {
 
-    private static final Map<String, World> createdWorlds = new LinkedHashMap<String, World>();
-    private static final Map<UUID, World> worldUIDS = new HashMap<UUID, World>();
+    private static final Map<String, World> createdWorlds = new LinkedHashMap<>();
+    private static final Map<UUID, World> worldUIDS = new HashMap<>();
 
-    private static final Map<World, Boolean> pvpStates = new WeakHashMap<World, Boolean>();
-    private static final Map<World, Boolean> keepSpawnInMemoryStates = new WeakHashMap<World, Boolean>();
-    private static final Map<World, Difficulty> difficultyStates = new WeakHashMap<World, Difficulty>();
+    private static final Map<World, Boolean> pvpStates = new WeakHashMap<>();
+    private static final Map<World, Boolean> keepSpawnInMemoryStates = new WeakHashMap<>();
+    private static final Map<World, Difficulty> difficultyStates = new WeakHashMap<>();
 
     private MockWorldFactory() {
     }
 
-    private static void registerWorld(World world) {
+    private static void registerWorld(final World world) {
         createdWorlds.put(world.getName(), world);
         worldUIDS.put(world.getUID(), world);
         createWorldDirectory(world.getName());
     }
 
-    public static void createWorldDirectory(String worldName) {
-        File worldFolder = new File(TestInstanceCreator.worldsDirectory, worldName);
+    public static void createWorldDirectory(final String worldName) {
+        final File worldFolder = new File(TestInstanceCreator.worldsDirectory, worldName);
         worldFolder.mkdir();
         try {
             new File(worldFolder, "level.dat").createNewFile();
-        } catch (IOException e) {
+        }
+        catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static World basics(String world, World.Environment env, WorldType type) {
-        World mockWorld = mock(World.class);
+    private static World basics(final String world, final World.Environment env, final WorldType type) {
+        final World mockWorld = mock(World.class);
         when(mockWorld.getName()).thenReturn(world);
-        when(mockWorld.getPVP()).thenAnswer(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                World w = (World) invocation.getMock();
-                if (!pvpStates.containsKey(w))
-                    pvpStates.put(w, true); // default value
-                return pvpStates.get(w);
-            }
+        when(mockWorld.getPVP()).thenAnswer((Answer<Boolean>) invocation -> {
+            final World w = (World) invocation.getMock();
+            if (!pvpStates.containsKey(w))
+                pvpStates.put(w, true); // default value
+            return pvpStates.get(w);
         });
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                pvpStates.put((World) invocation.getMock(), (Boolean) invocation.getArguments()[0]);
-                return null;
-            }
+        doAnswer((Answer<Void>) invocation -> {
+            pvpStates.put((World) invocation.getMock(), (Boolean) invocation.getArguments()[0]);
+            return null;
         }).when(mockWorld).setPVP(anyBoolean());
-        when(mockWorld.getKeepSpawnInMemory()).thenAnswer(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                World w = (World) invocation.getMock();
-                if (!keepSpawnInMemoryStates.containsKey(w))
-                    keepSpawnInMemoryStates.put(w, true); // default value
-                return keepSpawnInMemoryStates.get(w);
-            }
+        when(mockWorld.getKeepSpawnInMemory()).thenAnswer((Answer<Boolean>) invocation -> {
+            final World w = (World) invocation.getMock();
+            if (!keepSpawnInMemoryStates.containsKey(w))
+                keepSpawnInMemoryStates.put(w, true); // default value
+            return keepSpawnInMemoryStates.get(w);
         });
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                keepSpawnInMemoryStates.put((World) invocation.getMock(), (Boolean) invocation.getArguments()[0]);
-                return null;
-            }
+        doAnswer((Answer<Void>) invocation -> {
+            keepSpawnInMemoryStates.put((World) invocation.getMock(), (Boolean) invocation.getArguments()[0]);
+            return null;
         }).when(mockWorld).setKeepSpawnInMemory(anyBoolean());
-        when(mockWorld.getDifficulty()).thenAnswer(new Answer<Difficulty>() {
-            @Override
-            public Difficulty answer(InvocationOnMock invocation) throws Throwable {
-                World w = (World) invocation.getMock();
-                if (!difficultyStates.containsKey(w))
-                    difficultyStates.put(w, Difficulty.NORMAL); // default value
-                return difficultyStates.get(w);
-            }
+        when(mockWorld.getDifficulty()).thenAnswer((Answer<Difficulty>) invocation -> {
+            final World w = (World) invocation.getMock();
+            if (!difficultyStates.containsKey(w))
+                difficultyStates.put(w, Difficulty.NORMAL); // default value
+            return difficultyStates.get(w);
         });
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                difficultyStates.put((World) invocation.getMock(), (Difficulty) invocation.getArguments()[0]);
-                return null;
-            }
+        doAnswer((Answer<Void>) invocation -> {
+            difficultyStates.put((World) invocation.getMock(), (Difficulty) invocation.getArguments()[0]);
+            return null;
         }).when(mockWorld).setDifficulty(any(Difficulty.class));
         when(mockWorld.getEnvironment()).thenReturn(env);
         when(mockWorld.getWorldType()).thenReturn(type);
         when(mockWorld.getSpawnLocation()).thenReturn(new Location(mockWorld, 0, 64, 0));
-        when(mockWorld.getWorldFolder()).thenAnswer(new Answer<File>() {
-            @Override
-            public File answer(InvocationOnMock invocation) throws Throwable {
-                if (!(invocation.getMock() instanceof World))
-                    return null;
+        when(mockWorld.getWorldFolder()).thenAnswer((Answer<File>) invocation -> {
+            if (!(invocation.getMock() instanceof World))
+                return null;
 
-                World thiss = (World) invocation.getMock();
-                return new File(TestInstanceCreator.serverDirectory, thiss.getName());
-            }
+            final World thiss = (World) invocation.getMock();
+            return new File(TestInstanceCreator.serverDirectory, thiss.getName());
         });
-        when(mockWorld.getBlockAt(any(Location.class))).thenAnswer(new Answer<Block>() {
-            @Override
-            public Block answer(InvocationOnMock invocation) throws Throwable {
-                Location loc;
-                try {
-                    loc = (Location) invocation.getArguments()[0];
-                } catch (Exception e) {
-                    return null;
-                }
-                Material blockType = Material.AIR;
-                Block mockBlock = mock(Block.class);
-                if (loc.getBlockY() < 64) {
-                    blockType = Material.DIRT;
-                }
-
-                when(mockBlock.getType()).thenReturn(blockType);
-                when(mockBlock.getWorld()).thenReturn(loc.getWorld());
-                when(mockBlock.getX()).thenReturn(loc.getBlockX());
-                when(mockBlock.getY()).thenReturn(loc.getBlockY());
-                when(mockBlock.getZ()).thenReturn(loc.getBlockZ());
-                when(mockBlock.getLocation()).thenReturn(loc);
-                when(mockBlock.isEmpty()).thenReturn(blockType == Material.AIR);
-                return mockBlock;
+        when(mockWorld.getBlockAt(any(Location.class))).thenAnswer((Answer<Block>) invocation -> {
+            final Location loc;
+            try {
+                loc = (Location) invocation.getArguments()[0];
             }
+            catch (final Exception e) {
+                return null;
+            }
+            Material blockType = Material.AIR;
+            final Block mockBlock = mock(Block.class);
+            if (loc.getBlockY() < 64) {
+                blockType = Material.DIRT;
+            }
+
+            when(mockBlock.getType()).thenReturn(blockType);
+            when(mockBlock.getWorld()).thenReturn(loc.getWorld());
+            when(mockBlock.getX()).thenReturn(loc.getBlockX());
+            when(mockBlock.getY()).thenReturn(loc.getBlockY());
+            when(mockBlock.getZ()).thenReturn(loc.getBlockZ());
+            when(mockBlock.getLocation()).thenReturn(loc);
+            when(mockBlock.isEmpty()).thenReturn(blockType == Material.AIR);
+            return mockBlock;
         });
         when(mockWorld.getUID()).thenReturn(UUID.randomUUID());
         return mockWorld;
     }
 
-    private static World nullWorld(String world, World.Environment env, WorldType type) {
-        World mockWorld = mock(World.class);
+    private static World nullWorld(final String world, final World.Environment env, final WorldType type) {
+        final World mockWorld = mock(World.class);
         when(mockWorld.getName()).thenReturn(world);
         when(mockWorld.getEnvironment()).thenReturn(env);
         when(mockWorld.getWorldType()).thenReturn(type);
         when(mockWorld.getSpawnLocation()).thenReturn(new Location(mockWorld, 0, 64, 0));
-        when(mockWorld.getWorldFolder()).thenAnswer(new Answer<File>() {
-            @Override
-            public File answer(InvocationOnMock invocation) throws Throwable {
-                if (!(invocation.getMock() instanceof World))
-                    return null;
+        when(mockWorld.getWorldFolder()).thenAnswer((Answer<File>) invocation -> {
+            if (!(invocation.getMock() instanceof World))
+                return null;
 
-                World thiss = (World) invocation.getMock();
-                return new File(TestInstanceCreator.serverDirectory, thiss.getName());
-            }
+            final World thiss = (World) invocation.getMock();
+            return new File(TestInstanceCreator.serverDirectory, thiss.getName());
         });
-        when(mockWorld.getBlockAt(any(Location.class))).thenAnswer(new Answer<Block>() {
-            @Override
-            public Block answer(InvocationOnMock invocation) throws Throwable {
-                Location loc;
-                try {
-                    loc = (Location) invocation.getArguments()[0];
-                } catch (Exception e) {
-                    return null;
-                }
-
-                Block mockBlock = mock(Block.class);
-                Material blockType = Material.AIR;
-
-                when(mockBlock.getType()).thenReturn(blockType);
-                when(mockBlock.getWorld()).thenReturn(loc.getWorld());
-                when(mockBlock.getX()).thenReturn(loc.getBlockX());
-                when(mockBlock.getY()).thenReturn(loc.getBlockY());
-                when(mockBlock.getZ()).thenReturn(loc.getBlockZ());
-                when(mockBlock.getLocation()).thenReturn(loc);
-                when(mockBlock.isEmpty()).thenReturn(blockType == Material.AIR);
-                return mockBlock;
+        when(mockWorld.getBlockAt(any(Location.class))).thenAnswer((Answer<Block>) invocation -> {
+            final Location loc;
+            try {
+                loc = (Location) invocation.getArguments()[0];
             }
+            catch (final Exception e) {
+                return null;
+            }
+
+            final Block mockBlock = mock(Block.class);
+            final Material blockType = Material.AIR;
+
+            when(mockBlock.getType()).thenReturn(blockType);
+            when(mockBlock.getWorld()).thenReturn(loc.getWorld());
+            when(mockBlock.getX()).thenReturn(loc.getBlockX());
+            when(mockBlock.getY()).thenReturn(loc.getBlockY());
+            when(mockBlock.getZ()).thenReturn(loc.getBlockZ());
+            when(mockBlock.getLocation()).thenReturn(loc);
+            when(mockBlock.isEmpty()).thenReturn(true);
+            return mockBlock;
         });
         when(mockWorld.getUID()).thenReturn(UUID.randomUUID());
         return mockWorld;
     }
 
-    public static World makeNewMockWorld(String world, World.Environment env, WorldType type) {
-        World w = basics(world, env, type);
+    public static World makeNewMockWorld(final String world, final World.Environment env, final WorldType type) {
+        final World w = basics(world, env, type);
         registerWorld(w);
         return w;
     }
 
-    public static World makeNewNullMockWorld(String world, World.Environment env, WorldType type) {
-        World w = nullWorld(world, env, type);
+    public static World makeNewNullMockWorld(final String world, final World.Environment env, final WorldType type) {
+        final World w = nullWorld(world, env, type);
         registerWorld(w);
         return w;
     }
 
-    public static World makeNewMockWorld(String world, World.Environment env, WorldType type, long seed,
-            ChunkGenerator generator) {
-        World mockWorld = basics(world, env, type);
+    public static World makeNewMockWorld(final String world, final World.Environment env, final WorldType type, final long seed,
+                                         final ChunkGenerator generator) {
+        final World mockWorld = basics(world, env, type);
         when(mockWorld.getGenerator()).thenReturn(generator);
         when(mockWorld.getSeed()).thenReturn(seed);
         registerWorld(mockWorld);
         return mockWorld;
     }
 
-    public static World getWorld(String name) {
+    public static World getWorld(final String name) {
         return createdWorlds.get(name);
     }
 
-    public static World getWorld(UUID worldUID) {
+    public static World getWorld(final UUID worldUID) {
         return worldUIDS.get(worldUID);
     }
 
     public static List<World> getWorlds() {
-        return new ArrayList<World>(createdWorlds.values());
+        return new ArrayList<>(createdWorlds.values());
     }
 
     public static void clearWorlds() {
-        for (String name : createdWorlds.keySet())
+        for (final String name : createdWorlds.keySet())
             new File(TestInstanceCreator.worldsDirectory, name).delete();
         createdWorlds.clear();
         worldUIDS.clear();

@@ -20,13 +20,14 @@ public class BitlyURLShortener extends HttpAPIClient implements URLShortener {
      * {@inheritDoc}
      */
     @Override
-    public String shorten(String longUrl) {
+    public String shorten(final String longUrl) {
         try {
-            String result = this.exec(longUrl);
+            final String result = exec(longUrl);
             if (!result.startsWith("http://j.mp/")) // ... then it's failed :/
                 throw new IOException(result);
             return result;
-        } catch (IOException e) {
+        }
+        catch (final IOException e) {
             e.printStackTrace();
             return longUrl; // sorry ...
         }

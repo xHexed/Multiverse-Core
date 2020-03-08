@@ -22,39 +22,39 @@ import java.util.List;
  */
 public class AnchorCommand extends PaginatedCoreCommand<String> {
 
-    public AnchorCommand(MultiverseCore plugin) {
+    public AnchorCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Create, Delete and Manage Anchor Destinations.");
-        this.setCommandUsage("/mv anchor " + ChatColor.GREEN + "{name}" + ChatColor.GOLD + " [-d]");
-        this.setArgRange(0, 2);
-        this.addKey("mv anchor");
-        this.addKey("mv anchors");
-        this.addKey("mvanchor");
-        this.addKey("mvanchors");
-        this.addCommandExample("/mv anchor " + ChatColor.GREEN + "awesomething");
-        this.addCommandExample("/mv anchor " + ChatColor.GREEN + "otherthing");
-        this.addCommandExample("/mv anchor " + ChatColor.GREEN + "awesomething " + ChatColor.RED + "-d");
-        this.addCommandExample("/mv anchors ");
-        this.setPermission("multiverse.core.anchor.list", "Allows a player to list all anchors.", PermissionDefault.OP);
-        this.addAdditonalPermission(new Permission("multiverse.core.anchor.create",
-                "Allows a player to create anchors.", PermissionDefault.OP));
-        this.addAdditonalPermission(new Permission("multiverse.core.anchor.delete",
-                "Allows a player to delete anchors.", PermissionDefault.OP));
-        this.setItemsPerPage(8); // SUPPRESS CHECKSTYLE: MagicNumberCheck
+        setName("Create, Delete and Manage Anchor Destinations.");
+        setCommandUsage("/mv anchor " + ChatColor.GREEN + "{name}" + ChatColor.GOLD + " [-d]");
+        setArgRange(0, 2);
+        addKey("mv anchor");
+        addKey("mv anchors");
+        addKey("mvanchor");
+        addKey("mvanchors");
+        addCommandExample("/mv anchor " + ChatColor.GREEN + "awesomething");
+        addCommandExample("/mv anchor " + ChatColor.GREEN + "otherthing");
+        addCommandExample("/mv anchor " + ChatColor.GREEN + "awesomething " + ChatColor.RED + "-d");
+        addCommandExample("/mv anchors ");
+        setPermission("multiverse.core.anchor.list", "Allows a player to list all anchors.", PermissionDefault.OP);
+        addAdditonalPermission(new Permission("multiverse.core.anchor.create",
+                                              "Allows a player to create anchors.", PermissionDefault.OP));
+        addAdditonalPermission(new Permission("multiverse.core.anchor.delete",
+                                              "Allows a player to delete anchors.", PermissionDefault.OP));
+        setItemsPerPage(8); // SUPPRESS CHECKSTYLE: MagicNumberCheck
     }
 
-    private List<String> getFancyAnchorList(Player p) {
-        List<String> anchorList = new ArrayList<String>();
+    private List<String> getFancyAnchorList(final Player p) {
+        final List<String> anchorList = new ArrayList<>();
         ChatColor color = ChatColor.GREEN;
-        for (String anchor : this.plugin.getAnchorManager().getAnchors(p)) {
+        for (final String anchor : plugin.getAnchorManager().getAnchors(p)) {
             anchorList.add(color + anchor);
             color = (color == ChatColor.GREEN) ? ChatColor.GOLD : ChatColor.GREEN;
         }
         return anchorList;
     }
 
-    private void showList(CommandSender sender, List<String> args) {
-        if (!this.plugin.getMVPerms().hasPermission(sender, "multiverse.core.anchor.list", true)) {
+    private void showList(final CommandSender sender, final List<String> args) {
+        if (!plugin.getMVPerms().hasPermission(sender, "multiverse.core.anchor.list", true)) {
             sender.sendMessage(ChatColor.RED + "You don't have the permission to list anchors!");
             return;
         }
@@ -66,11 +66,11 @@ public class AnchorCommand extends PaginatedCoreCommand<String> {
         }
 
 
-        FilterObject filterObject = this.getPageAndFilter(args);
+        final FilterObject filterObject = getPageAndFilter(args);
 
-        List<String> availableAnchors = new ArrayList<String>(this.getFancyAnchorList(p));
+        List<String> availableAnchors = new ArrayList<>(getFancyAnchorList(p));
         if (filterObject.getFilter().length() > 0) {
-            availableAnchors = this.getFilteredItems(availableAnchors, filterObject.getFilter());
+            availableAnchors = getFilteredItems(availableAnchors, filterObject.getFilter());
             if (availableAnchors.size() == 0) {
                 sender.sendMessage(ChatColor.RED + "Sorry... " + ChatColor.WHITE
                         + "No anchors matched your filter: " + ChatColor.AQUA + filterObject.getFilter());
@@ -85,13 +85,13 @@ public class AnchorCommand extends PaginatedCoreCommand<String> {
 
 
         if (!(sender instanceof Player)) {
-            for (String c : availableAnchors) {
+            for (final String c : availableAnchors) {
                 sender.sendMessage(c);
             }
             return;
         }
 
-        int totalPages = (int) Math.ceil(availableAnchors.size() / (this.itemsPerPage + 0.0));
+        final int totalPages = (int) Math.ceil(availableAnchors.size() / (itemsPerPage + 0.0));
 
         if (filterObject.getPage() > totalPages) {
             filterObject.setPage(totalPages);
@@ -101,26 +101,28 @@ public class AnchorCommand extends PaginatedCoreCommand<String> {
 
         sender.sendMessage(ChatColor.AQUA + " Page " + filterObject.getPage() + " of " + totalPages);
 
-        this.showPage(filterObject.getPage(), sender, availableAnchors);
+        showPage(filterObject.getPage(), sender, availableAnchors);
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         if (args.size() == 0) {
-            this.showList(sender, args);
+            showList(sender, args);
             return;
         }
-        if (args.size() == 1 && (this.getPageAndFilter(args).getPage() != 1 || args.get(0).equals("1"))) {
-            this.showList(sender, args);
+        if (args.size() == 1 && (getPageAndFilter(args).getPage() != 1 || args.get(0).equals("1"))) {
+            showList(sender, args);
             return;
         }
         if (args.size() == 2 && args.get(1).equalsIgnoreCase("-d")) {
-            if (!this.plugin.getMVPerms().hasPermission(sender, "multiverse.core.anchor.delete", true)) {
+            if (!plugin.getMVPerms().hasPermission(sender, "multiverse.core.anchor.delete", true)) {
                 sender.sendMessage(ChatColor.RED + "You don't have the permission to delete anchors!");
-            } else {
-                if (this.plugin.getAnchorManager().deleteAnchor(args.get(0))) {
+            }
+            else {
+                if (plugin.getAnchorManager().deleteAnchor(args.get(0))) {
                     sender.sendMessage("Anchor '" + args.get(0) + "' was successfully " + ChatColor.RED + "deleted!");
-                } else {
+                }
+                else {
                     sender.sendMessage("Anchor '" + args.get(0) + "' was " + ChatColor.RED + " NOT " + ChatColor.WHITE + "deleted!");
                 }
             }
@@ -132,22 +134,24 @@ public class AnchorCommand extends PaginatedCoreCommand<String> {
             return;
         }
 
-        if (!this.plugin.getMVPerms().hasPermission(sender, "multiverse.core.anchor.create", true)) {
+        if (!plugin.getMVPerms().hasPermission(sender, "multiverse.core.anchor.create", true)) {
             sender.sendMessage(ChatColor.RED + "You don't have the permission to create anchors!");
-        } else {
-            Player player = (Player) sender;
-            if (this.plugin.getAnchorManager().saveAnchorLocation(args.get(0), player.getLocation())) {
+        }
+        else {
+            final Player player = (Player) sender;
+            if (plugin.getAnchorManager().saveAnchorLocation(args.get(0), player.getLocation())) {
                 sender.sendMessage("Anchor '" + args.get(0) + "' was successfully " + ChatColor.GREEN + "created!");
-            } else {
+            }
+            else {
                 sender.sendMessage("Anchor '" + args.get(0) + "' was " + ChatColor.RED + " NOT " + ChatColor.WHITE + "created!");
             }
         }
     }
 
     @Override
-    protected List<String> getFilteredItems(List<String> availableItems, String filter) {
-        List<String> filtered = new ArrayList<String>();
-        for (String s : availableItems) {
+    protected List<String> getFilteredItems(final List<String> availableItems, final String filter) {
+        final List<String> filtered = new ArrayList<>();
+        for (final String s : availableItems) {
             if (s.matches("(?i).*" + filter + ".*")) {
                 filtered.add(s);
             }
@@ -156,7 +160,7 @@ public class AnchorCommand extends PaginatedCoreCommand<String> {
     }
 
     @Override
-    protected String getItemText(String item) {
+    protected String getItemText(final String item) {
         return item;
     }
 }

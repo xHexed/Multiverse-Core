@@ -22,37 +22,41 @@ import java.util.List;
  */
 public class HelpCommand extends PaginatedCoreCommand<Command> {
 
-    public HelpCommand(MultiverseCore plugin) {
+    public HelpCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Get Help with Multiverse");
-        this.setCommandUsage("/mv " + ChatColor.GOLD + "[FILTER] [PAGE #]");
-        this.setArgRange(0, 2);
-        this.addKey("mv");
-        this.addKey("mvh");
-        this.addKey("mvhelp");
-        this.addKey("mv help");
-        this.addKey("mvsearch");
-        this.addKey("mv search");
-        this.addCommandExample("/mv help ?");
-        this.setPermission("multiverse.help", "Displays a nice help menu.", PermissionDefault.TRUE);
-        this.setItemsPerPage(7); // SUPPRESS CHECKSTYLE: MagicNumberCheck
+        setName("Get Help with Multiverse");
+        setCommandUsage("/mv " + ChatColor.GOLD + "[FILTER] [PAGE #]");
+        setArgRange(0, 2);
+        addKey("mv");
+        addKey("mvh");
+        addKey("mvhelp");
+        addKey("mv help");
+        addKey("mvsearch");
+        addKey("mv search");
+        addCommandExample("/mv help ?");
+        setPermission("multiverse.help", "Displays a nice help menu.", PermissionDefault.TRUE);
+        setItemsPerPage(7); // SUPPRESS CHECKSTYLE: MagicNumberCheck
     }
 
     @Override
-    protected List<Command> getFilteredItems(List<Command> availableItems, String filter) {
-        List<Command> filtered = new ArrayList<Command>();
+    protected List<Command> getFilteredItems(final List<Command> availableItems, final String filter) {
+        final List<Command> filtered = new ArrayList<>();
 
-        for (Command c : availableItems) {
+        for (final Command c : availableItems) {
             if (stitchThisString(c.getKeyStrings()).matches("(?i).*" + filter + ".*")) {
                 filtered.add(c);
-            } else if (c.getCommandName().matches("(?i).*" + filter + ".*")) {
+            }
+            else if (c.getCommandName().matches("(?i).*" + filter + ".*")) {
                 filtered.add(c);
-            } else if (c.getCommandDesc().matches("(?i).*" + filter + ".*")) {
+            }
+            else if (c.getCommandDesc().matches("(?i).*" + filter + ".*")) {
                 filtered.add(c);
-            } else if (c.getCommandUsage().matches("(?i).*" + filter + ".*")) {
+            }
+            else if (c.getCommandUsage().matches("(?i).*" + filter + ".*")) {
                 filtered.add(c);
-            } else {
-                for (String example : c.getCommandExamples()) {
+            }
+            else {
+                for (final String example : c.getCommandExamples()) {
                     if (example.matches("(?i).*" + filter + ".*")) {
                         filtered.add(c);
                         break;
@@ -64,35 +68,35 @@ public class HelpCommand extends PaginatedCoreCommand<Command> {
     }
 
     @Override
-    protected String getItemText(Command item) {
+    protected String getItemText(final Command item) {
         return ChatColor.AQUA + item.getCommandUsage();
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         sender.sendMessage(ChatColor.AQUA + "====[ Multiverse Help ]====");
 
-        FilterObject filterObject = this.getPageAndFilter(args);
+        final FilterObject filterObject = getPageAndFilter(args);
 
-        List<Command> availableCommands = new ArrayList<Command>(this.plugin.getCommandHandler().getCommands(sender));
+        List<Command> availableCommands = new ArrayList<>(plugin.getCommandHandler().getCommands(sender));
         if (filterObject.getFilter().length() > 0) {
-            availableCommands = this.getFilteredItems(availableCommands, filterObject.getFilter());
+            availableCommands = getFilteredItems(availableCommands, filterObject.getFilter());
             if (availableCommands.size() == 0) {
                 sender.sendMessage(ChatColor.RED + "Sorry... " + ChatColor.WHITE
-                        + "No commands matched your filter: " + ChatColor.AQUA + filterObject.getFilter());
+                                           + "No commands matched your filter: " + ChatColor.AQUA + filterObject.getFilter());
                 return;
             }
         }
 
         if (!(sender instanceof Player)) {
             sender.sendMessage(ChatColor.AQUA + " Add a '" + ChatColor.DARK_PURPLE + "?" + ChatColor.AQUA + "' after a command to see more about it.");
-            for (Command c : availableCommands) {
+            for (final Command c : availableCommands) {
                 sender.sendMessage(ChatColor.AQUA + c.getCommandUsage());
             }
             return;
         }
 
-        int totalPages = (int) Math.ceil(availableCommands.size() / (this.itemsPerPage + 0.0));
+        final int totalPages = (int) Math.ceil(availableCommands.size() / (itemsPerPage + 0.0));
 
         if (filterObject.getPage() > totalPages) {
             filterObject.setPage(totalPages);
@@ -101,6 +105,6 @@ public class HelpCommand extends PaginatedCoreCommand<Command> {
         sender.sendMessage(ChatColor.AQUA + " Page " + filterObject.getPage() + " of " + totalPages);
         sender.sendMessage(ChatColor.AQUA + " Add a '" + ChatColor.DARK_PURPLE + "?" + ChatColor.AQUA + "' after a command to see more about it.");
 
-        this.showPage(filterObject.getPage(), sender, availableCommands);
+        showPage(filterObject.getPage(), sender, availableCommands);
     }
 }

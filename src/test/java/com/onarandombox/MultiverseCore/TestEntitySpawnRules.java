@@ -7,7 +7,6 @@ import com.onarandombox.MultiverseCore.utils.MockWorldFactory;
 import com.onarandombox.MultiverseCore.utils.TestInstanceCreator;
 import org.bukkit.World;
 import org.bukkit.WorldType;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Sheep;
@@ -29,7 +28,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -50,21 +48,30 @@ public class TestEntitySpawnRules {
     CreatureSpawnEvent sheepEvent;
     CreatureSpawnEvent zombieEvent;
 
+    private static CreatureSpawnEvent mockSpawnEvent(final LivingEntity e, final SpawnReason reason) {
+        final CreatureSpawnEvent event = mock(CreatureSpawnEvent.class);
+        when(event.getEntity()).thenReturn(e);
+        final EntityType type = e.getType();
+        when(event.getEntityType()).thenReturn(type);
+        when(event.getSpawnReason()).thenReturn(reason);
+        return event;
+    }
+
     @Before
     public void setUp() throws Exception {
         creator = new TestInstanceCreator();
         assertTrue(creator.setUp());
-        core = creator.getCore();
+        core     = creator.getCore();
         listener = core.getEntityListener();
 
         mvWorld = mock(MultiverseWorld.class);
         cbworld = MockWorldFactory.makeNewMockWorld("world", World.Environment.NORMAL, WorldType.NORMAL);
         when(mvWorld.getCBWorld()).thenReturn(cbworld);
 
-        MVWorldManager worldman = mock(MVWorldManager.class);
+        final MVWorldManager worldman = mock(MVWorldManager.class);
         when(worldman.isMVWorld(anyString())).thenReturn(true);
         when(worldman.getMVWorld(anyString())).thenReturn(mvWorld);
-        Field worldmanfield = MVEntityListener.class.getDeclaredField("worldManager");
+        final Field worldmanfield = MVEntityListener.class.getDeclaredField("worldManager");
         worldmanfield.setAccessible(true);
         worldmanfield.set(listener, worldman);
 
@@ -72,21 +79,12 @@ public class TestEntitySpawnRules {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         creator.tearDown();
     }
 
-    private static CreatureSpawnEvent mockSpawnEvent(LivingEntity e, SpawnReason reason) {
-        CreatureSpawnEvent event = mock(CreatureSpawnEvent.class);
-        when(event.getEntity()).thenReturn(e);
-        EntityType type = e.getType();
-        when(event.getEntityType()).thenReturn(type);
-        when(event.getSpawnReason()).thenReturn(reason);
-        return event;
-    }
-
-    private void spawnAll(SpawnReason reason) {
-        sheepEvent = mockSpawnEvent(sheep, reason);
+    private void spawnAll(final SpawnReason reason) {
+        sheepEvent  = mockSpawnEvent(sheep, reason);
         zombieEvent = mockSpawnEvent(zombie, reason);
         listener.creatureSpawn(sheepEvent);
         listener.creatureSpawn(zombieEvent);
@@ -96,53 +94,53 @@ public class TestEntitySpawnRules {
         spawnAll(SpawnReason.NATURAL);
     }
 
-    private void adjustSettings(boolean animalSpawn, boolean monsterSpawn,
-            List<String> animalExceptions, List<String> monsterExceptions) {
-        when(this.mvWorld.canAnimalsSpawn()).thenReturn(animalSpawn);
-        when(this.mvWorld.canMonstersSpawn()).thenReturn(monsterSpawn);
-        when(this.mvWorld.getAnimalList()).thenReturn(animalExceptions);
-        when(this.mvWorld.getMonsterList()).thenReturn(monsterExceptions);
+    private void adjustSettings(final boolean animalSpawn, final boolean monsterSpawn,
+                                final List<String> animalExceptions, final List<String> monsterExceptions) {
+        when(mvWorld.canAnimalsSpawn()).thenReturn(animalSpawn);
+        when(mvWorld.canMonstersSpawn()).thenReturn(monsterSpawn);
+        when(mvWorld.getAnimalList()).thenReturn(animalExceptions);
+        when(mvWorld.getMonsterList()).thenReturn(monsterExceptions);
     }
 
     @Test
     public void test() {
         // test 1: no spawning at all allowed
-        adjustSettings(false, false, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+        adjustSettings(false, false, Collections.emptyList(), Collections.emptyList());
         createAnimals();
         spawnAllNatural();
         verify(sheepEvent).setCancelled(true);
         verify(zombieEvent).setCancelled(true);
 
         // test 2: only monsters
-        adjustSettings(false, true, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+        adjustSettings(false, true, Collections.emptyList(), Collections.emptyList());
         createAnimals();
         spawnAllNatural();
         verify(sheepEvent).setCancelled(true);
         verify(zombieEvent).setCancelled(false);
 
         // test 3: all spawning allowed
-        adjustSettings(true, true, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+        adjustSettings(true, true, Collections.emptyList(), Collections.emptyList());
         createAnimals();
         spawnAllNatural();
         verify(sheepEvent).setCancelled(false);
         verify(zombieEvent).setCancelled(false);
 
         // test 4: no spawning with zombie exception
-        adjustSettings(false, false, Collections.EMPTY_LIST, Arrays.asList("ZOMBIE"));
+        adjustSettings(false, false, Collections.emptyList(), Collections.singletonList("ZOMBIE"));
         createAnimals();
         spawnAllNatural();
         verify(sheepEvent).setCancelled(true);
         verify(zombieEvent).setCancelled(false);
 
         // test 5: all spawning with sheep exception
-        adjustSettings(true, true, Arrays.asList("SHEEP"), Collections.EMPTY_LIST);
+        adjustSettings(true, true, Collections.singletonList("SHEEP"), Collections.emptyList());
         createAnimals();
         spawnAllNatural();
         verify(sheepEvent).setCancelled(true);
         verify(zombieEvent).setCancelled(false);
 
         // test 6: eggs
-        adjustSettings(false, false, Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+        adjustSettings(false, false, Collections.emptyList(), Collections.emptyList());
         createAnimals();
         spawnAll(SpawnReason.SPAWNER_EGG);
         verify(sheepEvent, never()).setCancelled(anyBoolean());
@@ -152,11 +150,11 @@ public class TestEntitySpawnRules {
     private void createAnimals() {
         sheep = mock(Sheep.class);
         when(sheep.getType()).thenReturn(EntityType.SHEEP);
-        when(sheep.getWorld()).thenReturn(this.cbworld);
+        when(sheep.getWorld()).thenReturn(cbworld);
         zombie = mock(Zombie.class);
         when(zombie.getType()).thenReturn(EntityType.ZOMBIE);
-        when(zombie.getWorld()).thenReturn(this.cbworld);
+        when(zombie.getWorld()).thenReturn(cbworld);
 
-        when(cbworld.getEntities()).thenReturn(Arrays.asList((Entity) sheep, (Entity) zombie));
+        when(cbworld.getEntities()).thenReturn(Arrays.asList(sheep, zombie));
     }
 }

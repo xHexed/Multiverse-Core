@@ -28,7 +28,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.mockito.ArgumentMatchers;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.api.easymock.PowerMock;
 import org.powermock.api.mockito.PowerMockito;
@@ -48,7 +47,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -72,7 +70,7 @@ public class TestInstanceCreator {
 
             // Initialize the Mock server.
             mockServer = mock(Server.class);
-            JavaPluginLoader mockPluginLoader = PowerMock.createMock(JavaPluginLoader.class);
+            final JavaPluginLoader mockPluginLoader = PowerMock.createMock(JavaPluginLoader.class);
             Whitebox.setInternalState(mockPluginLoader, "server", mockServer);
             when(mockServer.getName()).thenReturn("TestBukkit");
             Logger.getLogger("Minecraft").setParent(Util.logger);
@@ -80,15 +78,12 @@ public class TestInstanceCreator {
             when(mockServer.getWorldContainer()).thenReturn(worldsDirectory);
 
             // Return a fake PDF file.
-            PluginDescriptionFile pdf = PowerMockito.spy(new PluginDescriptionFile("Multiverse-Core", "2.2-Test",
-                    "com.onarandombox.MultiverseCore.MultiverseCore"));
-            when(pdf.getAuthors()).thenReturn(new ArrayList<String>());
+            final PluginDescriptionFile pdf = PowerMockito.spy(new PluginDescriptionFile("Multiverse-Core", "2.2-Test",
+                                                                                         "com.onarandombox.MultiverseCore.MultiverseCore"));
+            when(pdf.getAuthors()).thenReturn(new ArrayList<>());
             core = PowerMockito.spy(new MultiverseCore(mockPluginLoader, pdf, pluginDirectory, new File(pluginDirectory, "testPluginFile")));
-            PowerMockito.doAnswer(new Answer<Void>() {
-                @Override
-                public Void answer(InvocationOnMock invocation) throws Throwable {
-                    return null; // don't run metrics in tests
-                }
+            PowerMockito.doAnswer((Answer<Void>) invocation -> {
+                return null; // don't run metrics in tests
             }).when(core, "setupMetrics");
 
             // Let's let all MV files go to bin/test
@@ -99,10 +94,10 @@ public class TestInstanceCreator {
             core.setServerFolder(serverDirectory);
 
             // Add Core to the list of loaded plugins
-            JavaPlugin[] plugins = new JavaPlugin[] { core };
+            final JavaPlugin[] plugins = {core};
 
             // Mock the Plugin Manager
-            PluginManager mockPluginManager = PowerMockito.mock(PluginManager.class);
+            final PluginManager mockPluginManager = PowerMockito.mock(PluginManager.class);
             when(mockPluginManager.getPlugins()).thenReturn(plugins);
             when(mockPluginManager.getPlugin("Multiverse-Core")).thenReturn(core);
             when(mockPluginManager.getPermission(anyString())).thenReturn(null);
@@ -110,136 +105,123 @@ public class TestInstanceCreator {
             when(mockPluginManager.getPermission("Vault")).thenReturn(null);
 
             // Make some fake folders to fool the fake MV into thinking these worlds exist
-            File worldNormalFile = new File(core.getServerFolder(), "world");
+            final File worldNormalFile = new File(core.getServerFolder(), "world");
             Util.log("Creating world-folder: " + worldNormalFile.getAbsolutePath());
             worldNormalFile.mkdirs();
-            File worldNetherFile = new File(core.getServerFolder(), "world_nether");
+            final File worldNetherFile = new File(core.getServerFolder(), "world_nether");
             Util.log("Creating world-folder: " + worldNetherFile.getAbsolutePath());
             worldNetherFile.mkdirs();
-            File worldSkylandsFile = new File(core.getServerFolder(), "world_the_end");
+            final File worldSkylandsFile = new File(core.getServerFolder(), "world_the_end");
             Util.log("Creating world-folder: " + worldSkylandsFile.getAbsolutePath());
             worldSkylandsFile.mkdirs();
 
             // Give the server some worlds
-            when(mockServer.getWorld(anyString())).thenAnswer(new Answer<World>() {
-                @Override
-                public World answer(InvocationOnMock invocation) throws Throwable {
-                    String arg;
-                    try {
-                        arg = (String) invocation.getArguments()[0];
-                    } catch (Exception e) {
-                        return null;
-                    }
-                    return MockWorldFactory.getWorld(arg);
+            when(mockServer.getWorld(anyString())).thenAnswer((Answer<World>) invocation -> {
+                final String arg;
+                try {
+                    arg = (String) invocation.getArguments()[0];
                 }
+                catch (final Exception e) {
+                    return null;
+                }
+                return MockWorldFactory.getWorld(arg);
             });
 
-            when(mockServer.getWorld(any(UUID.class))).thenAnswer(new Answer<World>() {
-                @Override
-                public World answer(InvocationOnMock invocation) throws Throwable {
-                    UUID arg;
-                    try {
-                        arg = (UUID) invocation.getArguments()[0];
-                    } catch (Exception e) {
-                        return null;
-                    }
-                    return MockWorldFactory.getWorld(arg);
+            when(mockServer.getWorld(any(UUID.class))).thenAnswer((Answer<World>) invocation -> {
+                final UUID arg;
+                try {
+                    arg = (UUID) invocation.getArguments()[0];
                 }
+                catch (final Exception e) {
+                    return null;
+                }
+                return MockWorldFactory.getWorld(arg);
             });
 
-            when(mockServer.getWorlds()).thenAnswer(new Answer<List<World>>() {
-                @Override
-                public List<World> answer(InvocationOnMock invocation) throws Throwable {
-                    return MockWorldFactory.getWorlds();
-                }
-            });
+            when(mockServer.getWorlds()).thenAnswer((Answer<List<World>>) invocation -> MockWorldFactory.getWorlds());
 
             when(mockServer.getPluginManager()).thenReturn(mockPluginManager);
 
             when(mockServer.createWorld(ArgumentMatchers.isA(WorldCreator.class))).thenAnswer(
-                    new Answer<World>() {
-                        @Override
-                        public World answer(InvocationOnMock invocation) throws Throwable {
-                            WorldCreator arg;
-                            try {
-                                arg = (WorldCreator) invocation.getArguments()[0];
-                            } catch (Exception e) {
-                                return null;
-                            }
-                            // Add special case for creating null worlds.
-                            // Not sure I like doing it this way, but this is a special case
-                            if (arg.name().equalsIgnoreCase("nullworld")) {
-                                return MockWorldFactory.makeNewNullMockWorld(arg.name(), arg.environment(), arg.type());
-                            }
-                            return MockWorldFactory.makeNewMockWorld(arg.name(), arg.environment(), arg.type());
+                    (Answer<World>) invocation -> {
+                        final WorldCreator arg;
+                        try {
+                            arg = (WorldCreator) invocation.getArguments()[0];
                         }
+                        catch (final Exception e) {
+                            return null;
+                        }
+                        // Add special case for creating null worlds.
+                        // Not sure I like doing it this way, but this is a special case
+                        if (arg.name().equalsIgnoreCase("nullworld")) {
+                            return MockWorldFactory.makeNewNullMockWorld(arg.name(), arg.environment(), arg.type());
+                        }
+                        return MockWorldFactory.makeNewMockWorld(arg.name(), arg.environment(), arg.type());
                     });
 
             when(mockServer.unloadWorld(anyString(), anyBoolean())).thenReturn(true);
 
             // add mock scheduler
-            BukkitScheduler mockScheduler = mock(BukkitScheduler.class);
+            final BukkitScheduler mockScheduler = mock(BukkitScheduler.class);
             when(mockScheduler.scheduleSyncDelayedTask(any(Plugin.class), any(Runnable.class), anyLong())).
-            thenAnswer(new Answer<Integer>() {
-                @Override
-                public Integer answer(InvocationOnMock invocation) throws Throwable {
-                    Runnable arg;
-                    try {
-                        arg = (Runnable) invocation.getArguments()[1];
-                    } catch (Exception e) {
+                    thenAnswer((Answer<Integer>) invocation -> {
+                        final Runnable arg;
+                        try {
+                            arg = (Runnable) invocation.getArguments()[1];
+                        }
+                        catch (final Exception e) {
+                            return null;
+                        }
+                        arg.run();
                         return null;
-                    }
-                    arg.run();
-                    return null;
-                }});
+                    });
             when(mockScheduler.scheduleSyncDelayedTask(any(Plugin.class), any(Runnable.class))).
-            thenAnswer(new Answer<Integer>() {
-                @Override
-                public Integer answer(InvocationOnMock invocation) throws Throwable {
-                    Runnable arg;
-                    try {
-                        arg = (Runnable) invocation.getArguments()[1];
-                    } catch (Exception e) {
+                    thenAnswer((Answer<Integer>) invocation -> {
+                        final Runnable arg;
+                        try {
+                            arg = (Runnable) invocation.getArguments()[1];
+                        }
+                        catch (final Exception e) {
+                            return null;
+                        }
+                        arg.run();
                         return null;
-                    }
-                    arg.run();
-                    return null;
-                }});
+                    });
             when(mockServer.getScheduler()).thenReturn(mockScheduler);
 
             // Set server
-            Field serverfield = JavaPlugin.class.getDeclaredField("server");
+            final Field serverfield = JavaPlugin.class.getDeclaredField("server");
             serverfield.setAccessible(true);
             serverfield.set(core, mockServer);
 
             // Set buscript
-            Buscript buscript = PowerMockito.spy(new Buscript(core));
-            Field buscriptfield = MultiverseCore.class.getDeclaredField("buscript");
+            final Buscript buscript = PowerMockito.spy(new Buscript(core));
+            final Field buscriptfield = MultiverseCore.class.getDeclaredField("buscript");
             buscriptfield.setAccessible(true);
             buscriptfield.set(core, buscript);
             when(buscript.getPlugin()).thenReturn(core);
 
             // Set worldManager
-            WorldManager wm = PowerMockito.spy(new WorldManager(core));
-            Field worldmanagerfield = MultiverseCore.class.getDeclaredField("worldManager");
+            final WorldManager wm = PowerMockito.spy(new WorldManager(core));
+            final Field worldmanagerfield = MultiverseCore.class.getDeclaredField("worldManager");
             worldmanagerfield.setAccessible(true);
             worldmanagerfield.set(core, wm);
 
             // Set playerListener
-            MVPlayerListener pl = PowerMockito.spy(new MVPlayerListener(core));
-            Field playerlistenerfield = MultiverseCore.class.getDeclaredField("playerListener");
+            final MVPlayerListener pl = PowerMockito.spy(new MVPlayerListener(core));
+            final Field playerlistenerfield = MultiverseCore.class.getDeclaredField("playerListener");
             playerlistenerfield.setAccessible(true);
             playerlistenerfield.set(core, pl);
 
             // Set entityListener
-            MVEntityListener el = PowerMockito.spy(new MVEntityListener(core));
-            Field entitylistenerfield = MultiverseCore.class.getDeclaredField("entityListener");
+            final MVEntityListener el = PowerMockito.spy(new MVEntityListener(core));
+            final Field entitylistenerfield = MultiverseCore.class.getDeclaredField("entityListener");
             entitylistenerfield.setAccessible(true);
             entitylistenerfield.set(core, el);
 
             // Set weatherListener
-            MVWeatherListener wl = PowerMockito.spy(new MVWeatherListener(core));
-            Field weatherlistenerfield = MultiverseCore.class.getDeclaredField("weatherListener");
+            final MVWeatherListener wl = PowerMockito.spy(new MVWeatherListener(core));
+            final Field weatherlistenerfield = MultiverseCore.class.getDeclaredField("weatherListener");
             weatherlistenerfield.setAccessible(true);
             weatherlistenerfield.set(core, wl);
 
@@ -247,12 +229,10 @@ public class TestInstanceCreator {
             final Logger commandSenderLogger = Logger.getLogger("CommandSender");
             commandSenderLogger.setParent(Util.logger);
             commandSender = mock(CommandSender.class);
-            doAnswer(new Answer<Void>() {
-                @Override
-                public Void answer(InvocationOnMock invocation) throws Throwable {
-                    commandSenderLogger.info(ChatColor.stripColor((String) invocation.getArguments()[0]));
-                    return null;
-                }}).when(commandSender).sendMessage(anyString());
+            doAnswer((Answer<Void>) invocation -> {
+                commandSenderLogger.info(ChatColor.stripColor((String) invocation.getArguments()[0]));
+                return null;
+            }).when(commandSender).sendMessage(anyString());
             when(commandSender.getServer()).thenReturn(mockServer);
             when(commandSender.getName()).thenReturn("MockCommandSender");
             when(commandSender.isPermissionSet(anyString())).thenReturn(true);
@@ -271,7 +251,8 @@ public class TestInstanceCreator {
             core.onEnable();
 
             return true;
-        } catch (Exception e) {
+        }
+        catch (final Exception e) {
             e.printStackTrace();
         }
 
@@ -279,19 +260,20 @@ public class TestInstanceCreator {
     }
 
     public boolean tearDown() {
-        List<MultiverseWorld> worlds = new ArrayList<MultiverseWorld>(core.getMVWorldManager()
-                .getMVWorlds());
-        for (MultiverseWorld world : worlds) {
+        final List<MultiverseWorld> worlds = new ArrayList<>(core.getMVWorldManager()
+                                                                     .getMVWorlds());
+        for (final MultiverseWorld world : worlds) {
             core.getMVWorldManager().deleteWorld(world.getName());
         }
 
         try {
-            Field serverField = Bukkit.class.getDeclaredField("server");
+            final Field serverField = Bukkit.class.getDeclaredField("server");
             serverField.setAccessible(true);
             serverField.set(Class.forName("org.bukkit.Bukkit"), null);
-        } catch (Exception e) {
+        }
+        catch (final Exception e) {
             Util.log(Level.SEVERE,
-                    "Error while trying to unregister the server from Bukkit. Has Bukkit changed?");
+                     "Error while trying to unregister the server from Bukkit. Has Bukkit changed?");
             e.printStackTrace();
             Assert.fail(e.getMessage());
             return false;
@@ -306,11 +288,11 @@ public class TestInstanceCreator {
     }
 
     public MultiverseCore getCore() {
-        return this.core;
+        return core;
     }
 
     public Server getServer() {
-        return this.mockServer;
+        return mockServer;
     }
 
     public CommandSender getCommandSender() {

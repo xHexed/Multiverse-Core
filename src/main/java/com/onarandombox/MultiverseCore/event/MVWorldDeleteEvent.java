@@ -5,21 +5,22 @@ import org.bukkit.event.Event;
 
 import com.onarandombox.MultiverseCore.api.MultiverseWorld;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Called when a world is about to be deleted by Multiverse.
  */
 public class MVWorldDeleteEvent extends Event implements Cancellable {
-    private boolean cancelled = false;
+    private boolean cancelled;
 
     private final MultiverseWorld world;
     private final boolean removeFromConfig;
 
-    public MVWorldDeleteEvent(MultiverseWorld world, boolean removeFromConfig) {
+    public MVWorldDeleteEvent(final MultiverseWorld world, final boolean removeFromConfig) {
         if (world == null)
             throw new IllegalArgumentException("world can't be null!");
 
-        this.world = world;
+        this.world            = world;
         this.removeFromConfig = removeFromConfig;
     }
 
@@ -28,6 +29,7 @@ public class MVWorldDeleteEvent extends Event implements Cancellable {
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;
@@ -53,7 +55,7 @@ public class MVWorldDeleteEvent extends Event implements Cancellable {
      * {@inheritDoc}
      */
     @Override
-    public void setCancelled(boolean cancel) {
+    public void setCancelled(final boolean cancel) {
         cancelled = cancel;
     }
 

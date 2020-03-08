@@ -34,27 +34,25 @@ public class PlayerDestination implements MVDestination {
      * {@inheritDoc}
      */
     @Override
-    public boolean isThisType(JavaPlugin plugin, String destination) {
-        String[] items = destination.split(":");
+    public boolean isThisType(final JavaPlugin plugin, final String destination) {
+        final String[] items = destination.split(":");
         if (items.length != 2) {
             return false;
         }
-        if (!items[0].equalsIgnoreCase("pl")) {
-            return false;
-        }
-        return true;
+        return items[0].equalsIgnoreCase("pl");
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Location getLocation(Entity e) {
-        Player p = plugin.getServer().getPlayer(this.player);
+    public Location getLocation(final Entity e) {
+        final Player p = plugin.getServer().getPlayer(player);
         Player plLoc = null;
         if (e instanceof Player) {
             plLoc = (Player) e;
-        } else if (e.getPassenger() instanceof Player) {
+        }
+        else if (e.getPassenger() instanceof Player) {
             plLoc = (Player) e.getPassenger();
         }
 
@@ -69,23 +67,23 @@ public class PlayerDestination implements MVDestination {
      */
     @Override
     public boolean isValid() {
-        return this.isValid;
+        return isValid;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setDestination(JavaPlugin plugin, String destination) {
-        String[] items = destination.split(":");
+    public void setDestination(final JavaPlugin plugin, final String destination) {
+        final String[] items = destination.split(":");
         if (items.length != 2) {
-            this.isValid = false;
+            isValid = false;
         }
         if (!items[0].equalsIgnoreCase("pl")) {
-            this.isValid = false;
+            isValid = false;
         }
-        this.isValid = true;
-        this.player = items[1];
+        isValid     = true;
+        player      = items[1];
         this.plugin = plugin;
     }
 
@@ -102,12 +100,12 @@ public class PlayerDestination implements MVDestination {
      */
     @Override
     public String getName() {
-        return this.player;
+        return player;
     }
 
     @Override
     public String toString() {
-        return "pl:" + this.player;
+        return "pl:" + player;
     }
 
     /**

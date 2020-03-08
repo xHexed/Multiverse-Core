@@ -16,9 +16,9 @@ import java.util.Map;
  */
 public class PastebinPasteService implements PasteService {
 
-    private boolean isPrivate;
+    private final boolean isPrivate;
 
-    public PastebinPasteService(boolean isPrivate) {
+    public PastebinPasteService(final boolean isPrivate) {
         this.isPrivate = isPrivate;
     }
 
@@ -29,7 +29,8 @@ public class PastebinPasteService implements PasteService {
     public URL getPostURL() {
         try {
             return new URL("http://pastebin.com/api/api_post.php");
-        } catch (MalformedURLException e) {
+        }
+        catch (final MalformedURLException e) {
             return null; // should never hit here
         }
     }
@@ -38,21 +39,22 @@ public class PastebinPasteService implements PasteService {
      * {@inheritDoc}
      */
     @Override
-    public String encodeData(String data) {
+    public String encodeData(final String data) {
         try {
             String encData = URLEncoder.encode("api_dev_key", "UTF-8") + "=" + URLEncoder.encode("d61d68d31e8e0392b59b50b277411c71", "UTF-8");
             encData += "&" + URLEncoder.encode("api_option", "UTF-8") + "=" + URLEncoder.encode("paste", "UTF-8");
             encData += "&" + URLEncoder.encode("api_paste_code", "UTF-8") + "=" + URLEncoder.encode(data, "UTF-8");
-            encData += "&" + URLEncoder.encode("api_paste_private", "UTF-8") + "=" + URLEncoder.encode(this.isPrivate ? "1" : "0", "UTF-8");
+            encData += "&" + URLEncoder.encode("api_paste_private", "UTF-8") + "=" + URLEncoder.encode(isPrivate ? "1" : "0", "UTF-8");
             encData += "&" + URLEncoder.encode("api_paste_format", "UTF-8") + "=" + URLEncoder.encode("yaml", "UTF-8");
             return encData;
-        } catch (UnsupportedEncodingException e) {
+        }
+        catch (final UnsupportedEncodingException e) {
             return ""; // should never hit here
         }
     }
 
     @Override
-    public String encodeData(Map<String, String> data) {
+    public String encodeData(final Map<String, String> data) {
         return null;
     }
 
@@ -60,11 +62,11 @@ public class PastebinPasteService implements PasteService {
      * {@inheritDoc}
      */
     @Override
-    public String postData(String encodedData, URL url) throws PasteFailedException {
+    public String postData(final String encodedData, final URL url) throws PasteFailedException {
         OutputStreamWriter wr = null;
         BufferedReader rd = null;
         try {
-            URLConnection conn = url.openConnection();
+            final URLConnection conn = url.openConnection();
             conn.setDoOutput(true);
             wr = new OutputStreamWriter(conn.getOutputStream());
             wr.write(encodedData);
@@ -77,18 +79,22 @@ public class PastebinPasteService implements PasteService {
                 pastebinUrl = line;
             }
             return pastebinUrl;
-        } catch (Exception e) {
+        }
+        catch (final Exception e) {
             throw new PasteFailedException(e);
-        } finally {
+        }
+        finally {
             if (wr != null) {
                 try {
                     wr.close();
-                } catch (IOException ignore) { }
+                }
+                catch (final IOException ignore) { }
             }
             if (rd != null) {
                 try {
                     rd.close();
-                } catch (IOException ignore) { }
+                }
+                catch (final IOException ignore) { }
             }
         }
     }

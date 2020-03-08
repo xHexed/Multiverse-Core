@@ -23,7 +23,7 @@ public class WorldDestination implements MVDestination {
     private boolean isValid;
     private MultiverseWorld world;
     private float yaw = -1;
-    private String direction = "";
+    private static final String direction = "";
 
     /**
      * {@inheritDoc}
@@ -33,47 +33,11 @@ public class WorldDestination implements MVDestination {
         return "w";
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isThisType(JavaPlugin plugin, String destination) {
-        String[] items = destination.split(":");
-        if (items.length > 3) {
-            return false;
-        }
-        if (items.length == 1 && ((MultiverseCore) plugin).getMVWorldManager().isMVWorld(items[0])) {
-            // This case is: world
-            return true;
-        }
-        if (items.length == 2 && ((MultiverseCore) plugin).getMVWorldManager().isMVWorld(items[0])) {
-            // This case is: world:n
-            return true;
-        } else if (items[0].equalsIgnoreCase("w") && ((MultiverseCore) plugin).getMVWorldManager().isMVWorld(items[1])) {
-            // This case is: w:world
-            // and w:world:ne
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Location getLocation(Entity e) {
-        Location spawnLoc = getAcurateSpawnLocation(e, this.world);
-        if (this.yaw >= 0) {
-            // Only modify the yaw if its set.
-            spawnLoc.setYaw(this.yaw);
-        }
-        return spawnLoc;
-    }
-
-    private static Location getAcurateSpawnLocation(Entity e, MultiverseWorld world) {
+    private static Location getAcurateSpawnLocation(final Entity e, final MultiverseWorld world) {
         if (world != null) {
             return world.getSpawnLocation();
-        } else {
+        }
+        else {
             // add 0.5 to x and z to center people
             // (spawn location is stored as int meaning that you would spawn in the corner of a block)
             return e.getWorld().getSpawnLocation().add(.5, 0, .5);
@@ -84,38 +48,73 @@ public class WorldDestination implements MVDestination {
      * {@inheritDoc}
      */
     @Override
-    public boolean isValid() {
-        return this.isValid;
+    public boolean isThisType(final JavaPlugin plugin, final String destination) {
+        final String[] items = destination.split(":");
+        if (items.length > 3) {
+            return false;
+        }
+        if (items.length == 1 && ((MultiverseCore) plugin).getMVWorldManager().isMVWorld(items[0])) {
+            // This case is: world
+            return true;
+        }
+        // This case is: w:world
+        // and w:world:ne
+        if (items.length == 2 && ((MultiverseCore) plugin).getMVWorldManager().isMVWorld(items[0])) {
+            // This case is: world:n
+            return true;
+        }
+        else return items[0].equalsIgnoreCase("w") && ((MultiverseCore) plugin).getMVWorldManager().isMVWorld(items[1]);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setDestination(JavaPlugin plugin, String destination) {
+    public Location getLocation(final Entity e) {
+        final Location spawnLoc = getAcurateSpawnLocation(e, world);
+        if (yaw >= 0) {
+            // Only modify the yaw if its set.
+            spawnLoc.setYaw(yaw);
+        }
+        return spawnLoc;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isValid() {
+        return isValid;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setDestination(final JavaPlugin plugin, final String destination) {
         // TODO Taking a JavaPlugin here is rather useless, if we keep casting it up to MultiverseCore.
         // We should change that.
-        Core core = (Core) plugin;
-        String[] items = destination.split(":");
+        final Core core = (Core) plugin;
+        final String[] items = destination.split(":");
         if (items.length > 3) {
             isValid = false;
             return;
         }
         if (items.length == 1 && ((MultiverseCore) plugin).getMVWorldManager().isMVWorld(items[0])) {
             isValid = true;
-            this.world = core.getMVWorldManager().getMVWorld(items[0]);
+            world   = core.getMVWorldManager().getMVWorld(items[0]);
             return;
         }
         if (items.length == 2 && ((MultiverseCore) plugin).getMVWorldManager().isMVWorld(items[0])) {
-            this.world = core.getMVWorldManager().getMVWorld(items[0]);
-            this.yaw = core.getLocationManipulation().getYaw(items[1]);
+            world = core.getMVWorldManager().getMVWorld(items[0]);
+            yaw   = core.getLocationManipulation().getYaw(items[1]);
             return;
         }
         if (items[0].equalsIgnoreCase("w") && ((MultiverseCore) plugin).getMVWorldManager().isMVWorld(items[1])) {
-            this.world = ((MultiverseCore) plugin).getMVWorldManager().getMVWorld(items[1]);
+            world   = ((MultiverseCore) plugin).getMVWorldManager().getMVWorld(items[1]);
             isValid = true;
             if (items.length == 3) {
-                this.yaw = core.getLocationManipulation().getYaw(items[2]);
+                yaw = core.getLocationManipulation().getYaw(items[2]);
             }
         }
     }
@@ -133,15 +132,12 @@ public class WorldDestination implements MVDestination {
      */
     @Override
     public String getName() {
-        return this.world.getColoredWorldString();
+        return world.getColoredWorldString();
     }
 
     @Override
     public String toString() {
-        if (direction.length() > 0 && yaw >= 0) {
-            return this.world.getCBWorld().getName() + ":" + this.direction;
-        }
-        return this.world.getCBWorld().getName();
+        return world.getCBWorld().getName();
     }
 
     /**
@@ -151,7 +147,7 @@ public class WorldDestination implements MVDestination {
     public String getRequiredPermission() {
         // TODO: Potenitally replace spaces wiht tabs for friendlier yaml.
         // this.world.getName().replace(" ","_");
-        return "multiverse.access." + this.world.getName();
+        return "multiverse.access." + world.getName();
     }
 
     /**

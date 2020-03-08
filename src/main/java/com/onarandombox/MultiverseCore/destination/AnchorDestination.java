@@ -46,12 +46,12 @@ public class AnchorDestination implements MVDestination {
      * {@inheritDoc}
      */
     @Override
-    public boolean isThisType(JavaPlugin plugin, String destination) {
+    public boolean isThisType(final JavaPlugin plugin, final String destination) {
         if (!(plugin instanceof MultiverseCore)) {
             return false;
         }
         this.plugin = (MultiverseCore) plugin;
-        List<String> parsed = Arrays.asList(destination.split(":"));
+        final List<String> parsed = Arrays.asList(destination.split(":"));
         // Need at least: a:name
         if (!(parsed.size() == 2)) {
             return false;
@@ -64,8 +64,8 @@ public class AnchorDestination implements MVDestination {
      * {@inheritDoc}
      */
     @Override
-    public Location getLocation(Entity e) {
-        return this.location;
+    public Location getLocation(final Entity e) {
+        return location;
     }
 
     /**
@@ -73,36 +73,36 @@ public class AnchorDestination implements MVDestination {
      */
     @Override
     public boolean isValid() {
-        return this.isValid;
+        return isValid;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setDestination(JavaPlugin plugin, String destination) {
+    public void setDestination(final JavaPlugin plugin, final String destination) {
         if (!(plugin instanceof MultiverseCore)) {
             return;
         }
         this.plugin = (MultiverseCore) plugin;
-        List<String> parsed = Arrays.asList(destination.split(":"));
+        final List<String> parsed = Arrays.asList(destination.split(":"));
         // Need at least: e:world:x,y,z
         // OR e:world:x,y,z:pitch:yaw
         // so basically 3 or 5
         if (!(parsed.size() == 2)) {
-            this.isValid = false;
+            isValid = false;
             return;
         }
-        this.name = parsed.get(1);
-        this.location = this.plugin.getAnchorManager().getAnchorLocation(parsed.get(1));
-        if (this.location == null) {
-            this.isValid = false;
+        name     = parsed.get(1);
+        location = this.plugin.getAnchorManager().getAnchorLocation(parsed.get(1));
+        if (location == null) {
+            isValid = false;
             return;
         }
-        if (!parsed.get(0).equalsIgnoreCase(this.getIdentifier())) {
-            this.isValid = false;
+        if (!parsed.get(0).equalsIgnoreCase(getIdentifier())) {
+            isValid = false;
         }
-        this.isValid = true;
+        isValid = true;
     }
 
     /**
@@ -118,13 +118,13 @@ public class AnchorDestination implements MVDestination {
      */
     @Override
     public String getName() {
-        return "Anchor: " + this.name;
+        return "Anchor: " + name;
     }
 
     @Override
     public String toString() {
         if (isValid) {
-            return "a:" + this.name;
+            return "a:" + name;
         }
         return "i:Invalid Destination";
     }
@@ -134,7 +134,7 @@ public class AnchorDestination implements MVDestination {
      */
     @Override
     public String getRequiredPermission() {
-        return "multiverse.access." + this.location.getWorld().getName();
+        return "multiverse.access." + location.getWorld().getName();
     }
 
     /**

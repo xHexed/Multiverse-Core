@@ -22,27 +22,27 @@ import java.util.List;
  * Removes all values from a world-property.
  */
 public class ModifyClearCommand extends MultiverseCommand {
-    private MVWorldManager worldManager;
+    private final MVWorldManager worldManager;
 
-    public ModifyClearCommand(MultiverseCore plugin) {
+    public ModifyClearCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Modify a World (Clear a property)");
-        this.setCommandUsage("/mv modify" + ChatColor.GREEN + " clear {PROPERTY}" + ChatColor.GOLD + " [WORLD]");
-        this.setArgRange(1, 2);
-        this.addKey("mvm clear");
-        this.addKey("mvmclear");
-        this.addKey("mv modify clear");
-        this.addKey("mvmodify clear");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "clear " + ChatColor.RED + "animals");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "clear " + ChatColor.RED + "monsters");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "clear " + ChatColor.RED + "worldblacklist");
-        this.setPermission("multiverse.core.modify.clear",
-                "Removes all values from a property. This will work on properties that contain lists.", PermissionDefault.OP);
-        this.worldManager = this.plugin.getMVWorldManager();
+        setName("Modify a World (Clear a property)");
+        setCommandUsage("/mv modify" + ChatColor.GREEN + " clear {PROPERTY}" + ChatColor.GOLD + " [WORLD]");
+        setArgRange(1, 2);
+        addKey("mvm clear");
+        addKey("mvmclear");
+        addKey("mv modify clear");
+        addKey("mvmodify clear");
+        addCommandExample("/mvm " + ChatColor.GOLD + "clear " + ChatColor.RED + "animals");
+        addCommandExample("/mvm " + ChatColor.GOLD + "clear " + ChatColor.RED + "monsters");
+        addCommandExample("/mvm " + ChatColor.GOLD + "clear " + ChatColor.RED + "worldblacklist");
+        setPermission("multiverse.core.modify.clear",
+                      "Removes all values from a property. This will work on properties that contain lists.", PermissionDefault.OP);
+        worldManager = this.plugin.getMVWorldManager();
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         // We NEED a world from the command line
         Player p = null;
         if (sender instanceof Player) {
@@ -50,19 +50,20 @@ public class ModifyClearCommand extends MultiverseCommand {
         }
         if (args.size() == 1 && p == null) {
             sender.sendMessage(ChatColor.RED + "From the console, WORLD is required.");
-            sender.sendMessage(this.getCommandDesc());
-            sender.sendMessage(this.getCommandUsage());
+            sender.sendMessage(getCommandDesc());
+            sender.sendMessage(getCommandUsage());
             sender.sendMessage("Nothing changed.");
             return;
         }
 
-        MultiverseWorld world;
-        String property = args.get(0);
+        final MultiverseWorld world;
+        final String property = args.get(0);
 
         if (args.size() == 1) {
-            world = this.worldManager.getMVWorld(p.getWorld().getName());
-        } else {
-            world = this.worldManager.getMVWorld(args.get(1));
+            world = worldManager.getMVWorld(p.getWorld().getName());
+        }
+        else {
+            world = worldManager.getMVWorld(args.get(1));
         }
 
         if (world == null) {

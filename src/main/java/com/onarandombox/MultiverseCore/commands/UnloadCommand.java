@@ -20,22 +20,23 @@ import java.util.List;
  */
 public class UnloadCommand extends MultiverseCommand {
 
-    public UnloadCommand(MultiverseCore plugin) {
+    public UnloadCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Unload World");
-        this.setCommandUsage("/mv unload" + ChatColor.GREEN + " {WORLD}");
-        this.setArgRange(1, 1);
-        this.addKey("mvunload");
-        this.addKey("mv unload");
-        this.setPermission("multiverse.core.unload",
-                "Unloads a world from Multiverse. This does NOT remove the world folder. This does NOT remove it from the config file.", PermissionDefault.OP);
+        setName("Unload World");
+        setCommandUsage("/mv unload" + ChatColor.GREEN + " {WORLD}");
+        setArgRange(1, 1);
+        addKey("mvunload");
+        addKey("mv unload");
+        setPermission("multiverse.core.unload",
+                      "Unloads a world from Multiverse. This does NOT remove the world folder. This does NOT remove it from the config file.", PermissionDefault.OP);
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
-        if (this.plugin.getMVWorldManager().unloadWorld(args.get(0))) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
+        if (plugin.getMVWorldManager().unloadWorld(args.get(0))) {
             Command.broadcastCommandMessage(sender, "Unloaded world '" + args.get(0) + "'!");
-        } else {
+        }
+        else {
             sender.sendMessage("Error trying to unload world '" + args.get(0) + "'!");
         }
     }

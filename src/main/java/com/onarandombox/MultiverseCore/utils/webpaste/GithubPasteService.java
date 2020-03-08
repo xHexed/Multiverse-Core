@@ -18,26 +18,25 @@ public class GithubPasteService implements PasteService {
 
     private final boolean isPrivate;
 
-    public GithubPasteService(boolean isPrivate) {
+    public GithubPasteService(final boolean isPrivate) {
         this.isPrivate = isPrivate;
     }
 
     @Override
-    public String encodeData(String data) {
-        Map<String, String> mapData = new HashMap<String, String>();
+    public String encodeData(final String data) {
+        final Map<String, String> mapData = new HashMap<>();
         mapData.put("multiverse.txt", data);
-        return this.encodeData(mapData);
+        return encodeData(mapData);
     }
 
     @Override
-    public String encodeData(Map<String, String> files) {
-        JsonObject root = new JsonObject();
+    public String encodeData(final Map<String, String> files) {
+        final JsonObject root = new JsonObject();
         root.add("description", new JsonPrimitive("Multiverse-Core Debug Info"));
-        root.add("public", new JsonPrimitive(!this.isPrivate));
-        JsonObject fileList = new JsonObject();
-        for (Map.Entry<String, String> entry : files.entrySet())
-        {
-            JsonObject fileObject = new JsonObject();
+        root.add("public", new JsonPrimitive(!isPrivate));
+        final JsonObject fileList = new JsonObject();
+        for (final Map.Entry<String, String> entry : files.entrySet()) {
+            final JsonObject fileObject = new JsonObject();
             fileObject.add("content", new JsonPrimitive(entry.getValue()));
             fileList.add(entry.getKey(), fileObject);
         }
@@ -50,17 +49,18 @@ public class GithubPasteService implements PasteService {
         try {
             return new URL("https://api.github.com/gists");
             //return new URL("http://jsonplaceholder.typicode.com/posts");
-        } catch (MalformedURLException e) {
+        }
+        catch (final MalformedURLException e) {
             return null; // should never hit here
         }
     }
 
     @Override
-    public String postData(String encodedData, URL url) throws PasteFailedException {
+    public String postData(final String encodedData, final URL url) throws PasteFailedException {
         OutputStreamWriter wr = null;
         BufferedReader rd = null;
         try {
-            URLConnection conn = url.openConnection();
+            final URLConnection conn = url.openConnection();
             conn.setDoOutput(true);
             wr = new OutputStreamWriter(conn.getOutputStream());
             wr.write(encodedData);
@@ -68,26 +68,30 @@ public class GithubPasteService implements PasteService {
 
             rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
-            String pastieUrl = "";
+            final String pastieUrl = "";
             //Pattern pastiePattern = this.getURLMatchingPattern();
-            StringBuilder responseString = new StringBuilder();
+            final StringBuilder responseString = new StringBuilder();
 
             while ((line = rd.readLine()) != null) {
                 responseString.append(line);
             }
             return new JsonParser().parse(responseString.toString()).getAsJsonObject().get("html_url").getAsString();
-        } catch (Exception e) {
+        }
+        catch (final Exception e) {
             throw new PasteFailedException(e);
-        } finally {
+        }
+        finally {
             if (wr != null) {
                 try {
                     wr.close();
-                } catch (IOException ignore) { }
+                }
+                catch (final IOException ignore) { }
             }
             if (rd != null) {
                 try {
                     rd.close();
-                } catch (IOException ignore) { }
+                }
+                catch (final IOException ignore) { }
             }
         }
     }

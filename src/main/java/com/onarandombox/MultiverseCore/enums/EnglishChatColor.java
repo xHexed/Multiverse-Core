@@ -36,24 +36,8 @@ public enum EnglishChatColor {
     private final ChatColor color;
     //private final String text;
 
-    EnglishChatColor(ChatColor color) {
+    EnglishChatColor(final ChatColor color) {
         this.color = color;
-    }
-
-    /**
-     * Gets the text.
-     * @return The text.
-     */
-    public String getText() {
-        return this.name();
-    }
-
-    /**
-     * Gets the color.
-     * @return The color as {@link ChatColor}.
-     */
-    public ChatColor getColor() {
-        return this.color;
     }
 
     /**
@@ -61,21 +45,23 @@ public enum EnglishChatColor {
      * @return That {@link String}.
      */
     public static String getAllColors() {
-        String buffer = "";
-        for (EnglishChatColor c : EnglishChatColor.values()) {
-            buffer += c.getColor() + c.getText() + " ";
+        final StringBuilder buffer = new StringBuilder();
+        for (final EnglishChatColor c : EnglishChatColor.values()) {
+            buffer.append(c.color).append(c.getText()).append(" ");
         }
-        return buffer;
+        return buffer.toString();
     }
 
     /**
      * Constructs an {@link EnglishChatColor} from a {@link String}.
+     *
      * @param text The {@link String}.
+     *
      * @return The {@link EnglishChatColor}.
      */
-    public static EnglishChatColor fromString(String text) {
+    public static EnglishChatColor fromString(final String text) {
         if (text != null) {
-            for (EnglishChatColor c : EnglishChatColor.values()) {
+            for (final EnglishChatColor c : EnglishChatColor.values()) {
                 if (text.equalsIgnoreCase(c.name())) {
                     return c;
                 }
@@ -86,10 +72,30 @@ public enum EnglishChatColor {
 
     /**
      * Looks if the given-color name is a valid color.
+     *
      * @param aliasColor A color-name.
+     *
      * @return True if the name is a valid color, false if it isn't.
      */
-    public static boolean isValidAliasColor(String aliasColor) {
+    public static boolean isValidAliasColor(final String aliasColor) {
         return (EnglishChatColor.fromString(aliasColor) != null);
+    }
+
+    /**
+     * Gets the text.
+     *
+     * @return The text.
+     */
+    public String getText() {
+        return name();
+    }
+
+    /**
+     * Gets the color.
+     *
+     * @return The color as {@link ChatColor}.
+     */
+    public ChatColor getColor() {
+        return color;
     }
 }

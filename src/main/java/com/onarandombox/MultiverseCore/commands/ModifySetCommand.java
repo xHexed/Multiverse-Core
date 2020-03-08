@@ -23,40 +23,40 @@ import java.util.List;
  * Used to set world-properties.
  */
 public class ModifySetCommand extends MultiverseCommand {
-    private MVWorldManager worldManager;
+    private final MVWorldManager worldManager;
 
-    public ModifySetCommand(MultiverseCore plugin) {
+    public ModifySetCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.worldManager = this.plugin.getMVWorldManager();
-        this.setName("Modify a World (Set a value)");
-        this.setCommandUsage("/mv modify" + ChatColor.GREEN + " set {PROPERTY} {VALUE}" + ChatColor.GOLD + " [WORLD]");
-        this.setArgRange(1, 3);
-        this.addKey("mvm set");
-        this.addKey("mvmset");
-        this.addKey("mv modify set");
-        this.addKey("mvmodify set");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "mode " + ChatColor.RED + "creative");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "animals " + ChatColor.RED + "false");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "monsters " + ChatColor.RED + "false");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "alias " + ChatColor.RED + "MyWorld");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "color " + ChatColor.RED + "green");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "curr " + ChatColor.RED + "3");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "price " + ChatColor.RED + "5");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "scale " + ChatColor.RED + "1.2");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "memory " + ChatColor.RED + "true");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "diff " + ChatColor.RED + "hard");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "hunger " + ChatColor.RED + "false");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "hidden " + ChatColor.RED + "true");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "pvp " + ChatColor.RED + "false");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "heal " + ChatColor.RED + "true");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "adjustspawn " + ChatColor.RED + "false");
-        this.addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "spawn");
-        this.setPermission("multiverse.core.modify.set", "Modify various aspects of worlds. See the help wiki for how to use this command properly. "
+        worldManager = this.plugin.getMVWorldManager();
+        setName("Modify a World (Set a value)");
+        setCommandUsage("/mv modify" + ChatColor.GREEN + " set {PROPERTY} {VALUE}" + ChatColor.GOLD + " [WORLD]");
+        setArgRange(1, 3);
+        addKey("mvm set");
+        addKey("mvmset");
+        addKey("mv modify set");
+        addKey("mvmodify set");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "mode " + ChatColor.RED + "creative");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "animals " + ChatColor.RED + "false");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "monsters " + ChatColor.RED + "false");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "alias " + ChatColor.RED + "MyWorld");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "color " + ChatColor.RED + "green");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "curr " + ChatColor.RED + "3");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "price " + ChatColor.RED + "5");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "scale " + ChatColor.RED + "1.2");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "memory " + ChatColor.RED + "true");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "diff " + ChatColor.RED + "hard");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "hunger " + ChatColor.RED + "false");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "hidden " + ChatColor.RED + "true");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "pvp " + ChatColor.RED + "false");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "heal " + ChatColor.RED + "true");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "adjustspawn " + ChatColor.RED + "false");
+        addCommandExample("/mvm " + ChatColor.GOLD + "set " + ChatColor.GREEN + "spawn");
+        setPermission("multiverse.core.modify.set", "Modify various aspects of worlds. See the help wiki for how to use this command properly. "
                 + "If you do not include a world, the current world will be used.", PermissionDefault.OP);
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         // Special case for spawn:
         if (args.size() == 1) {
             if (!(sender instanceof Player)) {
@@ -64,7 +64,7 @@ public class ModifySetCommand extends MultiverseCommand {
                 return;
             }
             if (args.get(0).equalsIgnoreCase("spawn")) {
-                SetSpawnCommand c = new SetSpawnCommand(this.plugin);
+                final SetSpawnCommand c = new SetSpawnCommand(plugin);
                 c.setWorldSpawn(sender);
 
             } else {
@@ -81,20 +81,21 @@ public class ModifySetCommand extends MultiverseCommand {
 
         if (args.size() == 2 && p == null) {
             sender.sendMessage("From the command line, WORLD is required.");
-            sender.sendMessage(this.getCommandDesc());
-            sender.sendMessage(this.getCommandUsage());
+            sender.sendMessage(getCommandDesc());
+            sender.sendMessage(getCommandUsage());
             sender.sendMessage("Nothing changed.");
             return;
         }
 
-        MultiverseWorld world;
-        String value = args.get(1);
-        String property = args.get(0);
+        final MultiverseWorld world;
+        final String value = args.get(1);
+        final String property = args.get(0);
 
         if (args.size() == 2) {
-            world = this.worldManager.getMVWorld(p.getWorld().getName());
-        } else {
-            world = this.worldManager.getMVWorld(args.get(2));
+            world = worldManager.getMVWorld(p.getWorld().getName());
+        }
+        else {
+            world = worldManager.getMVWorld(args.get(2));
         }
 
         if (world == null) {
@@ -110,14 +111,16 @@ public class ModifySetCommand extends MultiverseCommand {
         try {
             if (world.setPropertyValue(property, value)) {
                 sender.sendMessage(ChatColor.GREEN + "Success!" + ChatColor.WHITE + " Property " + ChatColor.AQUA + property
-                        + ChatColor.WHITE + " was set to " + ChatColor.GREEN + value);
+                                           + ChatColor.WHITE + " was set to " + ChatColor.GREEN + value);
                 if (!plugin.saveWorldConfig()) {
                     sender.sendMessage(ChatColor.RED + "There was an issue saving worlds.yml!  Your changes will only be temporary!");
                 }
-            } else {
+            }
+            else {
                 sender.sendMessage(ChatColor.RED + world.getPropertyHelp(property));
             }
-        } catch (PropertyDoesNotExistException e) {
+        }
+        catch (final PropertyDoesNotExistException e) {
             sender.sendMessage(ChatColor.RED + "Sorry, You can't set: '" + ChatColor.GRAY + property + ChatColor.RED + "'");
             sender.sendMessage("Valid world-properties: " + world.getAllPropertyNames());
         }

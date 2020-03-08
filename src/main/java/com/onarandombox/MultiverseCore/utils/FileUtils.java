@@ -35,13 +35,15 @@ public class FileUtils {
      * Used to delete a folder.
      *
      * @param file The folder to delete.
+     *
      * @return true if the folder was successfully deleted.
      */
-    public static boolean deleteFolder(File file) {
-        try (Stream<Path> files = Files.walk(file.toPath())) {
+    public static boolean deleteFolder(final File file) {
+        try (final Stream<Path> files = Files.walk(file.toPath())) {
             files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
             return true;
-        } catch (IOException e) {
+        }
+        catch (final IOException e) {
             Logging.warning(e.getMessage());
             return false;
         }
@@ -51,16 +53,18 @@ public class FileUtils {
      * Used to delete the contents of a folder, without deleting the folder itself.
      *
      * @param file The folder whose contents to delete.
+     *
      * @return true if the contents were successfully deleted
      */
-    public static boolean deleteFolderContents(File file) {
-        try (Stream<Path> files = Files.walk(file.toPath())){
+    public static boolean deleteFolderContents(final File file) {
+        try (final Stream<Path> files = Files.walk(file.toPath())) {
             files.sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .filter(f -> !f.equals(file))
                     .forEach(File::delete);
             return true;
-        } catch (IOException e) {
+        }
+        catch (final IOException e) {
             Logging.warning(e.getMessage());
             return false;
         }
@@ -68,20 +72,22 @@ public class FileUtils {
 
     /**
      * Helper method to copy the world-folder.
+     *
      * @param source Source-File
      * @param target Target-File
-     * @param log A logger that logs the operation
+     * @param log    A logger that logs the operation
      *
      * @return if it had success
      */
-    public static boolean copyFolder(File source, File target, Logger log) {
-        Path sourceDir = source.toPath();
-        Path targetDir = target.toPath();
+    public static boolean copyFolder(final File source, final File target, final Logger log) {
+        final Path sourceDir = source.toPath();
+        final Path targetDir = target.toPath();
 
         try {
             Files.walkFileTree(sourceDir, new CopyDirFileVisitor(sourceDir, targetDir));
             return true;
-        } catch (IOException e) {
+        }
+        catch (final IOException e) {
             log.log(Level.WARNING, "Unable to copy directory", e);
             return false;
         }
@@ -92,14 +98,14 @@ public class FileUtils {
         private final Path sourceDir;
         private final Path targetDir;
 
-        private CopyDirFileVisitor(Path sourceDir, Path targetDir) {
+        private CopyDirFileVisitor(final Path sourceDir, final Path targetDir) {
             this.sourceDir = sourceDir;
             this.targetDir = targetDir;
         }
 
         @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            Path newDir = targetDir.resolve(sourceDir.relativize(dir));
+        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
+            final Path newDir = targetDir.resolve(sourceDir.relativize(dir));
             if (!Files.isDirectory(newDir)) {
                 Files.createDirectory(newDir);
             }
@@ -107,8 +113,8 @@ public class FileUtils {
         }
 
         @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            Path targetFile = targetDir.resolve(sourceDir.relativize(file));
+        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+            final Path targetFile = targetDir.resolve(sourceDir.relativize(file));
             Files.copy(file, targetFile, COPY_ATTRIBUTES);
             return FileVisitResult.CONTINUE;
         }

@@ -24,41 +24,43 @@ import java.util.Map;
  */
 public class ModifyCommand extends MultiverseCommand {
 
-    public ModifyCommand(MultiverseCore plugin) {
+    public ModifyCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Modify a World");
-        this.setCommandUsage("/mv modify" + ChatColor.GREEN + " {set|add|remove|clear} ...");
-        this.setArgRange(2, 3);
-        this.addKey("mvm");
-        this.addKey("mvmodify");
-        this.addKey("mv modify");
-        Map<String, Boolean> children = new HashMap<String, Boolean>();
+        setName("Modify a World");
+        setCommandUsage("/mv modify" + ChatColor.GREEN + " {set|add|remove|clear} ...");
+        setArgRange(2, 3);
+        addKey("mvm");
+        addKey("mvmodify");
+        addKey("mv modify");
+        final Map<String, Boolean> children = new HashMap<>();
         children.put("multiverse.core.modify.add", true);
         children.put("multiverse.core.modify.modify", true);
         children.put("multiverse.core.modify.clear", true);
         children.put("multiverse.core.modify.remove", true);
-        Permission modify = new Permission("multiverse.core.modify",
-                "Modify various aspects of worlds. It requires add/set/clear/remove. See the examples below", PermissionDefault.OP, children);
-        this.addCommandExample(ChatColor.AQUA + "/mv modify set ?");
-        this.addCommandExample(ChatColor.GREEN + "/mv modify add ?");
-        this.addCommandExample(ChatColor.BLUE + "/mv modify clear ?");
-        this.addCommandExample(ChatColor.RED + "/mv modify remove ?");
-        this.setPermission(modify);
+        final Permission modify = new Permission("multiverse.core.modify",
+                                                 "Modify various aspects of worlds. It requires add/set/clear/remove. See the examples below", PermissionDefault.OP, children);
+        addCommandExample(ChatColor.AQUA + "/mv modify set ?");
+        addCommandExample(ChatColor.GREEN + "/mv modify add ?");
+        addCommandExample(ChatColor.BLUE + "/mv modify clear ?");
+        addCommandExample(ChatColor.RED + "/mv modify remove ?");
+        setPermission(modify);
     }
 
     /**
      * Validates the specified action.
      *
-     * @param action The {@link Action}.
+     * @param action   The {@link Action}.
      * @param property The property.
+     *
      * @return Whether this action is valid.
      */
-    protected static boolean validateAction(Action action, String property) {
+    protected static boolean validateAction(final Action action, final String property) {
         if (action != Action.Set) {
             try {
                 AddProperties.valueOf(property);
                 return true;
-            } catch (IllegalArgumentException e) {
+            }
+            catch (final IllegalArgumentException e) {
                 return false;
             }
         }
@@ -66,7 +68,7 @@ public class ModifyCommand extends MultiverseCommand {
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         // This is just a place holder. The real commands are in:
         // ModifyAddCommand
         // ModifyRemoveCommand

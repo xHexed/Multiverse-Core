@@ -19,33 +19,34 @@ import java.util.List;
  */
 public class SilentCommand extends MultiverseCommand {
 
-    public SilentCommand(MultiverseCore plugin) {
+    public SilentCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Turn silent mode on/off?");
-        this.setCommandUsage("/mv silent" + ChatColor.GOLD + " [true|false|on|off]");
-        this.setArgRange(0, 1);
-        this.addKey("mv silent");
-        this.addKey("mvsilent");
-        this.addCommandExample("/mv silent " + ChatColor.GOLD + "true");
-        this.setPermission("multiverse.core.silent", "Reduces the amount of startup messages.", PermissionDefault.OP);
+        setName("Turn silent mode on/off?");
+        setCommandUsage("/mv silent" + ChatColor.GOLD + " [true|false|on|off]");
+        setArgRange(0, 1);
+        addKey("mv silent");
+        addKey("mvsilent");
+        addCommandExample("/mv silent " + ChatColor.GOLD + "true");
+        setPermission("multiverse.core.silent", "Reduces the amount of startup messages.", PermissionDefault.OP);
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         if (args.size() == 1) {
             if (args.get(0).equalsIgnoreCase("on")) {
                 args.set(0, "true");
             }
-            plugin.getMVConfig().setSilentStart(Boolean.valueOf(args.get(0)));
+            plugin.getMVConfig().setSilentStart(Boolean.parseBoolean(args.get(0)));
             plugin.saveMVConfigs();
         }
-        this.displaySilentMode(sender);
+        displaySilentMode(sender);
     }
 
-    private void displaySilentMode(CommandSender sender) {
+    private void displaySilentMode(final CommandSender sender) {
         if (plugin.getMVConfig().getSilentStart()) {
             sender.sendMessage("Multiverse Silent Start mode is " + ChatColor.GREEN + "ON");
-        } else {
+        }
+        else {
             sender.sendMessage("Multiverse Silent Start mode is " + ChatColor.RED + "OFF");
         }
     }

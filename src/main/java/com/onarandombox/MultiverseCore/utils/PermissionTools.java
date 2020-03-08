@@ -16,91 +16,98 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utility-class for permissions.
  */
 public class PermissionTools {
-    private MultiverseCore plugin;
+    private static final Pattern CHOPPED = Pattern.compile(".*", Pattern.LITERAL);
+    private final MultiverseCore plugin;
 
-    public PermissionTools(MultiverseCore plugin) {
+    public PermissionTools(final MultiverseCore plugin) {
         this.plugin = plugin;
-    }
-
-    /**
-     * Adds a permission to the parent-permissions.
-     * @param permString The new permission as {@link String}.
-     */
-    public void addToParentPerms(String permString) {
-        String permStringChopped = permString.replace(".*", "");
-
-        String[] seperated = permStringChopped.split("\\.");
-        String parentPermString = getParentPerm(seperated);
-        if (parentPermString == null) {
-            addToRootPermission("*", permStringChopped);
-            addToRootPermission("*.*", permStringChopped);
-            return;
-        }
-        Permission parentPermission = this.plugin.getServer().getPluginManager().getPermission(parentPermString);
-        // Creat parent and grandparents
-        if (parentPermission == null) {
-            parentPermission = new Permission(parentPermString);
-            this.plugin.getServer().getPluginManager().addPermission(parentPermission);
-
-            this.addToParentPerms(parentPermString);
-        }
-        // Create actual perm.
-        Permission actualPermission = this.plugin.getServer().getPluginManager().getPermission(permString);
-        // Extra check just to make sure the actual one is added
-        if (actualPermission == null) {
-
-            actualPermission = new Permission(permString);
-            this.plugin.getServer().getPluginManager().addPermission(actualPermission);
-        }
-        if (!parentPermission.getChildren().containsKey(permString)) {
-            parentPermission.getChildren().put(actualPermission.getName(), true);
-            this.plugin.getServer().getPluginManager().recalculatePermissionDefaults(parentPermission);
-        }
-    }
-
-    private void addToRootPermission(String rootPerm, String permStringChopped) {
-        Permission rootPermission = this.plugin.getServer().getPluginManager().getPermission(rootPerm);
-        if (rootPermission == null) {
-            rootPermission = new Permission(rootPerm);
-            this.plugin.getServer().getPluginManager().addPermission(rootPermission);
-        }
-        rootPermission.getChildren().put(permStringChopped + ".*", true);
-        this.plugin.getServer().getPluginManager().recalculatePermissionDefaults(rootPermission);
     }
 
     /**
      * If the given permission was 'multiverse.core.tp.self', this would return 'multiverse.core.tp.*'.
      *
      * @param separatedPermissionString The array of a dot separated perm string.
+     *
      * @return The dot separated parent permission string.
      */
-    private static String getParentPerm(String[] separatedPermissionString) {
+    private static String getParentPerm(final String[] separatedPermissionString) {
         if (separatedPermissionString.length == 1) {
             return null;
         }
-        String returnString = "";
+        final StringBuilder returnString = new StringBuilder();
         for (int i = 0; i < separatedPermissionString.length - 1; i++) {
-            returnString += separatedPermissionString[i] + ".";
+            returnString.append(separatedPermissionString[i]).append(".");
         }
         return returnString + "*";
     }
 
     /**
+     * Adds a permission to the parent-permissions.
+     *
+     * @param permString The new permission as {@link String}.
+     */
+    public void addToParentPerms(final String permString) {
+        final String permStringChopped = CHOPPED.matcher(permString).replaceAll(Matcher.quoteReplacement(""));
+
+        final String[] seperated = permStringChopped.split("\\.");
+        final String parentPermString = getParentPerm(seperated);
+        if (parentPermString == null) {
+            addToRootPermission("*", permStringChopped);
+            addToRootPermission("*.*", permStringChopped);
+            return;
+        }
+        Permission parentPermission = plugin.getServer().getPluginManager().getPermission(parentPermString);
+        // Creat parent and grandparents
+        if (parentPermission == null) {
+            parentPermission = new Permission(parentPermString);
+            plugin.getServer().getPluginManager().addPermission(parentPermission);
+
+            addToParentPerms(parentPermString);
+        }
+        // Create actual perm.
+        Permission actualPermission = plugin.getServer().getPluginManager().getPermission(permString);
+        // Extra check just to make sure the actual one is added
+        if (actualPermission == null) {
+
+            actualPermission = new Permission(permString);
+            plugin.getServer().getPluginManager().addPermission(actualPermission);
+        }
+        if (!parentPermission.getChildren().containsKey(permString)) {
+            parentPermission.getChildren().put(actualPermission.getName(), true);
+            plugin.getServer().getPluginManager().recalculatePermissionDefaults(parentPermission);
+        }
+    }
+
+    private void addToRootPermission(final String rootPerm, final String permStringChopped) {
+        Permission rootPermission = plugin.getServer().getPluginManager().getPermission(rootPerm);
+        if (rootPermission == null) {
+            rootPermission = new Permission(rootPerm);
+            plugin.getServer().getPluginManager().addPermission(rootPermission);
+        }
+        rootPermission.getChildren().put(permStringChopped + ".*", true);
+        plugin.getServer().getPluginManager().recalculatePermissionDefaults(rootPermission);
+    }
+
+    /**
      * Checks if the given {@link Player} has enough money to enter the specified {@link MultiverseWorld}.
-     * @param fromWorld The {@link MultiverseWorld} the player is coming from.
-     * @param toWorld The {@link MultiverseWorld} the player is going to.
+     *
+     * @param fromWorld  The {@link MultiverseWorld} the player is coming from.
+     * @param toWorld    The {@link MultiverseWorld} the player is going to.
      * @param teleporter The teleporter.
      * @param teleportee The teleportee.
-     * @param pay If the player has to pay the money.
+     * @param pay        If the player has to pay the money.
+     *
      * @return True if the player can enter the world.
      */
-    public boolean playerHasMoneyToEnter(MultiverseWorld fromWorld, MultiverseWorld toWorld, CommandSender teleporter, Player teleportee, boolean pay) {
-        Player teleporterPlayer;
+    public boolean playerHasMoneyToEnter(final MultiverseWorld fromWorld, final MultiverseWorld toWorld, CommandSender teleporter, final Player teleportee, final boolean pay) {
+        final Player teleporterPlayer;
         if (plugin.getMVConfig().getTeleportIntercept()) {
             if (teleporter instanceof ConsoleCommandSender) {
                 return true;
@@ -141,7 +148,7 @@ public class PermissionTools {
                 return true;
             }
             // If the player does not have to pay, return now.
-            if (this.plugin.getMVPerms().hasPermission(teleporter, toWorld.getExemptPermission().getName(), true)) {
+            if (plugin.getMVPerms().hasPermission(teleporter, toWorld.getExemptPermission().getName(), true)) {
                 return true;
             }
 
@@ -172,11 +179,12 @@ public class PermissionTools {
         return true;
     }
 
-    private void sendTeleportPaymentMessage (MVEconomist economist, Player teleporterPlayer, Player teleportee, String toWorld, double price, Material currency) {
+    private void sendTeleportPaymentMessage(final MVEconomist economist, final Player teleporterPlayer, final Player teleportee, final String toWorld, double price, final Material currency) {
         price = Math.abs(price);
         if (teleporterPlayer.equals(teleportee)) {
             teleporterPlayer.sendMessage("You were " + (price > 0D ? "charged " : "given ") + economist.formatPrice(price, currency) + " for teleporting to " + toWorld);
-        } else {
+        }
+        else {
             teleporterPlayer.sendMessage("You were " + (price > 0D ? "charged " : "given ") + economist.formatPrice(price, currency) + " for teleporting " + teleportee.getName() + " to " + toWorld);
         }
     }
@@ -194,10 +202,10 @@ public class PermissionTools {
      * @param teleportee The player going somewhere.
      * @return True if they can't go to the world, False if they can.
      */
-    public boolean playerCanGoFromTo(MultiverseWorld fromWorld, MultiverseWorld toWorld, CommandSender teleporter, Player teleportee) {
-        this.plugin.log(Level.FINEST, "Checking '" + teleporter + "' can send '" + teleportee + "' somewhere");
+    public boolean playerCanGoFromTo(final MultiverseWorld fromWorld, final MultiverseWorld toWorld, CommandSender teleporter, final Player teleportee) {
+        plugin.log(Level.FINEST, "Checking '" + teleporter + "' can send '" + teleportee + "' somewhere");
 
-        Player teleporterPlayer;
+        final Player teleporterPlayer;
         if (plugin.getMVConfig().getTeleportIntercept()) {
             // The console can send anyone anywhere
             if (teleporter instanceof ConsoleCommandSender) {
@@ -229,10 +237,11 @@ public class PermissionTools {
 
         // Actual checks
         if (toWorld != null) {
-            if (!this.plugin.getMVPerms().canEnterWorld(teleporterPlayer, toWorld)) {
+            if (!plugin.getMVPerms().canEnterWorld(teleporterPlayer, toWorld)) {
                 if (teleportee.equals(teleporter)) {
                     teleporter.sendMessage("You don't have access to go here...");
-                } else {
+                }
+                else {
                     teleporter.sendMessage("You can't send " + teleportee.getName() + " here...");
                 }
 
@@ -260,12 +269,13 @@ public class PermissionTools {
     /**
      * Checks to see if a player can bypass the player limit.
      *
-     * @param toWorld The world travelling to.
+     * @param toWorld    The world travelling to.
      * @param teleporter The player that initiated the teleport.
      * @param teleportee The player travelling.
+     *
      * @return True if they can bypass the player limit.
      */
-    public boolean playerCanBypassPlayerLimit(MultiverseWorld toWorld, CommandSender teleporter, Player teleportee) {
+    public boolean playerCanBypassPlayerLimit(final MultiverseWorld toWorld, CommandSender teleporter, final Player teleportee) {
         if (teleporter == null) {
             teleporter = teleportee;
         }
@@ -274,7 +284,7 @@ public class PermissionTools {
             return true;
         }
 
-        MVPermissions perms = plugin.getMVPerms();
+        final MVPermissions perms = plugin.getMVPerms();
         if (perms.hasPermission(teleportee, "mv.bypass.playerlimit." + toWorld.getName(), false)) {
             return true;
         } else {
@@ -286,14 +296,16 @@ public class PermissionTools {
     /**
      * Checks to see if a player should bypass game mode restrictions.
      *
-     * @param toWorld world travelling to.
+     * @param toWorld    world travelling to.
      * @param teleportee player travelling.
+     *
      * @return True if they should bypass restrictions
      */
-    public boolean playerCanIgnoreGameModeRestriction(MultiverseWorld toWorld, Player teleportee) {
+    public boolean playerCanIgnoreGameModeRestriction(final MultiverseWorld toWorld, final Player teleportee) {
         if (toWorld != null) {
-            return this.plugin.getMVPerms().canIgnoreGameModeRestriction(teleportee, toWorld);
-        } else {
+            return plugin.getMVPerms().canIgnoreGameModeRestriction(teleportee, toWorld);
+        }
+        else {
             // TODO: Determine if this value is false because a world didn't exist
             // or if it was because a world wasn't imported.
             return true;

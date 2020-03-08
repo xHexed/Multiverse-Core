@@ -21,21 +21,21 @@ import java.util.List;
  */
 public class ScriptCommand extends MultiverseCommand {
 
-    public ScriptCommand(MultiverseCore plugin) {
+    public ScriptCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Runs a script.");
-        this.setCommandUsage("/mv script" + ChatColor.GOLD + " {script} [target]");
-        this.setArgRange(1, 2);
-        this.addKey("mv script");
-        this.addKey("mvscript");
-        this.addCommandExample(String.format("/mv script %sscript.txt", ChatColor.GOLD));
-        this.addCommandExample(String.format("/mv script %stest.txt %ssomeplayer", ChatColor.GOLD, ChatColor.GREEN));
-        this.setPermission("multiverse.core.script", "Runs a script.", PermissionDefault.OP);
+        setName("Runs a script.");
+        setCommandUsage("/mv script" + ChatColor.GOLD + " {script} [target]");
+        setArgRange(1, 2);
+        addKey("mv script");
+        addKey("mvscript");
+        addCommandExample(String.format("/mv script %sscript.txt", ChatColor.GOLD));
+        addCommandExample(String.format("/mv script %stest.txt %ssomeplayer", ChatColor.GOLD, ChatColor.GREEN));
+        setPermission("multiverse.core.script", "Runs a script.", PermissionDefault.OP);
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
-        File file = new File(plugin.getScriptAPI().getScriptFolder(), args.get(0));
+    public void runCommand(final CommandSender sender, final List<String> args) {
+        final File file = new File(plugin.getScriptAPI().getScriptFolder(), args.get(0));
         if (!file.exists()) {
             sender.sendMessage("That script file does not exist in the Multiverse-Core scripts directory!");
             return;

@@ -20,35 +20,36 @@ import com.onarandombox.MultiverseCore.api.MVWorldManager;
  * Creates a clone of a world.
  */
 public class CloneCommand extends MultiverseCommand {
-    private MVWorldManager worldManager;
+    private final MVWorldManager worldManager;
 
-    public CloneCommand(MultiverseCore plugin) {
+    public CloneCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Clone World");
-        this.setCommandUsage("/mv clone" + ChatColor.GREEN + " {TARGET} {NAME}" + ChatColor.GOLD + " -g [GENERATOR[:ID]]");
-        this.setArgRange(2, 4); // SUPPRESS CHECKSTYLE: MagicNumberCheck
-        this.addKey("mvclone");
-        this.addKey("mvcl");
-        this.addKey("mv cl");
-        this.addKey("mv clone");
-        this.addCommandExample("/mv clone " + ChatColor.GOLD + "world" + ChatColor.GREEN + " world_backup");
-        this.addCommandExample("/mv clone " + ChatColor.GOLD + "skyblock_pristine" + ChatColor.GREEN + " skyblock");
-        this.setPermission("multiverse.core.clone", "Clones a world.", PermissionDefault.OP);
-        this.worldManager = this.plugin.getMVWorldManager();
+        setName("Clone World");
+        setCommandUsage("/mv clone" + ChatColor.GREEN + " {TARGET} {NAME}" + ChatColor.GOLD + " -g [GENERATOR[:ID]]");
+        setArgRange(2, 4); // SUPPRESS CHECKSTYLE: MagicNumberCheck
+        addKey("mvclone");
+        addKey("mvcl");
+        addKey("mv cl");
+        addKey("mv clone");
+        addCommandExample("/mv clone " + ChatColor.GOLD + "world" + ChatColor.GREEN + " world_backup");
+        addCommandExample("/mv clone " + ChatColor.GOLD + "skyblock_pristine" + ChatColor.GREEN + " skyblock");
+        setPermission("multiverse.core.clone", "Clones a world.", PermissionDefault.OP);
+        worldManager = this.plugin.getMVWorldManager();
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
-        String oldName = args.get(0);
-	    if (!this.worldManager.hasUnloadedWorld(oldName, true)) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
+        final String oldName = args.get(0);
+        if (!worldManager.hasUnloadedWorld(oldName, true)) {
             // If no world was found, we can't clone.
             sender.sendMessage("Sorry, Multiverse doesn't know about world " + oldName + ", so we can't clone it!");
             sender.sendMessage("Check the " + ChatColor.GREEN + "/mv list" + ChatColor.WHITE + " command to verify it is listed.");
             return;
         }
-        if (this.plugin.getMVWorldManager().cloneWorld(oldName, args.get(1))) {
+        if (plugin.getMVWorldManager().cloneWorld(oldName, args.get(1))) {
             sender.sendMessage(ChatColor.GREEN + "World cloned!");
-        } else {
+        }
+        else {
             sender.sendMessage(ChatColor.RED + "World could NOT be cloned!");
         }
     }

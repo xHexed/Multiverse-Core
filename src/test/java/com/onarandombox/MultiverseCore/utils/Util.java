@@ -21,39 +21,39 @@ public class Util {
     static {
         logger.setUseParentHandlers(false);
 
-        Handler handler = new ConsoleHandler();
+        final Handler handler = new ConsoleHandler();
         handler.setFormatter(new MVTestLogFormatter());
-        Handler[] handlers = logger.getHandlers();
+        final Handler[] handlers = logger.getHandlers();
 
-        for (Handler h : handlers)
+        for (final Handler h : handlers)
             logger.removeHandler(h);
 
         logger.addHandler(handler);
     }
 
-    public static void log(Throwable t) {
+    public static void log(final Throwable t) {
         log(Level.WARNING, t.getLocalizedMessage(), t);
     }
 
-    public static void log(Level level, Throwable t) {
+    public static void log(final Level level, final Throwable t) {
         log(level, t.getLocalizedMessage(), t);
     }
 
-    public static void log(String message, Throwable t) {
+    public static void log(final String message, final Throwable t) {
         log(Level.WARNING, message, t);
     }
 
-    public static void log(Level level, String message, Throwable t) {
-        LogRecord record = new LogRecord(level, message);
+    public static void log(final Level level, final String message, final Throwable t) {
+        final LogRecord record = new LogRecord(level, message);
         record.setThrown(t);
         logger.log(record);
     }
 
-    public static void log(String message) {
+    public static void log(final String message) {
         log(Level.INFO, message);
     }
 
-    public static void log(Level level, String message) {
+    public static void log(final Level level, final String message) {
         logger.log(level, message);
     }
 }

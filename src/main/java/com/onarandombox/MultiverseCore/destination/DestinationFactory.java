@@ -21,17 +21,17 @@ import java.util.Map;
 
 /** A factory class that will create destinations from specific strings. */
 public class DestinationFactory {
-    private MultiverseCore plugin;
-    private Map<String, Class<? extends MVDestination>> destList;
+    private final MultiverseCore plugin;
+    private final Map<String, Class<? extends MVDestination>> destList;
     private Command teleportCommand;
 
-    public DestinationFactory(MultiverseCore plugin) {
+    public DestinationFactory(final MultiverseCore plugin) {
         this.plugin = plugin;
-        this.destList = new HashMap<String, Class<? extends MVDestination>>();
-        List<Command> cmds = this.plugin.getCommandHandler().getAllCommands();
-        for (Command c : cmds) {
+        destList    = new HashMap<>();
+        final List<Command> cmds = this.plugin.getCommandHandler().getAllCommands();
+        for (final Command c : cmds) {
             if (c instanceof TeleportCommand) {
-                this.teleportCommand = c;
+                teleportCommand = c;
             }
         }
     }
@@ -44,23 +44,23 @@ public class DestinationFactory {
      *
      * @return A non-null MVDestination
      */
-    public MVDestination getDestination(String destination) {
+    public MVDestination getDestination(final String destination) {
         String idenChar = "";
         if (destination.split(":").length > 1) {
             idenChar = destination.split(":")[0];
         }
 
-        if (this.destList.containsKey(idenChar)) {
-            Class<? extends MVDestination> myClass = this.destList.get(idenChar);
+        if (destList.containsKey(idenChar)) {
+            final Class<? extends MVDestination> myClass = destList.get(idenChar);
             try {
-                MVDestination mydest = myClass.newInstance();
-                if (!mydest.isThisType(this.plugin, destination)) {
+                final MVDestination mydest = myClass.newInstance();
+                if (!mydest.isThisType(plugin, destination)) {
                     return new InvalidDestination();
                 }
-                mydest.setDestination(this.plugin, destination);
+                mydest.setDestination(plugin, destination);
                 return mydest;
-            } catch (InstantiationException e) {
-            } catch (IllegalAccessException e) {
+            }
+            catch (final InstantiationException | IllegalAccessException ignored) {
             }
         }
         return new InvalidDestination();
@@ -69,36 +69,37 @@ public class DestinationFactory {
     /**
      * Registers a {@link MVDestination}.
      *
-     * @param c The {@link Class} of the {@link MVDestination} to register.
+     * @param c          The {@link Class} of the {@link MVDestination} to register.
      * @param identifier The {@link String}-identifier.
+     *
      * @return True if the class was successfully registered.
      */
-    public boolean registerDestinationType(Class<? extends MVDestination> c, String identifier) {
-        if (this.destList.containsKey(identifier)) {
+    public boolean registerDestinationType(final Class<? extends MVDestination> c, String identifier) {
+        if (destList.containsKey(identifier)) {
             return false;
         }
-        this.destList.put(identifier, c);
+        destList.put(identifier, c);
         // Special case for world defaults:
-        if (identifier.equals("")) {
+        if (identifier.isEmpty()) {
             identifier = "w";
         }
-        Permission self = this.plugin.getServer().getPluginManager().getPermission("multiverse.teleport.self." + identifier);
-        Permission other = this.plugin.getServer().getPluginManager().getPermission("multiverse.teleport.other." + identifier);
-        PermissionTools pt = new PermissionTools(this.plugin);
+        Permission self = plugin.getServer().getPluginManager().getPermission("multiverse.teleport.self." + identifier);
+        Permission other = plugin.getServer().getPluginManager().getPermission("multiverse.teleport.other." + identifier);
+        final PermissionTools pt = new PermissionTools(plugin);
         if (self == null) {
             self = new Permission("multiverse.teleport.self." + identifier,
-                    "Permission to teleport yourself for the " + identifier + " destination.", PermissionDefault.OP);
-            this.plugin.getServer().getPluginManager().addPermission(self);
+                                  "Permission to teleport yourself for the " + identifier + " destination.", PermissionDefault.OP);
+            plugin.getServer().getPluginManager().addPermission(self);
             pt.addToParentPerms("multiverse.teleport.self." + identifier);
         }
         if (other == null) {
             other = new Permission("multiverse.teleport.other." + identifier,
-                    "Permission to teleport others for the " + identifier + " destination.", PermissionDefault.OP);
-            this.plugin.getServer().getPluginManager().addPermission(other);
+                                   "Permission to teleport others for the " + identifier + " destination.", PermissionDefault.OP);
+            plugin.getServer().getPluginManager().addPermission(other);
             pt.addToParentPerms("multiverse.teleport.other." + identifier);
         }
-        this.teleportCommand.addAdditonalPermission(self);
-        this.teleportCommand.addAdditonalPermission(other);
+        teleportCommand.addAdditonalPermission(self);
+        teleportCommand.addAdditonalPermission(other);
         return true;
     }
 }

@@ -19,27 +19,27 @@ import java.util.Map;
  * Allows you to set Global MV Variables.
  */
 public class ConfigCommand extends MultiverseCommand {
-    public ConfigCommand(MultiverseCore plugin) {
+    public ConfigCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Configuration");
-        this.setCommandUsage("/mv config " + ChatColor.GREEN + "{PROPERTY} {VALUE}");
-        this.setArgRange(1, 2);
-        this.addKey("mv config");
-        this.addKey("mvconfig");
-        this.addKey("mv conf");
-        this.addKey("mvconf");
-        this.addCommandExample("/mv config show");
-        this.addCommandExample("/mv config " + ChatColor.GREEN + "debug" + ChatColor.AQUA + " 3");
-        this.addCommandExample("/mv config " + ChatColor.GREEN + "enforceaccess" + ChatColor.AQUA + " false");
-        this.setPermission("multiverse.core.config", "Allows you to set Global MV Variables.", PermissionDefault.OP);
+        setName("Configuration");
+        setCommandUsage("/mv config " + ChatColor.GREEN + "{PROPERTY} {VALUE}");
+        setArgRange(1, 2);
+        addKey("mv config");
+        addKey("mvconfig");
+        addKey("mv conf");
+        addKey("mvconf");
+        addCommandExample("/mv config show");
+        addCommandExample("/mv config " + ChatColor.GREEN + "debug" + ChatColor.AQUA + " 3");
+        addCommandExample("/mv config " + ChatColor.GREEN + "enforceaccess" + ChatColor.AQUA + " false");
+        setPermission("multiverse.core.config", "Allows you to set Global MV Variables.", PermissionDefault.OP);
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
         if (args.size() <= 1) {
-            StringBuilder builder = new StringBuilder();
-            Map<String, Object> serializedConfig = this.plugin.getMVConfig().serialize();
-            for (Map.Entry<String, Object> entry : serializedConfig.entrySet()) {
+            final StringBuilder builder = new StringBuilder();
+            final Map<String, Object> serializedConfig = plugin.getMVConfig().serialize();
+            for (final Map.Entry<String, Object> entry : serializedConfig.entrySet()) {
                 builder.append(ChatColor.GREEN);
                 builder.append(entry.getKey());
                 builder.append(ChatColor.WHITE).append(" = ").append(ChatColor.GOLD);
@@ -51,7 +51,7 @@ public class ConfigCommand extends MultiverseCommand {
             sender.sendMessage(message);
             return;
         }
-        if (!this.plugin.getMVConfig().setConfigProperty(args.get(0).toLowerCase(), args.get(1))) {
+        if (!plugin.getMVConfig().setConfigProperty(args.get(0).toLowerCase(), args.get(1))) {
             sender.sendMessage(String.format("%sSetting '%s' to '%s' failed!", ChatColor.RED, args.get(0).toLowerCase(), args.get(1)));
             return;
         }
@@ -59,13 +59,14 @@ public class ConfigCommand extends MultiverseCommand {
         // special rule
         if (args.get(0).equalsIgnoreCase("firstspawnworld")) {
             // Don't forget to set the world!
-            this.plugin.getMVWorldManager().setFirstSpawnWorld(args.get(1));
+            plugin.getMVWorldManager().setFirstSpawnWorld(args.get(1));
         }
 
-        if (this.plugin.saveMVConfigs()) {
+        if (plugin.saveMVConfigs()) {
             sender.sendMessage(ChatColor.GREEN + "SUCCESS!" + ChatColor.WHITE + " Values were updated successfully!");
-            this.plugin.loadConfigs();
-        } else {
+            plugin.loadConfigs();
+        }
+        else {
             sender.sendMessage(ChatColor.RED + "FAIL!" + ChatColor.WHITE + " Check your console for details!");
         }
     }

@@ -18,22 +18,23 @@ import org.bukkit.event.weather.WeatherChangeEvent;
  * Multiverse's Weather {@link Listener}.
  */
 public class MVWeatherListener implements Listener {
-    private MultiverseCore plugin;
+    private final MultiverseCore plugin;
 
-    public MVWeatherListener(MultiverseCore plugin) {
+    public MVWeatherListener(final MultiverseCore plugin) {
         this.plugin = plugin;
     }
 
     /**
      * This method is called when the weather changes.
+     *
      * @param event The Event that was fired.
      */
     @EventHandler
-    public void weatherChange(WeatherChangeEvent event) {
+    public void weatherChange(final WeatherChangeEvent event) {
         if (event.isCancelled()) {
             return;
         }
-        MultiverseWorld world = this.plugin.getMVWorldManager().getMVWorld(event.getWorld().getName());
+        final MultiverseWorld world = plugin.getMVWorldManager().getMVWorld(event.getWorld().getName());
         if (world != null) {
             // If it's going to start raining and we have weather disabled
             event.setCancelled((event.toWeatherState() && !world.isWeatherEnabled()));
@@ -42,14 +43,15 @@ public class MVWeatherListener implements Listener {
 
     /**
      * This method is called when a big storm is going to start.
+     *
      * @param event The Event that was fired.
      */
     @EventHandler
-    public void thunderChange(ThunderChangeEvent event) {
+    public void thunderChange(final ThunderChangeEvent event) {
         if (event.isCancelled()) {
             return;
         }
-        MultiverseWorld world = this.plugin.getMVWorldManager().getMVWorld(event.getWorld().getName());
+        final MultiverseWorld world = plugin.getMVWorldManager().getMVWorld(event.getWorld().getName());
         if (world != null) {
             // If it's going to start raining and we have weather disabled
             event.setCancelled((event.toThunderState() && !world.isWeatherEnabled()));

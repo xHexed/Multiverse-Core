@@ -8,7 +8,7 @@ public class PasteFailedException extends Exception {
         super();
     }
 
-    public PasteFailedException(Throwable cause) {
+    public PasteFailedException(final Throwable cause) {
         super(cause);
     }
 }

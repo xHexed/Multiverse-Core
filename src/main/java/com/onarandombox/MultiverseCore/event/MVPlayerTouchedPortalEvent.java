@@ -12,17 +12,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This event is thrown when a portal is touched.
  */
 public class MVPlayerTouchedPortalEvent extends Event implements Cancellable {
-    private Player p;
-    private Location l;
+    private final Player p;
+    private final Location l;
     private boolean isCancelled;
     private boolean canUse = true;
 
-    public MVPlayerTouchedPortalEvent(Player p, Location l) {
+    public MVPlayerTouchedPortalEvent(final Player p, final Location l) {
         this.p = p;
         this.l = l;
     }
@@ -32,6 +33,7 @@ public class MVPlayerTouchedPortalEvent extends Event implements Cancellable {
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;
@@ -50,7 +52,7 @@ public class MVPlayerTouchedPortalEvent extends Event implements Cancellable {
      * @return The {@link Location} of the portal-block that was touched.
      */
     public Location getBlockTouched() {
-        return this.l;
+        return l;
     }
 
     /**
@@ -58,7 +60,7 @@ public class MVPlayerTouchedPortalEvent extends Event implements Cancellable {
      * @return The {@link Player} that's touching the portal.
      */
     public Player getPlayer() {
-        return this.p;
+        return p;
     }
 
     /**
@@ -67,7 +69,7 @@ public class MVPlayerTouchedPortalEvent extends Event implements Cancellable {
      * @return True if the player can use this portal.
      */
     public boolean canUseThisPortal() {
-        return this.canUse;
+        return canUse;
     }
 
     /**
@@ -77,17 +79,17 @@ public class MVPlayerTouchedPortalEvent extends Event implements Cancellable {
      *
      * @param canUse Whether or not the user can go through this portal.
      */
-    public void setCanUseThisPortal(boolean canUse) {
+    public void setCanUseThisPortal(final boolean canUse) {
         this.canUse = canUse;
     }
 
     @Override
     public boolean isCancelled() {
-        return this.isCancelled;
+        return isCancelled;
     }
 
     @Override
-    public void setCancelled(boolean b) {
-        this.isCancelled = b;
+    public void setCancelled(final boolean b) {
+        isCancelled = b;
     }
 }

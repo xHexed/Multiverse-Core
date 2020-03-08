@@ -15,34 +15,29 @@ public abstract class HttpAPIClient {
      */
     protected final String urlFormat;
 
-    public HttpAPIClient(String urlFormat) {
+    public HttpAPIClient(final String urlFormat) {
         this.urlFormat = urlFormat;
     }
 
     /**
      * Executes this API-Request.
+     *
      * @param args Format-args.
+     *
      * @return The result (as text).
      * @throws IOException When the I/O-operation failed.
      */
-    protected final String exec(Object... args) throws IOException {
+    protected final String exec(final Object... args) throws IOException {
 
-        URLConnection conn = new URL(String.format(this.urlFormat, args)).openConnection();
+        final URLConnection conn = new URL(String.format(urlFormat, args)).openConnection();
         conn.connect();
-        StringBuilder ret = new StringBuilder();
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            while (!reader.ready()); // wait until reader is ready, may not be necessary, SUPPRESS CHECKSTYLE: EmptyStatement
+        final StringBuilder ret = new StringBuilder();
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+            while (!reader.ready())
+                ; // wait until reader is ready, may not be necessary, SUPPRESS CHECKSTYLE: EmptyStatement
 
             while (reader.ready()) {
                 ret.append(reader.readLine()).append('\n');
-            }
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException ignore) { }
             }
         }
         return ret.toString();

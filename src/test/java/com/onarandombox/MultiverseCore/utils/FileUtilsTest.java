@@ -41,7 +41,8 @@ public class FileUtilsTest {
     public void tearDown() throws Exception {
         try {
             org.apache.commons.io.FileUtils.deleteDirectory(tempDir.toFile());
-        } catch (IOException e) {
+        }
+        catch (final IOException e) {
             if (Files.exists(tempDir)) {
                 throw e;
             }
@@ -67,11 +68,11 @@ public class FileUtilsTest {
     }
 
     @Test
-    public void copyFolder() throws Exception {
-        Path targetDir = tempDir.resolve("target");
-        Path targetFile = targetDir.resolve("parentDirFile.txt");
-        Path targetChildDir = targetDir.resolve("childDir");
-        Path targetChildDirFile = targetChildDir.resolve("childDirFile.txt");
+    public void copyFolder() {
+        final Path targetDir = tempDir.resolve("target");
+        final Path targetFile = targetDir.resolve("parentDirFile.txt");
+        final Path targetChildDir = targetDir.resolve("childDir");
+        final Path targetChildDirFile = targetChildDir.resolve("childDirFile.txt");
 
         assertFalse(Files.isDirectory(targetDir));
         assertFalse(Files.isRegularFile(targetFile));
@@ -88,10 +89,10 @@ public class FileUtilsTest {
 
     @Test
     public void copyFolder_intoExistingFolder() throws Exception {
-        Path targetDir = Files.createDirectory(tempDir.resolve("target"));
-        Path targetFile = targetDir.resolve("parentDirFile.txt");
-        Path targetChildDir = targetDir.resolve("childDir");
-        Path targetChildDirFile = targetChildDir.resolve("childDirFile.txt");
+        final Path targetDir = Files.createDirectory(tempDir.resolve("target"));
+        final Path targetFile = targetDir.resolve("parentDirFile.txt");
+        final Path targetChildDir = targetDir.resolve("childDir");
+        final Path targetChildDirFile = targetChildDir.resolve("childDirFile.txt");
 
         assertTrue(Files.isDirectory(targetDir));
         assertFalse(Files.isRegularFile(targetFile));
@@ -106,10 +107,10 @@ public class FileUtilsTest {
         assertTrue(Files.isRegularFile(targetChildDirFile));
     }
 
-    @Test()
+    @Test
     public void copyFolder_intoExistingFolder_whereFileExists() throws Exception {
-        Path targetDir = Files.createDirectory(tempDir.resolve("target"));
-        Path targetFile = Files.createFile(targetDir.resolve("parentDirFile.txt"));
+        final Path targetDir = Files.createDirectory(tempDir.resolve("target"));
+        final Path targetFile = Files.createFile(targetDir.resolve("parentDirFile.txt"));
 
         assertTrue(Files.isDirectory(targetDir));
         assertTrue(Files.isRegularFile(targetFile));

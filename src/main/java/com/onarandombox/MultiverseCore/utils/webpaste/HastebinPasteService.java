@@ -1,6 +1,5 @@
 package com.onarandombox.MultiverseCore.utils.webpaste;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import java.io.BufferedReader;
@@ -18,12 +17,12 @@ import java.util.Map;
 public class HastebinPasteService implements PasteService {
 
     @Override
-    public String encodeData(String data) {
+    public String encodeData(final String data) {
         return data;
     }
 
     @Override
-    public String encodeData(Map<String, String> data) {
+    public String encodeData(final Map<String, String> data) {
         throw new UnsupportedOperationException();
     }
 
@@ -31,17 +30,18 @@ public class HastebinPasteService implements PasteService {
     public URL getPostURL() {
         try {
             return new URL("https://hastebin.com/documents");
-        } catch (MalformedURLException e) {
+        }
+        catch (final MalformedURLException e) {
             return null; // should never hit here
         }
     }
 
     @Override
-    public String postData(String encodedData, URL url) throws PasteFailedException {
+    public String postData(final String encodedData, final URL url) throws PasteFailedException {
         OutputStreamWriter wr = null;
         BufferedReader rd = null;
         try {
-            URLConnection conn = url.openConnection();
+            final URLConnection conn = url.openConnection();
             conn.setDoOutput(true);
 
             wr = new OutputStreamWriter(conn.getOutputStream());
@@ -51,25 +51,29 @@ public class HastebinPasteService implements PasteService {
             wr.flush();
 
             String line;
-            StringBuilder responseString = new StringBuilder();
+            final StringBuilder responseString = new StringBuilder();
             while ((line = rd.readLine()) != null) {
                 responseString.append(line);
             }
-            String key = new JsonParser().parse(responseString.toString()).getAsJsonObject().get("key").getAsString();
+            final String key = new JsonParser().parse(responseString.toString()).getAsJsonObject().get("key").getAsString();
 
             return "https://hastebin.com/" + key;
-        } catch (Exception e) {
+        }
+        catch (final Exception e) {
             throw new PasteFailedException(e);
-        } finally {
+        }
+        finally {
             if (wr != null) {
                 try {
                     wr.close();
-                } catch (IOException ignore) { }
+                }
+                catch (final IOException ignore) { }
             }
             if (rd != null) {
                 try {
                     rd.close();
-                } catch (IOException ignore) { }
+                }
+                catch (final IOException ignore) { }
             }
         }
     }

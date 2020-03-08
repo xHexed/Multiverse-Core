@@ -26,7 +26,7 @@ public class EntryFee extends SerializationConfig {
         super();
     }
 
-    public EntryFee(Map<String, Object> values) {
+    public EntryFee(final Map<String, Object> values) {
         super(values);
     }
 
@@ -56,28 +56,30 @@ public class EntryFee extends SerializationConfig {
 
     /**
      * Sets the amount.
+     *
      * @param amount The new value.
      */
-    public void setAmount(double amount) {
+    public void setAmount(final double amount) {
         this.amount = amount;
     }
 
     /**
      * Sets the currency.
+     *
      * @param currency The new value.
      */
-    public void setCurrency(@Nullable Material currency) {
+    public void setCurrency(@Nullable final Material currency) {
         this.currency = currency;
     }
 
     public static final class EntryFeeCurrencySerializor implements Serializor<Material, Object> {
         @Override
-        public String serialize(Material material) {
+        public String serialize(final Material material) {
             return material.toString();
         }
 
         @Override
-        public Material deserialize(Object o, Class<Material> aClass) {
+        public Material deserialize(final Object o, final Class<Material> aClass) {
             return MaterialConverter.convertTypeString(o.toString());
         }
     }

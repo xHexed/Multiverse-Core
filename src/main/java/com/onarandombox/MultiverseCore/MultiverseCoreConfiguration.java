@@ -16,12 +16,9 @@ import org.bukkit.Bukkit;
 public class MultiverseCoreConfiguration extends SerializationConfig implements MultiverseCoreConfig {
     private static MultiverseCoreConfiguration instance;
 
-    /**
-     * Sets the statically saved instance.
-     * @param instance The new instance.
-     */
-    public static void setInstance(MultiverseCoreConfiguration instance) {
-        MultiverseCoreConfiguration.instance = instance;
+    public MultiverseCoreConfiguration(final Map<String, Object> values) {
+        super(values);
+        MultiverseCoreConfiguration.setInstance(this);
     }
 
     /**
@@ -81,9 +78,13 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
         MultiverseCoreConfiguration.setInstance(this);
     }
 
-    public MultiverseCoreConfiguration(Map<String, Object> values) {
-        super(values);
-        MultiverseCoreConfiguration.setInstance(this);
+    /**
+     * Sets the statically saved instance.
+     *
+     * @param instance The new instance.
+     */
+    public static void setInstance(final MultiverseCoreConfiguration instance) {
+        MultiverseCoreConfiguration.instance = instance;
     }
 
     /**
@@ -92,22 +93,19 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
     @Override
     protected void setDefaults() {
         // BEGIN CHECKSTYLE-SUPPRESSION: MagicNumberCheck
-        enforceaccess = false;
-        useasyncchat = true;
-        prefixchat = true;
-        prefixchatformat = "[%world%]%chat%";
-        teleportintercept = true;
-        firstspawnoverride = true;
-        displaypermerrors = true;
-        globaldebug = 0;
-        messagecooldown = 5000;
-        teleportcooldown = 1000;
-        this.version = 2.9;
-        silentstart = false;
+        enforceaccess       = false;
+        teleportintercept   = true;
+        firstspawnoverride  = true;
+        displaypermerrors   = true;
+        globaldebug         = 0;
+        messagecooldown     = 5000;
+        teleportcooldown    = 1000;
+        version             = 2.9;
+        silentstart         = false;
         defaultportalsearch = false;
-        portalsearchradius = 128;
-        autopurge = true;
-        idonotwanttodonate = false;
+        portalsearchradius  = 128;
+        autopurge           = true;
+        idonotwanttodonate  = false;
         // END CHECKSTYLE-SUPPRESSION: MagicNumberCheck
     }
 
@@ -115,10 +113,11 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
      * {@inheritDoc}
      */
     @Override
-    public boolean setConfigProperty(String property, String value) {
+    public boolean setConfigProperty(final String property, final String value) {
         try {
-            return this.setProperty(property, value, true);
-        } catch (NoSuchPropertyException e) {
+            return setProperty(property, value, true);
+        }
+        catch (final NoSuchPropertyException e) {
             return false;
         }
     }
@@ -130,15 +129,15 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
      */
     @Override
     public boolean getEnforceAccess() {
-        return this.enforceaccess;
+        return enforceaccess;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setEnforceAccess(boolean enforceAccess) {
-        this.enforceaccess = enforceAccess;
+    public void setEnforceAccess(final boolean enforceAccess) {
+        enforceaccess = enforceAccess;
     }
 
     /**
@@ -146,15 +145,15 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
      */
     @Override
     public boolean getPrefixChat() {
-        return this.prefixchat;
+        return prefixchat;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setPrefixChat(boolean prefixChat) {
-        this.prefixchat = prefixChat;
+    public void setPrefixChat(final boolean prefixChat) {
+        prefixchat = prefixChat;
     }
     
     /**
@@ -162,15 +161,15 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
      */
     @Override
     public String getPrefixChatFormat() {
-        return this.prefixchatformat;
+        return prefixchatformat;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setPrefixChatFormat(String prefixChatFormat) {
-        this.prefixchatformat = prefixChatFormat;
+    public void setPrefixChatFormat(final String prefixChatFormat) {
+        prefixchatformat = prefixChatFormat;
     }
 
     /**
@@ -178,15 +177,15 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
      */
     @Override
     public boolean getTeleportIntercept() {
-        return this.teleportintercept;
+        return teleportintercept;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setTeleportIntercept(boolean teleportIntercept) {
-        this.teleportintercept = teleportIntercept;
+    public void setTeleportIntercept(final boolean teleportIntercept) {
+        teleportintercept = teleportIntercept;
     }
 
     /**
@@ -194,15 +193,15 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
      */
     @Override
     public boolean getFirstSpawnOverride() {
-        return this.firstspawnoverride;
+        return firstspawnoverride;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setFirstSpawnOverride(boolean firstSpawnOverride) {
-        this.firstspawnoverride = firstSpawnOverride;
+    public void setFirstSpawnOverride(final boolean firstSpawnOverride) {
+        firstspawnoverride = firstSpawnOverride;
     }
 
     /**
@@ -210,15 +209,15 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
      */
     @Override
     public boolean getDisplayPermErrors() {
-        return this.displaypermerrors;
+        return displaypermerrors;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setDisplayPermErrors(boolean displayPermErrors) {
-        this.displaypermerrors = displayPermErrors;
+    public void setDisplayPermErrors(final boolean displayPermErrors) {
+        displaypermerrors = displayPermErrors;
     }
 
     /**
@@ -226,15 +225,15 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
      */
     @Override
     public int getGlobalDebug() {
-        return this.globaldebug;
+        return globaldebug;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setGlobalDebug(int globalDebug) {
-        this.globaldebug = globalDebug;
+    public void setGlobalDebug(final int globalDebug) {
+        globaldebug = globalDebug;
         Logging.setDebugLevel(globalDebug);
         Bukkit.getPluginManager().callEvent(new MVDebugModeEvent(globalDebug));
     }
@@ -244,15 +243,15 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
      */
     @Override
     public int getMessageCooldown() {
-        return this.messagecooldown;
+        return messagecooldown;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setMessageCooldown(int messageCooldown) {
-        this.messagecooldown = messageCooldown;
+    public void setMessageCooldown(final int messageCooldown) {
+        messagecooldown = messageCooldown;
     }
 
     /**
@@ -260,14 +259,14 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
      */
     @Override
     public double getVersion() {
-        return this.version;
+        return version;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setVersion(int version) {
+    public void setVersion(final int version) {
         this.version = version;
     }
 
@@ -276,15 +275,15 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
      */
     @Override
     public String getFirstSpawnWorld() {
-        return this.firstspawnworld;
+        return firstspawnworld;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setFirstSpawnWorld(String firstSpawnWorld) {
-        this.firstspawnworld = firstSpawnWorld;
+    public void setFirstSpawnWorld(final String firstSpawnWorld) {
+        firstspawnworld = firstSpawnWorld;
     }
 
     /**
@@ -292,31 +291,31 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
      */
     @Override
     public int getTeleportCooldown() {
-        return this.teleportcooldown;
+        return teleportcooldown;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setTeleportCooldown(int teleportCooldown) {
-        this.teleportcooldown = teleportCooldown;
-    }
-
-    @Override
-    public void setUseAsyncChat(boolean useAsyncChat) {
-        this.useasyncchat = useAsyncChat;
+    public void setTeleportCooldown(final int teleportCooldown) {
+        teleportcooldown = teleportCooldown;
     }
 
     @Override
     public boolean getUseAsyncChat() {
-        return this.useasyncchat;
+        return useasyncchat;
     }
 
     @Override
-    public void setSilentStart(boolean silentStart) {
+    public void setUseAsyncChat(final boolean useAsyncChat) {
+        useasyncchat = useAsyncChat;
+    }
+
+    @Override
+    public void setSilentStart(final boolean silentStart) {
         Logging.setShowingConfig(!silentStart);
-        this.silentstart = silentStart;
+        silentstart = silentStart;
     }
 
     @Override
@@ -325,7 +324,7 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
     }
 
     @Override
-    public void setUseDefaultPortalSearch(boolean useDefaultPortalSearch) {
+    public void setUseDefaultPortalSearch(final boolean useDefaultPortalSearch) {
         defaultportalsearch = useDefaultPortalSearch;
     }
 
@@ -335,8 +334,8 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
     }
 
     @Override
-    public void setPortalSearchRadius(int searchRadius) {
-        this.portalsearchradius = searchRadius;
+    public void setPortalSearchRadius(final int searchRadius) {
+        portalsearchradius = searchRadius;
     }
 
     @Override
@@ -350,7 +349,7 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
     }
 
     @Override
-    public void setAutoPurgeEnabled(boolean autopurge) {
+    public void setAutoPurgeEnabled(final boolean autopurge) {
         this.autopurge = autopurge;
     }
 
@@ -360,7 +359,7 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
     }
 
     @Override
-    public void setShowDonateMessage(boolean showDonateMessage) {
-        this.idonotwanttodonate = !showDonateMessage;
+    public void setShowDonateMessage(final boolean showDonateMessage) {
+        idonotwanttodonate = !showDonateMessage;
     }
 }

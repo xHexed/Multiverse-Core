@@ -20,26 +20,26 @@ import java.util.List;
  */
 public class DeleteCommand extends MultiverseCommand {
 
-    public DeleteCommand(MultiverseCore plugin) {
+    public DeleteCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Delete World");
-        this.setCommandUsage("/mv delete" + ChatColor.GREEN + " {WORLD}");
-        this.setArgRange(1, 1);
-        this.addKey("mvdelete");
-        this.addKey("mv delete");
-        this.addCommandExample("/mv delete " + ChatColor.GOLD + "MyWorld");
-        this.setPermission("multiverse.core.delete", "Deletes a world on your server. " + ChatColor.RED + "PERMANENTLY.", PermissionDefault.OP);
+        setName("Delete World");
+        setCommandUsage("/mv delete" + ChatColor.GREEN + " {WORLD}");
+        setArgRange(1, 1);
+        addKey("mvdelete");
+        addKey("mv delete");
+        addCommandExample("/mv delete " + ChatColor.GOLD + "MyWorld");
+        setPermission("multiverse.core.delete", "Deletes a world on your server. " + ChatColor.RED + "PERMANENTLY.", PermissionDefault.OP);
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
-        String worldName = args.get(0);
+    public void runCommand(final CommandSender sender, final List<String> args) {
+        final String worldName = args.get(0);
 
-        Class<?>[] paramTypes = {String.class};
-        List<Object> objectArgs = new ArrayList<Object>(args);
-        this.plugin.getCommandHandler()
-                   .queueCommand(sender, "mvdelete", "deleteWorld", objectArgs,
-                                 paramTypes, ChatColor.GREEN + "World '" + worldName + "' Deleted!",
-                                 ChatColor.RED + "World '" + worldName + "' could NOT be deleted!");
+        final Class<?>[] paramTypes = {String.class};
+        final List<Object> objectArgs = new ArrayList<>(args);
+        plugin.getCommandHandler()
+                .queueCommand(sender, "mvdelete", "deleteWorld", objectArgs,
+                              paramTypes, ChatColor.GREEN + "World '" + worldName + "' Deleted!",
+                              ChatColor.RED + "World '" + worldName + "' could NOT be deleted!");
     }
 }

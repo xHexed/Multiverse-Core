@@ -16,12 +16,13 @@ import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * An exact {@link MVDestination}.
  */
 public class ExactDestination implements MVDestination {
-    private final String coordRegex = "(-?[\\d]+\\.?[\\d]*|~-?[\\d]+\\.?[\\d]*|~),(-?[\\d]+\\.?[\\d]*|~-?[\\d]+\\.?[\\d]*|~),(-?[\\d]+\\.?[\\d]*|~-?[\\d]+\\.?[\\d]*|~)";
+    private static final Pattern COORD = Pattern.compile("(-?[\\d]+\\.?[\\d]*|~-?[\\d]+\\.?[\\d]*|~),(-?[\\d]+\\.?[\\d]*|~-?[\\d]+\\.?[\\d]*|~),(-?[\\d]+\\.?[\\d]*|~-?[\\d]+\\.?[\\d]*|~)");
     private boolean isValid;
     private Location location;
     private boolean relativeX, relativeY, relativeZ;
@@ -46,11 +47,11 @@ public class ExactDestination implements MVDestination {
      * {@inheritDoc}
      */
     @Override
-    public boolean isThisType(JavaPlugin plugin, String destination) {
+    public boolean isThisType(final JavaPlugin plugin, final String destination) {
         if (!(plugin instanceof MultiverseCore)) {
             return false;
         }
-        List<String> parsed = Arrays.asList(destination.split(":"));
+        final List<String> parsed = Arrays.asList(destination.split(":"));
         // Need at least: e:world:x,y,z
         // OR e:world:x,y,z:pitch:yaw
         // so basically 3 or 5
@@ -67,7 +68,7 @@ public class ExactDestination implements MVDestination {
             return false;
         }
 
-        if (!parsed.get(2).matches(coordRegex)) {
+        if (!COORD.matcher(parsed.get(2)).matches()) {
             return false;
         }
         // This is 1 now, because we've removed 2
@@ -78,7 +79,8 @@ public class ExactDestination implements MVDestination {
         try {
             Float.parseFloat(parsed.get(3));
             Float.parseFloat(parsed.get(4)); // SUPPRESS CHECKSTYLE: MagicNumberCheck
-        } catch (NumberFormatException e) {
+        }
+        catch (final NumberFormatException e) {
             return false;
         }
         return true;
@@ -88,10 +90,10 @@ public class ExactDestination implements MVDestination {
      * {@inheritDoc}
      */
     @Override
-    public Location getLocation(Entity e) {
-        Location loc = this.location.clone();
+    public Location getLocation(final Entity e) {
+        final Location loc = location.clone();
         if (relativeX || relativeY || relativeZ) {
-            Location eLoc = e.getLocation();
+            final Location eLoc = e.getLocation();
             loc.add(relativeX ? eLoc.getX() : 0, relativeY ? eLoc.getY() : 0, relativeZ ? eLoc.getZ() : 0);
             // Since the location is relative, it makes sense to use the entity's pitch and yaw unless those were
             // specified in the destination.
@@ -110,56 +112,58 @@ public class ExactDestination implements MVDestination {
      */
     @Override
     public boolean isValid() {
-        return this.isValid;
+        return isValid;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setDestination(JavaPlugin plugin, String destination) {
+    public void setDestination(final JavaPlugin plugin, final String destination) {
         if (!(plugin instanceof MultiverseCore)) {
             return;
         }
-        List<String> parsed = Arrays.asList(destination.split(":"));
+        final List<String> parsed = Arrays.asList(destination.split(":"));
         // Need at least: e:world:x,y,z
         // OR e:world:x,y,z:pitch:yaw
         // so basically 3 or 5
         if (!(parsed.size() == 3 || parsed.size() == 5)) { // SUPPRESS CHECKSTYLE: MagicNumberCheck
-            this.isValid = false;
+            isValid = false;
             return;
         }
 
-        if (!parsed.get(0).equalsIgnoreCase(this.getIdentifier())) {
-            this.isValid = false;
+        if (!parsed.get(0).equalsIgnoreCase(getIdentifier())) {
+            isValid = false;
             return;
         }
 
         if (!((MultiverseCore) plugin).getMVWorldManager().isMVWorld(parsed.get(1))) {
-            this.isValid = false;
+            isValid = false;
             return;
         }
-        this.location = new Location(((MultiverseCore) plugin).getMVWorldManager().getMVWorld(parsed.get(1)).getCBWorld(), 0, 0, 0);
+        location = new Location(((MultiverseCore) plugin).getMVWorldManager().getMVWorld(parsed.get(1)).getCBWorld(), 0, 0, 0);
 
-        if (!parsed.get(2).matches(this.coordRegex)) {
-            this.isValid = false;
+        if (!COORD.matcher(parsed.get(2)).matches()) {
+            isValid = false;
             return;
         }
-        double[] coords = new double[3];
-        String[] coordString = parsed.get(2).split(",");
+        final double[] coords = new double[3];
+        final String[] coordString = parsed.get(2).split(",");
         for (int i = 0; i < 3; i++) {
-            String[] relSplit = coordString[i].split("~");
+            final String[] relSplit = coordString[i].split("~");
             boolean relative = false;
             if (relSplit.length == 0) {
                 // coord is "~" form
-                relative = true;
+                relative  = true;
                 coords[i] = 0;
-            } else if (relSplit.length == 1) {
+            }
+            else if (relSplit.length == 1) {
                 // coord is "123" form
                 try {
                     coords[i] = Double.parseDouble(relSplit[0]);
-                } catch (NumberFormatException e) {
-                    this.isValid = false;
+                }
+                catch (final NumberFormatException e) {
+                    isValid = false;
                     return;
                 }
             } else {
@@ -167,8 +171,9 @@ public class ExactDestination implements MVDestination {
                 relative = true;
                 try {
                     coords[i] = Double.parseDouble(relSplit[1]);
-                } catch (NumberFormatException e) {
-                    this.isValid = false;
+                }
+                catch (final NumberFormatException e) {
+                    isValid = false;
                     return;
                 }
             }
@@ -186,23 +191,24 @@ public class ExactDestination implements MVDestination {
                 }
             }
         }
-        this.location.setX(coords[0]);
-        this.location.setY(coords[1]);
-        this.location.setZ(coords[2]);
+        location.setX(coords[0]);
+        location.setY(coords[1]);
+        location.setZ(coords[2]);
 
         if (parsed.size() == 3) {
-            this.isValid = true;
+            isValid = true;
             return;
         }
 
         try {
-            this.location.setPitch(Float.parseFloat(parsed.get(3)));
-            this.location.setYaw(Float.parseFloat(parsed.get(4))); // SUPPRESS CHECKSTYLE: MagicNumberCheck
-        } catch (NumberFormatException e) {
-            this.isValid = false;
+            location.setPitch(Float.parseFloat(parsed.get(3)));
+            location.setYaw(Float.parseFloat(parsed.get(4))); // SUPPRESS CHECKSTYLE: MagicNumberCheck
+        }
+        catch (final NumberFormatException e) {
+            isValid = false;
             return;
         }
-        this.isValid = true;
+        isValid = true;
 
     }
 
@@ -219,7 +225,7 @@ public class ExactDestination implements MVDestination {
      */
     @Override
     public String getName() {
-        return "Exact (" + this.location.getX() + ", " + this.location.getY() + ", " + this.location.getZ()
+        return "Exact (" + location.getX() + ", " + location.getY() + ", " + location.getZ()
                 + ":" + location.getPitch() + ":" + location.getYaw() + ")";
     }
 
@@ -228,8 +234,8 @@ public class ExactDestination implements MVDestination {
      *
      * @param location The {@link Location}.
      */
-    public void setDestination(Location location) {
-        this.isValid = (this.location = location) != null;
+    public void setDestination(final Location location) {
+        isValid = (this.location = location) != null;
     }
 
     /**
@@ -249,7 +255,7 @@ public class ExactDestination implements MVDestination {
      */
     @Override
     public String getRequiredPermission() {
-        return "multiverse.access." + this.location.getWorld().getName();
+        return "multiverse.access." + location.getWorld().getName();
     }
 
     /**

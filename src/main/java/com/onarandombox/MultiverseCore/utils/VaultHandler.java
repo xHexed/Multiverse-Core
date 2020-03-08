@@ -46,15 +46,17 @@ public class VaultHandler implements Listener {
      */
     private class VaultListener implements Listener {
         @EventHandler
-        private void vaultEnabled(PluginEnableEvent event) {
-            if (event.getPlugin() != null && event.getPlugin().getName().equals("Vault")) {
+        private void vaultEnabled(final PluginEnableEvent event) {
+            event.getPlugin();
+            if (event.getPlugin().getName().equals("Vault")) {
                 setupVaultEconomy();
             }
         }
 
         @EventHandler
-        private void vaultDisabled(PluginDisableEvent event) {
-            if (event.getPlugin() != null && event.getPlugin().getName().equals("Vault")) {
+        private void vaultDisabled(final PluginDisableEvent event) {
+            event.getPlugin();
+            if (event.getPlugin().getName().equals("Vault")) {
                 Logging.fine("Vault economy disabled");
                 economy = null;
             }

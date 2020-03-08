@@ -19,23 +19,24 @@ import java.util.List;
  */
 public class RemoveCommand extends MultiverseCommand {
 
-    public RemoveCommand(MultiverseCore plugin) {
+    public RemoveCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Remove World");
-        this.setCommandUsage("/mv remove" + ChatColor.GREEN + " {WORLD}");
-        this.setArgRange(1, 1);
-        this.addKey("mvremove");
-        this.addKey("mv remove");
-        this.addCommandExample("/mv remove " + ChatColor.GREEN + "MyWorld");
-        this.setPermission("multiverse.core.remove",
-                "Unloads a world from Multiverse and removes it from worlds.yml, this does NOT DELETE the world folder.", PermissionDefault.OP);
+        setName("Remove World");
+        setCommandUsage("/mv remove" + ChatColor.GREEN + " {WORLD}");
+        setArgRange(1, 1);
+        addKey("mvremove");
+        addKey("mv remove");
+        addCommandExample("/mv remove " + ChatColor.GREEN + "MyWorld");
+        setPermission("multiverse.core.remove",
+                      "Unloads a world from Multiverse and removes it from worlds.yml, this does NOT DELETE the world folder.", PermissionDefault.OP);
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
-        if (this.plugin.getMVWorldManager().removeWorldFromConfig(args.get(0))) {
+    public void runCommand(final CommandSender sender, final List<String> args) {
+        if (plugin.getMVWorldManager().removeWorldFromConfig(args.get(0))) {
             sender.sendMessage("World removed from config!");
-        } else {
+        }
+        else {
             sender.sendMessage("Error trying to remove world from config!");
         }
     }

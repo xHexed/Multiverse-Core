@@ -22,16 +22,16 @@ public abstract class MultiverseCommand extends Command {
     /**
      * The reference to the core.
      */
-    protected MultiverseCore plugin;
+    protected final MultiverseCore plugin;
     /**
      * The reference to {@link MultiverseMessaging}.
      */
-    protected MultiverseMessaging messaging;
+    protected final MultiverseMessaging messaging;
 
-    public MultiverseCommand(MultiverseCore plugin) {
+    public MultiverseCommand(final MultiverseCore plugin) {
         super(plugin);
         this.plugin = plugin;
-        this.messaging = this.plugin.getMessaging();
+        messaging   = this.plugin.getMessaging();
     }
 
     @Override

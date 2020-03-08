@@ -2,6 +2,7 @@ package com.onarandombox.MultiverseCore.event;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -13,9 +14,9 @@ public class MVVersionEvent extends Event {
     private final StringBuilder versionInfoBuilder;
     private final Map<String, String> detailedVersionInfo;
 
-    public MVVersionEvent(String legacyVersionInfo, Map<String, String> files) {
-        this.versionInfoBuilder = new StringBuilder(legacyVersionInfo);
-        this.detailedVersionInfo = files;
+    public MVVersionEvent(final String legacyVersionInfo, final Map<String, String> files) {
+        versionInfoBuilder  = new StringBuilder(legacyVersionInfo);
+        detailedVersionInfo = files;
     }
 
     private static final HandlerList HANDLERS = new HandlerList();
@@ -23,6 +24,7 @@ public class MVVersionEvent extends Event {
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;
@@ -41,7 +43,7 @@ public class MVVersionEvent extends Event {
      * @return The version-info.
      */
     public String getVersionInfo() {
-        return this.versionInfoBuilder.toString();
+        return versionInfoBuilder.toString();
     }
 
     /**
@@ -56,14 +58,15 @@ public class MVVersionEvent extends Event {
      * @return The key value mapping of files and the contents of those files.
      */
     public Map<String, String> getDetailedVersionInfo() {
-        return this.detailedVersionInfo;
+        return detailedVersionInfo;
     }
 
     /**
      * Appends more version-info to the version-info currently saved in this event.
+     *
      * @param moreVersionInfo The version-info to add. Should end with '\n'.
      */
-    public void appendVersionInfo(String moreVersionInfo) {
-        this.versionInfoBuilder.append(moreVersionInfo);
+    public void appendVersionInfo(final String moreVersionInfo) {
+        versionInfoBuilder.append(moreVersionInfo);
     }
 }

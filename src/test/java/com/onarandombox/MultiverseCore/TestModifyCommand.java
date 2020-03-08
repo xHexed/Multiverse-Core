@@ -31,28 +31,28 @@ public class TestModifyCommand {
     CommandSender mockCommandSender;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         creator = new TestInstanceCreator();
         assertTrue(creator.setUp());
-        mockServer = creator.getServer();
+        mockServer        = creator.getServer();
         mockCommandSender = creator.getCommandSender();
-        core = creator.getCore();
+        core              = creator.getCore();
 
         // create world
         assertTrue(core.getMVWorldManager().addWorld("world", Environment.NORMAL, null, null, null, null));
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         creator.tearDown();
     }
 
     @Test
     public void testSetHidden() {
-        Command cmd = mock(Command.class);
+        final Command cmd = mock(Command.class);
         when(cmd.getName()).thenReturn("mv");
 
-        MultiverseWorld world = core.getMVWorldManager().getMVWorld("world");
+        final MultiverseWorld world = core.getMVWorldManager().getMVWorld("world");
         assertNotNull(world);
 
         assertFalse(world.isHidden()); // ensure it's not hidden now

@@ -31,7 +31,7 @@ public class InvalidDestination implements MVDestination {
      * {@inheritDoc}
      */
     @Override
-    public boolean isThisType(JavaPlugin plugin, String destination) {
+    public boolean isThisType(final JavaPlugin plugin, final String destination) {
         return false;
     }
 
@@ -39,7 +39,7 @@ public class InvalidDestination implements MVDestination {
      * {@inheritDoc}
      */
     @Override
-    public Location getLocation(Entity e) {
+    public Location getLocation(final Entity e) {
         return null;
     }
 
@@ -55,7 +55,7 @@ public class InvalidDestination implements MVDestination {
      * {@inheritDoc}
      */
     @Override
-    public void setDestination(JavaPlugin plugin, String destination) {
+    public void setDestination(final JavaPlugin plugin, final String destination) {
         // Nothing needed, it's invalid.
     }
 

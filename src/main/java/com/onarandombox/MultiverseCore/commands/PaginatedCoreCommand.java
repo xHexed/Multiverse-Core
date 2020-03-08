@@ -17,9 +17,9 @@ public abstract class PaginatedCoreCommand<T> extends PaginatedCommand<T> {
     /**
      * The reference to the core.
      */
-    protected MultiverseCore plugin;
+    protected final MultiverseCore plugin;
 
-    public PaginatedCoreCommand(MultiverseCore plugin) {
+    public PaginatedCoreCommand(final MultiverseCore plugin) {
         super(plugin);
         this.plugin = plugin;
     }

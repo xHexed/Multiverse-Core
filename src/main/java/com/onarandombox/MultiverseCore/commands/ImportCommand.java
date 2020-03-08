@@ -18,31 +18,32 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.PermissionDefault;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Imports a new world of the specified type.
  */
 public class ImportCommand extends MultiverseCommand {
-    private MVWorldManager worldManager;
+    private static final Pattern RELATIVE_PATHS = Pattern.compile("^[./\\\\]+");
+    private final MVWorldManager worldManager;
 
-    public ImportCommand(MultiverseCore plugin) {
+    public ImportCommand(final MultiverseCore plugin) {
         super(plugin);
-        this.setName("Import World");
-        this.setCommandUsage("/mv import" + ChatColor.GREEN + " {NAME} {ENV}" + ChatColor.GOLD + " -g [GENERATOR[:ID]] [-n]");
-        this.setArgRange(1, 5); // SUPPRESS CHECKSTYLE: MagicNumberCheck
-        this.addKey("mvimport");
-        this.addKey("mvim");
-        this.addKey("mv import");
-        this.addCommandExample("/mv import " + ChatColor.GOLD + "gargamel" + ChatColor.GREEN + " normal");
-        this.addCommandExample("/mv import " + ChatColor.GOLD + "hell_world" + ChatColor.GREEN + " nether");
-        this.addCommandExample("To import a world that uses a generator, you'll need the generator:");
-        this.addCommandExample("/mv import " + ChatColor.GOLD + "CleanRoom" + ChatColor.GREEN + " normal" + ChatColor.DARK_AQUA + " CleanRoomGenerator");
-        this.setPermission("multiverse.core.import", "Imports a new world of the specified type.", PermissionDefault.OP);
-        this.worldManager = this.plugin.getMVWorldManager();
+        setName("Import World");
+        setCommandUsage("/mv import" + ChatColor.GREEN + " {NAME} {ENV}" + ChatColor.GOLD + " -g [GENERATOR[:ID]] [-n]");
+        setArgRange(1, 5); // SUPPRESS CHECKSTYLE: MagicNumberCheck
+        addKey("mvimport");
+        addKey("mvim");
+        addKey("mv import");
+        addCommandExample("/mv import " + ChatColor.GOLD + "gargamel" + ChatColor.GREEN + " normal");
+        addCommandExample("/mv import " + ChatColor.GOLD + "hell_world" + ChatColor.GREEN + " nether");
+        addCommandExample("To import a world that uses a generator, you'll need the generator:");
+        addCommandExample("/mv import " + ChatColor.GOLD + "CleanRoom" + ChatColor.GREEN + " normal" + ChatColor.DARK_AQUA + " CleanRoomGenerator");
+        setPermission("multiverse.core.import", "Imports a new world of the specified type.", PermissionDefault.OP);
+        worldManager = this.plugin.getMVWorldManager();
     }
 
     /**
@@ -50,67 +51,59 @@ public class ImportCommand extends MultiverseCommand {
      * If it does, we can safely assume it's a world folder.
      *
      * @param worldFolder The File that may be a world.
+     *
      * @return True if it looks like a world, false if not.
      */
-    private static boolean checkIfIsWorld(File worldFolder) {
+    private static boolean checkIfIsWorld(final File worldFolder) {
         if (worldFolder.isDirectory()) {
-            File[] files = worldFolder.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File file, String name) {
-                    return name.toLowerCase().endsWith(".dat");
-                }
-            });
-            if (files != null && files.length > 0) {
-                return true;
-            }
+            final File[] files = worldFolder.listFiles((file, name) -> name.toLowerCase().endsWith(".dat"));
+            return files != null && files.length > 0;
         }
         return false;
     }
 
     private String getPotentialWorlds() {
-        File worldFolder = this.plugin.getServer().getWorldContainer();
-        if (worldFolder == null) {
-            return "";
-        }
-        File[] files = worldFolder.listFiles();
-        String worldList = "";
-        Collection<MultiverseWorld> worlds = this.worldManager.getMVWorlds();
-        List<String> worldStrings = new ArrayList<String>();
-        for (MultiverseWorld world : worlds) {
+        final File worldFolder = plugin.getServer().getWorldContainer();
+        final File[] files = worldFolder.listFiles();
+        final StringBuilder worldList = new StringBuilder();
+        final Collection<MultiverseWorld> worlds = worldManager.getMVWorlds();
+        final List<String> worldStrings = new ArrayList<>();
+        for (final MultiverseWorld world : worlds) {
             worldStrings.add(world.getName());
         }
-        for (String world : this.worldManager.getUnloadedWorlds()) {
-            worldStrings.add(world);
-        }
+        worldStrings.addAll(worldManager.getUnloadedWorlds());
         ChatColor currColor = ChatColor.WHITE;
-        for (File file : files) {
+        assert files != null;
+        for (final File file : files) {
             if (file.isDirectory() && checkIfIsWorld(file) && !worldStrings.contains(file.getName())) {
-                worldList += currColor + file.getName() + " ";
+                worldList.append(currColor).append(file.getName()).append(" ");
                 if (currColor == ChatColor.WHITE) {
                     currColor = ChatColor.YELLOW;
-                } else {
+                }
+                else {
                     currColor = ChatColor.WHITE;
                 }
             }
         }
-        return worldList;
+        return worldList.toString();
     }
-    
-    private String trimWorldName(String userInput) {
+
+    private String trimWorldName(final String userInput) {
         // Removes relative paths.
-        return userInput.replaceAll("^[./\\\\]+", "");
+        return RELATIVE_PATHS.matcher(userInput).replaceAll("");
     }
 
     @Override
-    public void runCommand(CommandSender sender, List<String> args) {
-        String worldName = trimWorldName(args.get(0));
+    public void runCommand(final CommandSender sender, final List<String> args) {
+        final String worldName = trimWorldName(args.get(0));
 
         if (worldName.toLowerCase().equals("--list") || worldName.toLowerCase().equals("-l")) {
-            String worldList = this.getPotentialWorlds();
+            final String worldList = getPotentialWorlds();
             if (worldList.length() > 2) {
                 sender.sendMessage(ChatColor.AQUA + "====[ These look like worlds ]====");
                 sender.sendMessage(worldList);
-            } else {
+            }
+            else {
                 sender.sendMessage(ChatColor.RED + "No potential worlds found. Sorry!");
             }
             return;
@@ -118,29 +111,30 @@ public class ImportCommand extends MultiverseCommand {
         // Since we made an exception for the list, we have to make sure they have at least 2 params:
         // Note the exception is --list, which is covered above.
         if (args.size() == 1 || worldName.length() < 1) {
-            this.showHelp(sender);
+            showHelp(sender);
             return;
         }
 
         // Make sure we don't already know about this world.
-        if (this.worldManager.isMVWorld(worldName)) {
+        if (worldManager.isMVWorld(worldName)) {
             sender.sendMessage(ChatColor.GREEN + "Multiverse" + ChatColor.WHITE
-                    + " already knows about '" + ChatColor.AQUA + worldName + ChatColor.WHITE + "'!");
+                                       + " already knows about '" + ChatColor.AQUA + worldName + ChatColor.WHITE + "'!");
             return;
         }
 
-        File worldFile = new File(this.plugin.getServer().getWorldContainer(), worldName);
+        final File worldFile = new File(plugin.getServer().getWorldContainer(), worldName);
 
-        String generator = CommandHandler.getFlag("-g", args);
+        final String generator = CommandHandler.getFlag("-g", args);
         boolean useSpawnAdjust = true;
-        for (String s : args) {
+        for (final String s : args) {
             if (s.equalsIgnoreCase("-n")) {
                 useSpawnAdjust = false;
+                break;
             }
         }
 
-        String env = args.get(1);
-        Environment environment = EnvironmentCommand.getEnvFromString(env);
+        final String env = args.get(1);
+        final Environment environment = EnvironmentCommand.getEnvFromString(env);
         if (environment == null) {
             sender.sendMessage(ChatColor.RED + "That is not a valid environment.");
             EnvironmentCommand.showEnvironments(sender);
@@ -149,7 +143,7 @@ public class ImportCommand extends MultiverseCommand {
 
         if (!worldFile.exists()) {
             sender.sendMessage(ChatColor.RED + "FAILED.");
-            String worldList = this.getPotentialWorlds();
+            final String worldList = getPotentialWorlds();
             sender.sendMessage("That world folder does not exist. These look like worlds to me:");
             sender.sendMessage(worldList);
         } else if (!checkIfIsWorld(worldFile)) {
@@ -162,7 +156,7 @@ public class ImportCommand extends MultiverseCommand {
             sender.sendMessage("For a list of available world types, type: " + ChatColor.AQUA + "/mvenv");
         } else {
             Command.broadcastCommandMessage(sender, String.format("Starting import of world '%s'...", worldName));
-            if (this.worldManager.addWorld(worldName, environment, null, null, null, generator, useSpawnAdjust))
+            if (worldManager.addWorld(worldName, environment, null, null, null, generator, useSpawnAdjust))
                 Command.broadcastCommandMessage(sender, ChatColor.GREEN + "Complete!");
             else
                 Command.broadcastCommandMessage(sender, ChatColor.RED + "Failed!");

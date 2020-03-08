@@ -16,12 +16,13 @@ import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * A cannon-{@link MVDestination}.
  */
 public class CannonDestination implements MVDestination {
-    private final String coordRegex = "(-?[\\d]+\\.?[\\d]*),(-?[\\d]+\\.?[\\d]*),(-?[\\d]+\\.?[\\d]*)";
+    private static final Pattern COORD = Pattern.compile("(-?[\\d]+\\.?[\\d]*),(-?[\\d]+\\.?[\\d]*),(-?[\\d]+\\.?[\\d]*)");
     private boolean isValid;
     private Location location;
     private double speed;
@@ -31,10 +32,10 @@ public class CannonDestination implements MVDestination {
      */
     @Override
     public Vector getVelocity() {
-        double pitchRadians = Math.toRadians(location.getPitch());
-        double yawRadians = Math.toRadians(location.getYaw());
+        final double pitchRadians = Math.toRadians(location.getPitch());
+        final double yawRadians = Math.toRadians(location.getYaw());
         double x = Math.sin(yawRadians) * speed * -1;
-        double y = Math.sin(pitchRadians) * speed * -1;
+        final double y = Math.sin(pitchRadians) * speed * -1;
         double z = Math.cos(yawRadians) * speed;
         // Account for the angle they were pointed, and take away velocity
         x = Math.cos(pitchRadians) * x;
@@ -58,11 +59,11 @@ public class CannonDestination implements MVDestination {
      * {@inheritDoc}
      */
     @Override
-    public boolean isThisType(JavaPlugin plugin, String destination) {
+    public boolean isThisType(final JavaPlugin plugin, final String destination) {
         if (!(plugin instanceof MultiverseCore)) {
             return false;
         }
-        List<String> parsed = Arrays.asList(destination.split(":"));
+        final List<String> parsed = Arrays.asList(destination.split(":"));
         if (parsed.size() != SPLIT_SIZE) {
             return false;
         }
@@ -76,7 +77,7 @@ public class CannonDestination implements MVDestination {
             return false;
         }
         // Verify X,Y,Z are numbers
-        if (!parsed.get(2).matches(coordRegex)) {
+        if (!COORD.matcher(parsed.get(2)).matches()) {
             return false;
         }
 
@@ -86,7 +87,8 @@ public class CannonDestination implements MVDestination {
             Float.parseFloat(parsed.get(4));
             Float.parseFloat(parsed.get(5));
             // END CHECKSTYLE-SUPPRESSION: MagicNumberCheck
-        } catch (NumberFormatException e) {
+        }
+        catch (final NumberFormatException e) {
             return false;
         }
         return true;
@@ -96,8 +98,8 @@ public class CannonDestination implements MVDestination {
      * {@inheritDoc}
      */
     @Override
-    public Location getLocation(Entity e) {
-        return this.location;
+    public Location getLocation(final Entity e) {
+        return location;
     }
 
     /**
@@ -105,65 +107,67 @@ public class CannonDestination implements MVDestination {
      */
     @Override
     public boolean isValid() {
-        return this.isValid;
+        return isValid;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void setDestination(JavaPlugin plugin, String destination) {
+    public void setDestination(final JavaPlugin plugin, final String destination) {
         if (!(plugin instanceof MultiverseCore)) {
             return;
         }
-        List<String> parsed = Arrays.asList(destination.split(":"));
+        final List<String> parsed = Arrays.asList(destination.split(":"));
 
         if (parsed.size() != SPLIT_SIZE) {
-            this.isValid = false;
+            isValid = false;
             return;
         }
-        if (!parsed.get(0).equalsIgnoreCase(this.getIdentifier())) {
-            this.isValid = false;
+        if (!parsed.get(0).equalsIgnoreCase(getIdentifier())) {
+            isValid = false;
             return;
         }
 
         if (!((MultiverseCore) plugin).getMVWorldManager().isMVWorld(parsed.get(1))) {
-            this.isValid = false;
+            isValid = false;
             return;
         }
 
-        this.location = new Location(((MultiverseCore) plugin).getMVWorldManager().getMVWorld(parsed.get(1)).getCBWorld(), 0, 0, 0);
+        location = new Location(((MultiverseCore) plugin).getMVWorldManager().getMVWorld(parsed.get(1)).getCBWorld(), 0, 0, 0);
 
-        if (!parsed.get(2).matches(this.coordRegex)) {
-            this.isValid = false;
+        if (!COORD.matcher(parsed.get(2)).matches()) {
+            isValid = false;
             return;
         }
-        double[] coords = new double[3];
-        String[] coordString = parsed.get(2).split(",");
+        final double[] coords = new double[3];
+        final String[] coordString = parsed.get(2).split(",");
         for (int i = 0; i < 3; i++) {
             try {
                 coords[i] = Double.parseDouble(coordString[i]);
-            } catch (NumberFormatException e) {
-                this.isValid = false;
+            }
+            catch (final NumberFormatException e) {
+                isValid = false;
                 return;
             }
         }
-        this.location.setX(coords[0]);
-        this.location.setY(coords[1]);
-        this.location.setZ(coords[2]);
+        location.setX(coords[0]);
+        location.setY(coords[1]);
+        location.setZ(coords[2]);
 
         try {
             // BEGIN CHECKSTYLE-SUPPRESSION: MagicNumberCheck
-            this.location.setPitch(Float.parseFloat(parsed.get(3)));
-            this.location.setYaw(Float.parseFloat(parsed.get(4)));
-            this.speed = Math.abs(Float.parseFloat(parsed.get(5)));
+            location.setPitch(Float.parseFloat(parsed.get(3)));
+            location.setYaw(Float.parseFloat(parsed.get(4)));
+            speed = Math.abs(Float.parseFloat(parsed.get(5)));
             // END CHECKSTYLE-SUPPRESSION: MagicNumberCheck
-        } catch (NumberFormatException e) {
-            this.isValid = false;
+        }
+        catch (final NumberFormatException e) {
+            isValid = false;
             return;
         }
 
-        this.isValid = true;
+        isValid = true;
 
     }
 
@@ -180,8 +184,8 @@ public class CannonDestination implements MVDestination {
      */
     @Override
     public String getName() {
-        return "Cannon (" + this.location.getX() + ", " + this.location.getY() + ", " + this.location.getZ() + ":"
-                + this.location.getPitch() + ":" + this.location.getYaw() + ":" + this.speed + ")";
+        return "Cannon (" + location.getX() + ", " + location.getY() + ", " + location.getZ() + ":"
+                + location.getPitch() + ":" + location.getYaw() + ":" + speed + ")";
 
     }
 
@@ -189,15 +193,15 @@ public class CannonDestination implements MVDestination {
      * Sets this {@link CannonDestination}.
      *
      * @param location The {@link Location}.
-     * @param speed The speed.
+     * @param speed    The speed.
      */
-    public void setDestination(Location location, double speed) {
+    public void setDestination(final Location location, final double speed) {
         if (location != null) {
             this.location = location;
-            this.speed = Math.abs(speed);
-            this.isValid = true;
+            this.speed    = Math.abs(speed);
+            isValid       = true;
         }
-        this.isValid = false;
+        isValid = false;
     }
 
     /**
@@ -205,7 +209,7 @@ public class CannonDestination implements MVDestination {
      */
     @Override
     public String getRequiredPermission() {
-        return "multiverse.access." + this.location.getWorld().getName();
+        return "multiverse.access." + location.getWorld().getName();
     }
 
     /**
@@ -220,7 +224,7 @@ public class CannonDestination implements MVDestination {
     public String toString() {
         if (isValid) {
             return "ca:" + location.getWorld().getName() + ":" + location.getX() + "," + location.getY()
-                    + "," + location.getZ() + ":" + location.getPitch() + ":" + location.getYaw() + ":" + this.speed;
+                    + "," + location.getZ() + ":" + location.getPitch() + ":" + location.getYaw() + ":" + speed;
         }
         return "i:Invalid Destination";
     }

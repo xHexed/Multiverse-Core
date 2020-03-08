@@ -14,11 +14,11 @@ import com.onarandombox.MultiverseCore.api.FancyText;
  */
 public class FancyHeader implements FancyText {
 
-    private FancyColorScheme colors;
-    private StringBuilder text;
+    private final FancyColorScheme colors;
+    private final StringBuilder text;
 
-    public FancyHeader(String text, FancyColorScheme scheme) {
-        this.colors = scheme;
+    public FancyHeader(final String text, final FancyColorScheme scheme) {
+        colors    = scheme;
         this.text = new StringBuilder(text);
     }
 
@@ -29,10 +29,11 @@ public class FancyHeader implements FancyText {
 
     /**
      * Appends text to this {@link FancyHeader}.
+     *
      * @param string The text to append.
      */
-    public void appendText(String string) {
-        this.text.append(string);
+    public void appendText(final String string) {
+        text.append(string);
     }
 
 }

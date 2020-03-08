@@ -13,8 +13,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -29,7 +27,7 @@ import java.util.logging.Logger;
 @Deprecated
 public class DebugLog extends Logger {
     private FileHandler fh;
-    private Logger standardLog = null;
+    private Logger standardLog;
     private String prefix = "[MVCore-Debug] ";
 
     /**
@@ -38,31 +36,31 @@ public class DebugLog extends Logger {
      * @param logger The name of the logger.
      * @param file   The file to log to.
      */
-    public DebugLog(String logger, String file) {
+    public DebugLog(final String logger, final String file) {
         super(logger, null);
         try {
-            this.fh = new FileHandler(file, true);
-            this.setUseParentHandlers(false);
-            List<Handler> toRemove = Arrays.asList(this.getHandlers());
-            for (Handler handler : toRemove) {
-                this.removeHandler(handler);
+            fh = new FileHandler(file, true);
+            setUseParentHandlers(false);
+            final Handler[] toRemove = getHandlers();
+            for (final Handler handler : toRemove) {
+                removeHandler(handler);
             }
-            this.addHandler(this.fh);
-            this.setLevel(Level.ALL);
-            this.fh.setFormatter(new LogFormatter());
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+            addHandler(fh);
+            setLevel(Level.ALL);
+            fh.setFormatter(new LogFormatter());
+        }
+        catch (final SecurityException | IOException e) {
             e.printStackTrace();
         }
     }
 
     /**
      * Sets the log-tag.
+     *
      * @param tag The new tag.
      */
-    public void setTag(String tag) {
-        this.prefix = tag + " ";
+    public void setTag(final String tag) {
+        prefix = tag + " ";
     }
 
     /**
@@ -70,8 +68,8 @@ public class DebugLog extends Logger {
      *
      * @param logger Logger to send debug messages to.
      */
-    public void setStandardLogger(Logger logger) {
-        this.standardLog = logger;
+    public void setStandardLogger(final Logger logger) {
+        standardLog = logger;
     }
 
     /**
@@ -93,17 +91,24 @@ public class DebugLog extends Logger {
     }
 
     /**
+     * Closes this {@link DebugLog}.
+     */
+    public void close() {
+        fh.close();
+    }
+
+    /**
      * Our log-{@link Formatter}.
      */
-    private class LogFormatter extends Formatter {
+    private static class LogFormatter extends Formatter {
         private final SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         @Override
-        public String format(LogRecord record) {
-            StringBuilder builder = new StringBuilder();
-            Throwable ex = record.getThrown();
+        public String format(final LogRecord record) {
+            final StringBuilder builder = new StringBuilder();
+            final Throwable ex = record.getThrown();
 
-            builder.append(this.date.format(record.getMillis()));
+            builder.append(date.format(record.getMillis()));
             builder.append(" [");
             builder.append(record.getLevel().getLocalizedName().toUpperCase());
             builder.append("] ");
@@ -111,19 +116,12 @@ public class DebugLog extends Logger {
             builder.append('\n');
 
             if (ex != null) {
-                StringWriter writer = new StringWriter();
+                final StringWriter writer = new StringWriter();
                 ex.printStackTrace(new PrintWriter(writer));
                 builder.append(writer);
             }
 
             return builder.toString();
         }
-    }
-
-    /**
-     * Closes this {@link DebugLog}.
-     */
-    public void close() {
-        this.fh.close();
     }
 }

@@ -9,6 +9,7 @@ package com.onarandombox.MultiverseCore.event;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -16,9 +17,9 @@ import java.util.List;
  * Called when the Multiverse-config should be reloaded.
  */
 public class MVConfigReloadEvent extends Event {
-    private List<String> configsLoaded;
+    private final List<String> configsLoaded;
 
-    public MVConfigReloadEvent(List<String> configsLoaded) {
+    public MVConfigReloadEvent(final List<String> configsLoaded) {
         this.configsLoaded = configsLoaded;
     }
 
@@ -27,6 +28,7 @@ public class MVConfigReloadEvent extends Event {
     /**
      * {@inheritDoc}
      */
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS;
@@ -42,10 +44,11 @@ public class MVConfigReloadEvent extends Event {
 
     /**
      * Adds a config to this event.
+     *
      * @param config The config to add.
      */
-    public void addConfig(String config) {
-        this.configsLoaded.add(config);
+    public void addConfig(final String config) {
+        configsLoaded.add(config);
     }
 
     /**
@@ -53,6 +56,6 @@ public class MVConfigReloadEvent extends Event {
      * @return A list of all loaded configs.
      */
     public List<String> getAllConfigsLoaded() {
-        return this.configsLoaded;
+        return configsLoaded;
     }
 }

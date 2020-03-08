@@ -21,7 +21,7 @@ public class SpawnSettings extends SerializationConfig {
         super();
     }
 
-    public SpawnSettings(Map<String, Object> values) {
+    public SpawnSettings(final Map<String, Object> values) {
         super(values);
     }
 
