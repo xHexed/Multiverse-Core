@@ -443,11 +443,6 @@ public class MultiverseCore extends JavaPlugin implements MVPlugin, Core {
      * they should be migrated to the new format.
      */
     private void migrate22Values() {
-        if (multiverseConfig.isSet("worldnameprefix")) {
-            Logging.config("Migrating 'worldnameprefix'...");
-            getMVConfig().setPrefixChat(multiverseConfig.getBoolean("worldnameprefix"));
-            multiverseConfig.set("worldnameprefix", null);
-        }
         if (multiverseConfig.isSet("firstspawnworld")) {
             Logging.config("Migrating 'firstspawnworld'...");
             getMVConfig().setFirstSpawnWorld(multiverseConfig.getString("firstspawnworld"));

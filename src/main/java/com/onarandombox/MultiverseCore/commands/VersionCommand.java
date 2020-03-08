@@ -88,8 +88,6 @@ public class VersionCommand extends MultiverseCommand {
                 plugin.getMVConfig().getVersion() + ")" + '\n' +
                 "[Multiverse-Core]  messagecooldown: " + plugin.getMessaging().getCooldown() + '\n' +
                 "[Multiverse-Core]  teleportcooldown: " + plugin.getMVConfig().getTeleportCooldown() + '\n' +
-                "[Multiverse-Core]  worldnameprefix: " + plugin.getMVConfig().getPrefixChat() + '\n' +
-                "[Multiverse-Core]  worldnameprefixFormat: " + plugin.getMVConfig().getPrefixChatFormat() + '\n' +
                 "[Multiverse-Core]  enforceaccess: " + plugin.getMVConfig().getEnforceAccess() + '\n' +
                 "[Multiverse-Core]  displaypermerrors: " + plugin.getMVConfig().getDisplayPermErrors() + '\n' +
                 "[Multiverse-Core]  teleportintercept: " + plugin.getMVConfig().getTeleportIntercept() + '\n' +
@@ -118,8 +116,6 @@ public class VersionCommand extends MultiverseCommand {
                 "| version | `" + plugin.getMVConfig().getVersion() + "` |\n" +
                 "| messagecooldown | `" + plugin.getMessaging().getCooldown() + "` |\n" +
                 "| teleportcooldown | `" + plugin.getMVConfig().getTeleportCooldown() + "` |\n" +
-                "| worldnameprefix | `" + plugin.getMVConfig().getPrefixChat() + "` |\n" +
-                "| worldnameprefixFormat | `" + plugin.getMVConfig().getPrefixChatFormat() + "` |\n" +
                 "| enforceaccess | `" + plugin.getMVConfig().getEnforceAccess() + "` |\n" +
                 "| displaypermerrors | `" + plugin.getMVConfig().getDisplayPermErrors() + "` |\n" +
                 "| teleportintercept | `" + plugin.getMVConfig().getTeleportIntercept() + "` |\n" +

@@ -111,30 +111,6 @@ public interface MultiverseCoreConfig extends ConfigurationSerializable {
     boolean getTeleportIntercept();
 
     /**
-     * Sets prefixChat.
-     * @param prefixChat The new value.
-     */
-    void setPrefixChat(boolean prefixChat);
-
-    /**
-     * Gets prefixChat.
-     * @return prefixChat.
-     */
-    boolean getPrefixChat();
-    
-    /**
-     * Sets prefixChatFormat.
-     * @param prefixChatFormat The new value.
-     */
-    void setPrefixChatFormat(String prefixChatFormat);
-
-    /**
-     * Gets prefixChatFormat.
-     * @return prefixChatFormat.
-     */
-    String getPrefixChatFormat();
-
-    /**
      * Sets enforceAccess.
      * @param enforceAccess The new value.
      */
@@ -145,18 +121,6 @@ public interface MultiverseCoreConfig extends ConfigurationSerializable {
      * @return enforceAccess.
      */
     boolean getEnforceAccess();
-
-    /**
-     * Sets useasyncchat.
-     * @param useAsyncChat The new value.
-     */
-    void setUseAsyncChat(boolean useAsyncChat);
-
-    /**
-     * Gets useasyncchat.
-     * @return useasyncchat.
-     */
-    boolean getUseAsyncChat();
 
     /**
      * Sets whether to suppress startup messages.

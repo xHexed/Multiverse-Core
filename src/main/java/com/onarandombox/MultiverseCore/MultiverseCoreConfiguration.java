@@ -41,12 +41,6 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
     @Property
     private volatile boolean enforceaccess;
     @Property
-    private volatile boolean prefixchat;
-    @Property
-    private volatile String prefixchatformat;
-    @Property
-    private volatile boolean useasyncchat;
-    @Property
     private volatile boolean teleportintercept;
     @Property
     private volatile boolean firstspawnoverride;
@@ -138,38 +132,6 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
     @Override
     public void setEnforceAccess(final boolean enforceAccess) {
         enforceaccess = enforceAccess;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean getPrefixChat() {
-        return prefixchat;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setPrefixChat(final boolean prefixChat) {
-        prefixchat = prefixChat;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getPrefixChatFormat() {
-        return prefixchatformat;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setPrefixChatFormat(final String prefixChatFormat) {
-        prefixchatformat = prefixChatFormat;
     }
 
     /**
@@ -300,16 +262,6 @@ public class MultiverseCoreConfiguration extends SerializationConfig implements 
     @Override
     public void setTeleportCooldown(final int teleportCooldown) {
         teleportcooldown = teleportCooldown;
-    }
-
-    @Override
-    public boolean getUseAsyncChat() {
-        return useasyncchat;
-    }
-
-    @Override
-    public void setUseAsyncChat(final boolean useAsyncChat) {
-        useasyncchat = useAsyncChat;
     }
 
     @Override
